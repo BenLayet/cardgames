@@ -1,10 +1,12 @@
-import { configureSofterStore } from "@softer-components/redux-adapter";
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import { Provider } from "react-redux";
+import {configureSofterStore} from "@softer-components/redux-adapter";
+import {StrictMode} from "react";
+import {createRoot} from "react-dom/client";
+import {Provider} from "react-redux";
 
-import { App, appDef } from "./components/app";
-import "./index.css";
+import {appDef} from "./components/app";
+import "./style/style.css";
+import "./i18n";
+import AppShell from "./AppShell.tsx";
 
 export const store = configureSofterStore(appDef());
 const container = document.getElementById("root");
@@ -15,7 +17,7 @@ if (container) {
     root.render(
         <StrictMode>
             <Provider store={store}>
-                <App />
+                <AppShell/>
             </Provider>
         </StrictMode>,
     );

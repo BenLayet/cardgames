@@ -1,0 +1,14 @@
+import type {ChildrenConfig} from "@softer-components/types";
+
+import type {Contract} from "./battle.component.contract";
+
+export const childrenConfig: ChildrenConfig<Contract> = {
+  game: {
+    commands: [
+      {
+        from: "startGameRequested",
+        to: "dealRequested",
+      },
+    ],
+  },
+};

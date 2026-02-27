@@ -1,5 +1,5 @@
-type Page = "GAME";
 export const initialState = {
-  page: "GAME" as Page,
-};
+    isStarted: false,
+}
+
 export type State = typeof initialState;
