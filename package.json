@@ -10,6 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@softer-components/redux-adapter": "^0.7.0",
+    "@softer-components/types": "^0.7.0",
+    "@softer-components/utils": "^0.7.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-redux": "^9.2.0"
