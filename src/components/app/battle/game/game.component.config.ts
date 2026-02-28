@@ -6,6 +6,7 @@ import {eventForwarders} from "./game.component.forwarders.ts";
 import {selectors} from "./game.component.selectors.ts";
 import {type State, initialState} from "./game.component.state.ts";
 import {stateUpdaters} from "./game.component.updaters.ts";
+import {effects} from "./game.component.effects.ts";
 
 export const componentDef = (): ComponentDef<Contract, State> => {
     return {
@@ -14,7 +15,6 @@ export const componentDef = (): ComponentDef<Contract, State> => {
         uiEvents,
         stateUpdaters,
         eventForwarders,
-        childrenComponentDefs: {},
-        initialChildren: {}
+        effects
     };
 };

@@ -1,9 +1,17 @@
 import type {Card } from "../../model/deck.model.ts";
 
+const getCardImage = (card: Card) => {
+    return new URL(`../../assets/cards/${card}.svg`, import.meta.url).href;
+};
+
+const getCardBackImage = () => {
+    return new URL(`../../assets/cards/2B.svg`, import.meta.url).href;
+};
+
 export const CardView = ({card="1S" as Card, up = true}) => {
     return (
         <div>
-            <img src={up ? `/cards/${card}.svg` : "/cards/2B.svg"} alt={`card ${card}`} height={200}/>
+            <img src={up ? getCardImage(card) : getCardBackImage()} alt={`card ${card}`} height={200}/>
         </div>
     )
 };
