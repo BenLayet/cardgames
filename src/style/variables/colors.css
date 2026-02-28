@@ -9,6 +9,9 @@
   --bs-link-hover-color-rgb: 255, 255, 255;
   --bs-link-hover-color: #ffffff;
   --bs-link-color: var(--bs-primary);
+  --text-color: #fffee8;
+  --text-color-secondary: #cccccc;
+  --text-color-muted: #999999;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale; /* Global radius scale (smaller than Bootstrap defaults) */
@@ -30,6 +33,22 @@
     var(--bs-link-hover-color),
     var(--bs-link-underline-opacity, 1)
   ) !important;
+}
+
+body {
+  color: var(--text-color);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-color);
+}
+
+.text-secondary {
+  color: var(--text-color-secondary) !important;
+}
+
+.text-muted {
+  color: var(--text-color-muted) !important;
 }
 .btn-primary {
     --bs-btn-color: #fff;

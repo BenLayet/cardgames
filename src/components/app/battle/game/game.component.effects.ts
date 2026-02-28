@@ -9,4 +9,14 @@ export const effects: Effects<Contract> = {
         const player2Cards = shuffledDeck.slice(DECK.length / 2, DECK.length);
         dealCompleted({player1Cards, player2Cards});
     },
+    player1Clicked:({player2Clicked}) => {
+        // auto click player 2 after a short delay to give the impression that player 2 is playing in response to player 1
+        setTimeout(player2Clicked, 100)
+    },
+    cardsPlaced:({cardsAcknowledgmentStarted}) => {
+        setTimeout(cardsAcknowledgmentStarted, 1000)
+    },
+    cardsAcknowledgmentStarted:({cardsAcknowledgmentCompleted}) => {
+        setTimeout(cardsAcknowledgmentCompleted, 1000)
+    }
 }

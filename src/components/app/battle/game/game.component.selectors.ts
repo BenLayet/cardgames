@@ -1,28 +1,32 @@
-import type {
-    ExtractComponentValuesContract,
-    Selectors,
-} from "@softer-components/types";
+import type {ExtractComponentValuesContract, Selectors,} from "@softer-components/types";
 import {createBaseSelectors} from "@softer-components/utils";
 
-import {type State, initialState, type PlayerState} from "./game.component.state.ts";
-import {isFirstCardHigherValue} from "../../../../model/deck.model.ts";
+import {initialState, type PlayerState, type State} from "./game.component.state.ts";
+import {type Card, isFirstCardHigherValue} from "../../../../model/deck.model.ts";
 import {flow} from "lodash";
 
 
 const player1 = (state: State) => state.player1;
 const player2 = (state: State) => state.player2;
 const remainingCards = (player: PlayerState) => player.remainingCards;
-const beingPlayedCard = (player: PlayerState) => player.beingPlayedCard;
+const beingPlayedCards = (player: PlayerState) => player.beingPlayedCards;
+const lastCard = (cards: Card[]) => cards[cards.length - 1];
 const wonCards = (player: PlayerState) => player.wonCards;
-const cardRevealed = (player: PlayerState) => player.cardRevealed;
-
+const cardsBeingPlayedUpStates = (player: PlayerState) => player.beingPlayedCardsUpStates;
+const shouldHiddenCardBeGiven = (cardsBeingPlayed:Card[]) => cardsBeingPlayed.length %2 === 1;
 
 const player1Cards = flow(player1, remainingCards);
 const player2Cards = flow(player2, remainingCards);
 
-const player1BeingPlayedCard = flow(player1, beingPlayedCard);
-const player2BeingPlayedCard = flow(player2, beingPlayedCard);
+const player1BeingPlayedCards = flow(player1, beingPlayedCards);
+const player2BeingPlayedCards = flow(player2, beingPlayedCards);
+const player1BeingPlayedCard = flow(player1BeingPlayedCards, lastCard);
+const player2BeingPlayedCard = flow(player2BeingPlayedCards, lastCard);
+const shouldPlayer1GiveHiddenCard = flow(player1BeingPlayedCards, shouldHiddenCardBeGiven);
+const shouldPlayer2GiveHiddenCard = flow(player2BeingPlayedCards, shouldHiddenCardBeGiven);
 
+const player1BeingPlayedUpStates = flow(player1, cardsBeingPlayedUpStates);
+const player2BeingPlayedUpStates =  flow(player2, cardsBeingPlayedUpStates);
 const hasPlayer1WonRound = (state: State) =>
     isFirstCardHigherValue(player1BeingPlayedCard(state), player2BeingPlayedCard(state));
 const hasPlayer2WonRound = (state: State) =>
@@ -30,20 +34,22 @@ const hasPlayer2WonRound = (state: State) =>
 
 const player1WonCards = flow(player1, wonCards);
 const player2WonCards = flow(player2, wonCards);
-const player1CardRevealed = flow(player1, cardRevealed);
-const player2CardRevealed = flow(player2, cardRevealed);
 
 export const selectors = {
     ...createBaseSelectors(initialState),
     player1Cards,
     player2Cards,
+    player1BeingPlayedCards,
+    player1BeingPlayedUpStates,
+    player2BeingPlayedCards,
+    player2BeingPlayedUpStates,
     player1BeingPlayedCard,
     player2BeingPlayedCard,
     hasPlayer1WonRound,
     hasPlayer2WonRound,
     player1WonCards,
     player2WonCards,
-    player1CardRevealed,
-    player2CardRevealed,
+    shouldPlayer1GiveHiddenCard,
+    shouldPlayer2GiveHiddenCard,
 } satisfies Selectors<State>;
 export type Values = ExtractComponentValuesContract<typeof selectors>;

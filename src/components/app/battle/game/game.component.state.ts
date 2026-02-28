@@ -3,8 +3,8 @@ import type {Card} from "../../../../model/deck.model.ts";
 export const initialPlayerState = {
     remainingCards: [] as Card[],
     wonCards: [] as Card[],
-    beingPlayedCard: undefined as Card | undefined,
-    cardRevealed: false,
+    beingPlayedCards: [] as Card[],
+    beingPlayedCardsUpStates: [] as boolean[],
 };
 
 export const initialState = {

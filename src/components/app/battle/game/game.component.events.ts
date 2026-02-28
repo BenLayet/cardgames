@@ -6,12 +6,20 @@ export type EventNames =
     | "dealRequested"
     | "dealCompleted"
     | "cardsPlaced"
-    | "moveCompleted"
+    | "cardsAcknowledgmentStarted"
+    | "cardsAcknowledgmentCompleted"
+    | "checkWinnerRequested"
+    | "tieOccurred"
     | "player1WonRound"
     | "player2WonRound"
+    | "roundCompleted"
+    | "player1Clicked"
+    | "player2Clicked"
+    | "player1PlacedHiddenCard"
+    | "player2PlacedHiddenCard"
     | "player1Played"
     | "player2Played";
-export const uiEvents: EventNames[] = ["player1Played", "player2Played"];
+export const uiEvents: EventNames[] = ["player1Clicked"];
 
 export type Events = EventsContract<
     EventNames, { dealCompleted: { player1Cards: Card[], player2Cards: Card[] } }, typeof uiEvents
