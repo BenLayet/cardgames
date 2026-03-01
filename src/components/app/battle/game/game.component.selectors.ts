@@ -34,6 +34,10 @@ const hasPlayer2WonRound = (state: State) =>
 const player1WonCards = flow(player1, wonCards);
 const player2WonCards = flow(player2, wonCards);
 
+const isStackEmpty = (cards: Card[]) => cards.length === 0;
+const shouldPlayer1PutCardsBackInHand = flow(player1RemainingCards, isStackEmpty);
+const shouldPlayer2PutCardsBackInHand = flow(player2RemainingCards, isStackEmpty);
+
 const cardLocation = (state: State) =>
     (card: Card): CardLocation => {
         if (player1BeingPlayedCards(state).includes(card)) {
@@ -88,6 +92,8 @@ export const selectors = {
     hasPlayer2WonRound,
     shouldPlayer1GiveHiddenCard,
     shouldPlayer2GiveHiddenCard,
-    cardsWithLocation
+    cardsWithLocation,
+    shouldPlayer1PutCardsBackInHand,
+    shouldPlayer2PutCardsBackInHand,
 } satisfies Selectors<State>;
 export type Values = ExtractComponentValuesContract<typeof selectors>;

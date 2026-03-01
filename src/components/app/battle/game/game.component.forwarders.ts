@@ -30,4 +30,6 @@ export const eventForwarders: InternalEventForwarders<Contract> = [
     },
     {from: "player1WonRound", to: "roundCompleted"},
     {from: "player2WonRound", to: "roundCompleted"},
+    {from: "player1Played", to:"player1WonCardsBackInHand", onCondition: ({values}) => values.shouldPlayer1PutCardsBackInHand()},
+    {from: "player2Played", to:"player2WonCardsBackInHand", onCondition: ({values}) => values.shouldPlayer2PutCardsBackInHand()},
 ];

@@ -18,7 +18,9 @@ export type EventNames =
     | "player1PlacedHiddenCard"
     | "player2PlacedHiddenCard"
     | "player1Played"
-    | "player2Played";
+    | "player2Played"
+    | "player1WonCardsBackInHand"
+    | "player2WonCardsBackInHand";
 export const uiEvents: EventNames[] = ["player1Clicked"];
 
 export type Events = EventsContract<

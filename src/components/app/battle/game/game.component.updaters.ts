@@ -49,4 +49,12 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
         state.player2.beingPlayedCards = [];
         state.player2.beingPlayedCardsUpStates = [];
     },
+    player1WonCardsBackInHand: ({state}) => {
+        state.player1.remainingCards = [...state.player1.remainingCards, ...state.player1.wonCards];
+        state.player1.wonCards = [];
+    },
+    player2WonCardsBackInHand: ({state}) => {
+        state.player2.remainingCards = [...state.player2.remainingCards, ...state.player2.wonCards];
+        state.player2.wonCards = [];
+    },
 };
