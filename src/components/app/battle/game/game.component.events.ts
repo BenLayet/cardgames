@@ -3,11 +3,16 @@ import type {Card} from "../../../../model/deck.model.ts";
 
 
 export type EventNames =
+    | "gameStarted"
+    | "gameEnded"
     | "dealRequested"
     | "dealCompleted"
+    | "readyForNextCards"
     | "bothPlayersPlayed"
-    | "cardsAcknowledgmentStarted"
-    | "cardsAcknowledgmentCompleted"
+    | "suspenseStarted"
+    | "suspenseCompleted"
+    | "reviewWinnerStarted"
+    | "reviewWinnerCompleted"
     | "checkWinnerRequested"
     | "tieOccurred"
     | "player1WonRound"
@@ -15,15 +20,12 @@ export type EventNames =
     | "roundCompleted"
     | "player1Clicked"
     | "player2Clicked"
-    | "player1PlacedHiddenCard"
-    | "player2PlacedHiddenCard"
     | "player1Played"
     | "player2Played"
-    | "player1WonCardsBackInHand"
-    | "player2WonCardsBackInHand"
+    | "player1RestackedRemainingCards"
+    | "player2RestackedRemainingCards"
     | "player1WonGame"
     | "player2WonGame"
-    | "gameEnded"
     | "playAgainRequested";
 export const uiEvents= ["player1Clicked", "playAgainRequested"] as const satisfies readonly EventNames[];
 

@@ -4,15 +4,16 @@ import type {Contract} from "./app.component.contract";
 import {uiEvents} from "./app.component.events";
 import {selectors} from "./app.component.selectors";
 import {type State, initialState} from "./app.component.state";
-import {battleDef} from "./battle";
+import {battleDef, type BattleDependencies} from "./battle";
 
-export const componentDef = (): ComponentDef<Contract, State> => {
+export type Dependencies = BattleDependencies;
+export const componentDef = (dependencies:Dependencies): ComponentDef<Contract, State> => {
     return {
         initialState,
         selectors,
         uiEvents,
         childrenComponentDefs: {
-            battle: battleDef()
+            battle: battleDef(dependencies)
         },
     };
 };

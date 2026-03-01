@@ -7,8 +7,9 @@ import {appDef} from "./components/app";
 import "./style/style.css";
 import "./i18n";
 import AppShell from "./AppShell.tsx";
+import {configuration} from "./configuration.tsx";
 
-export const store = configureSofterStore(appDef());
+export const store = configureSofterStore(appDef(configuration));
 const container = document.getElementById("root");
 
 if (container) {

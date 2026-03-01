@@ -6,9 +6,10 @@ import {childrenConfig} from "./battle.component.forwarders";
 import {selectors} from "./battle.component.selectors";
 import {type State, initialState} from "./battle.component.state";
 import {stateUpdaters} from "./battle.component.updaters";
-import {gameDef} from "./game";
+import {gameDef, type GameDependencies} from "./game";
 
-export const componentDef = (): ComponentDef<Contract, State> => {
+export type  Dependencies = GameDependencies;
+export const componentDef = (dependencies: Dependencies): ComponentDef<Contract, State> => {
     return {
         initialState,
         selectors,
@@ -16,7 +17,7 @@ export const componentDef = (): ComponentDef<Contract, State> => {
         stateUpdaters,
         childrenConfig,
         childrenComponentDefs: {
-            game: gameDef()
+            game: gameDef(dependencies)
         },
     };
 };

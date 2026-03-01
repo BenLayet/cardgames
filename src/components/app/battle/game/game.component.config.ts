@@ -6,15 +6,15 @@ import {eventForwarders} from "./game.component.forwarders.ts";
 import {selectors} from "./game.component.selectors.ts";
 import {type State, initialState} from "./game.component.state.ts";
 import {stateUpdaters} from "./game.component.updaters.ts";
-import {effects} from "./game.component.effects.ts";
+import {type Dependencies, effects} from "./game.component.effects.ts";
 
-export const componentDef = (): ComponentDef<Contract, State> => {
+export const componentDef = (dependencies:Dependencies): ComponentDef<Contract, State> => {
     return {
         initialState,
         selectors,
         uiEvents,
         stateUpdaters,
         eventForwarders,
-        effects
+        effects: effects(dependencies)
     };
 };

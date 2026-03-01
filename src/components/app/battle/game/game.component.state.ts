@@ -5,6 +5,7 @@ export const initialPlayerState = {
     wonCards: [] as Card[],
     beingPlayedCards: [] as Card[],
     beingPlayedCardsUpStates: [] as boolean[],
+    canPlay: false,
 };
 
 export const initialState = {
