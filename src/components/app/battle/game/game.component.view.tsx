@@ -66,6 +66,7 @@ export const View = ({path = ""}) => {
             </>
             }
             {v.hasPlayer2WonGame && <h1>{t("defeat")}</h1>}
+            {v.isTiedGame && <h1>{t("tie")}</h1>}
         </div>
         }
     </div>

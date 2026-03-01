@@ -44,6 +44,7 @@ const cardsWithLocation = (state: State) => DECK.map(card => ({card, location: c
 const hasPlayer1WonGame = (state: State) => player2CardCount(state) === 0;
 const hasPlayer2WonGame = (state: State) => player1CardCount(state) === 0;
 const hasGameEnded = (state: State) => state.gameEnded;
+const isTiedGame = and(hasGameEnded, not(hasPlayer1WonGame), not(hasPlayer2WonGame));
 
 const haveBothPlayerPlayed = (state: State) => player2BeingPlayedCards(state).length === player1BeingPlayedCards(state).length && player1BeingPlayedCards(state).length > 0;
 const canPlayer1Play = and(flow(player1, canPlay), not(shouldPlayer1PutCardsBackInHand));
@@ -112,6 +113,7 @@ export const selectors = {
     shouldPlayer2PutCardsBackInHand,
     hasPlayer1WonGame,
     hasPlayer2WonGame,
+    isTiedGame,
     hasGameEnded,
 } satisfies Selectors<State>;
 export type Values = ExtractComponentValuesContract<typeof selectors>;
