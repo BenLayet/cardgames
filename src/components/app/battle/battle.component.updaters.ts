@@ -6,5 +6,8 @@ import {type State } from "./battle.component.state";
 export const stateUpdaters: StateUpdaters<Contract, State> = {
     startGameRequested: ({state}) => {
         state.isStarted = true;
+    },
+    goHomeRequested: ({state}) => {
+        state.isStarted = false;
     }
 };
