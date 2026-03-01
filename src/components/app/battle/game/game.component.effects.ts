@@ -7,7 +7,7 @@ export const effects: Effects<Contract> = {
         const shuffledDeck = shuffleDeck(DECK);
         const player1Cards = shuffledDeck.slice(0, DECK.length / 2);
         const player2Cards = shuffledDeck.slice(DECK.length / 2, DECK.length);
-        dealCompleted({player1Cards, player2Cards});
+        setTimeout(() => dealCompleted({player1Cards, player2Cards}), 1000)
     },
     player1Clicked:({player2Clicked}) => {
         // auto click player 2 after a short delay to give the impression that player 2 is playing in response to player 1

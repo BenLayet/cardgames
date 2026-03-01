@@ -1,3 +1,4 @@
 @import "bootstrap/dist/css/bootstrap.min.css";
-@import "./variables/variables.css";
-@import "./base-elements/base-elements.css";
+@import "./variables/_variables.css";
+@import "./base-elements/_base-elements.css";
+@import "./components/_components.css";

@@ -8,10 +8,10 @@ const getCardBackImage = () => {
     return new URL(`../../assets/cards/2B.svg`, import.meta.url).href;
 };
 
-export const CardView = ({card="1S" as Card, up = true}) => {
+export const CardView = ({card="1S" as Card, faceUp = true}) => {
     return (
         <div>
-            <img src={up ? getCardImage(card) : getCardBackImage()} alt={`card ${card}`} height={200}/>
+            <img src={faceUp ? getCardImage(card) : getCardBackImage()} alt={`card ${card}`} height={200}/>
         </div>
     )
 };

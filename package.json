@@ -16,6 +16,7 @@
     "@softer-components/types": "^0.7.0",
     "@softer-components/utils": "^0.7.0",
     "bootstrap": "^5.3.8",
+    "gsap": "^3.14.2",
     "i18next": "^25.8.13",
     "lodash": "^4.17.23",
     "lodash-es": "^4.17.23",

@@ -28,4 +28,6 @@ export const eventForwarders: InternalEventForwarders<Contract> = [
         from: "checkWinnerRequested", to: "tieOccurred",
         onCondition: ({values}) => !values.hasPlayer2WonRound() && !values.hasPlayer1WonRound()
     },
+    {from: "player1WonRound", to: "roundCompleted"},
+    {from: "player2WonRound", to: "roundCompleted"},
 ];

@@ -39,12 +39,14 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
     },
     player1WonRound: ({state}) => {
         state.player1.wonCards = [...state.player1.wonCards, ...state.player2.beingPlayedCards, ...state.player1.beingPlayedCards];
-        state.player1.beingPlayedCards = [];
-        state.player2.beingPlayedCards = [];
     },
     player2WonRound: ({state}) => {
         state.player2.wonCards = [...state.player2.wonCards, ...state.player1.beingPlayedCards, ...state.player2.beingPlayedCards];
+    },
+    roundCompleted: ({state}) => {
         state.player1.beingPlayedCards = [];
+        state.player1.beingPlayedCardsUpStates = [];
         state.player2.beingPlayedCards = [];
+        state.player2.beingPlayedCardsUpStates = [];
     },
 };

@@ -6,7 +6,7 @@ export const StackView = ({cards = [] as Card[], allUp = false, upStates = [] as
     cards.map((card, i) => <div key={i}
                                 style={{
                                     position: "absolute",
-                                    top: `-${i}px`,
+                                    bottom: `${i}px`,
                                     left: `${i / 2}px`,
                                     zIndex: `${i}`,
                                 }}>

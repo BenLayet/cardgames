@@ -1,35 +1,59 @@
 import {useSofter} from "@softer-components/redux-adapter";
 
 import type {GameContract} from "./game.component.ts";
-import {StackView} from "../../../stack/StackView.tsx";
+import {useMemo, useRef} from "react";
+import {useWindowSize} from "../../../../hooks/useWindowSize.ts";
+import {AnimatedCardView, type LayoutState} from "../../../card/AnimatedCardView.tsx";
 
 export const View = ({path = ""}) => {
     const [v, d] = useSofter<GameContract>(path);
+    const windowSize = useWindowSize();
+    const deckRef = useRef<HTMLDivElement>(null);
+    const player1RemainingCardsRef = useRef<HTMLDivElement>(null);
+    const player1BeingPlayedCardsRef = useRef<HTMLDivElement>(null);
+    const player1WonCardsRef = useRef<HTMLDivElement>(null);
+    const player2RemainingCardsRef = useRef<HTMLDivElement>(null);
+    const player2BeingPlayedCardsRef = useRef<HTMLDivElement>(null);
+    const player2WonCardsRef = useRef<HTMLDivElement>(null);
+    const layoutState: LayoutState = useMemo(() => {
+        return {
+            table: deckRef.current?.getBoundingClientRect(),
+            stackLocations: {
+                deck: deckRef.current?.getBoundingClientRect(),
+                player2RemainingCards: player2RemainingCardsRef.current?.getBoundingClientRect(),
+                player2BeingPlayedCards: player2BeingPlayedCardsRef.current?.getBoundingClientRect(),
+                player2WonCards: player2WonCardsRef.current?.getBoundingClientRect(),
+                player1RemainingCards: player1RemainingCardsRef.current?.getBoundingClientRect(),
+                player1BeingPlayedCards: player1BeingPlayedCardsRef.current?.getBoundingClientRect(),
+                player1WonCards: player1WonCardsRef.current?.getBoundingClientRect(),
+            }
+        };
+    }, [windowSize, v.cardsWithLocation]);
     return <div
-        onClick={() => d.player1Clicked()} style={{cursor: "pointer"}}>
-        <div className="d-flex justify-content-end position-relative">
-            <div id="player2WonCards" style={{width: '143px', height: '200px', position: 'relative'}}>
-                <StackView cards={v.player2WonCards} allUp={true}/>
+        onClick={() => d.player1Clicked()}
+        style={{cursor: "pointer", position: "relative", width: "100%", height: "100%"}}>
+
+        <div style={{ position: "absolute", bottom: 0, right: 0, zIndex: 1000 }}>
+            <div ref={deckRef} className="stack-container" style={{borderStyle:"none"}}>
+                {v.cardsWithLocation.map(c =>
+                    <AnimatedCardView key={c.card} card={c.card} location={c.location} layoutState={layoutState}/>)}
             </div>
-            <StackView cards={v.player2Cards}/>
         </div>
-        <div className="hstack" style={{position:"relative"}}>
-            <div className="hstack flex-grow-1 m-5 ">
-                <div id="player1BeingPlayedCard" style={{width: '143px', height: '200px', position: 'relative'}}>
-                    <StackView cards={v.player1BeingPlayedCards} upStates={v.player1BeingPlayedUpStates}/>
-                </div>
+        <div className="d-flex justify-content-end position-relative">
+            <div ref={player2WonCardsRef} className="stack-container"/>
+            <div ref={player2RemainingCardsRef} className="stack-container"/>
+        </div>
+        <div className="hstack">
+            <div className="hstack flex-grow-1 m-5  justify-content-end">
+                <div ref={player1BeingPlayedCardsRef} className="stack-container"/>
             </div>
-            <div className="hstack flex-grow-1 justify-content-end m-5 ">
-                <div id="player2BeingPlayedCard" style={{width: '143px', height: '200px', position: 'relative'}}>
-                    <StackView cards={v.player2BeingPlayedCards} upStates={v.player2BeingPlayedUpStates}/>
-                </div>
+            <div className="hstack flex-grow-1 m-5">
+                <div ref={player2BeingPlayedCardsRef} className="stack-container"/>
             </div>
         </div>
         <div className="d-flex justify-content-start position-relative">
-            <StackView cards={v.player1Cards}/>
-            <div id="player1WonCards" style={{width: '143px', height: '200px', position: 'relative'}}>
-                <StackView cards={v.player1WonCards} allUp={true}/>
-            </div>
+            <div ref={player1RemainingCardsRef} className="stack-container"/>
+            <div ref={player1WonCardsRef} className="stack-container"/>
         </div>
     </div>
 };

@@ -10,6 +10,7 @@ export const initialPlayerState = {
 export const initialState = {
     player1: initialPlayerState,
     player2: initialPlayerState,
+    cardsLocation: "deck" as "deck" | "player1" | "player2" | "table",
 }
 
 export type State = typeof initialState;
