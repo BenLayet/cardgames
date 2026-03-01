@@ -30,5 +30,5 @@ export type EventNames =
 export const uiEvents= ["player1Clicked", "playAgainRequested"] as const satisfies readonly EventNames[];
 
 export type Events = EventsContract<
-    EventNames, { dealCompleted: { player1Cards: Card[], player2Cards: Card[] } }, typeof uiEvents
+    EventNames, { dealRequested:number, dealCompleted: { player1Cards: Card[], player2Cards: Card[] } }, typeof uiEvents
 >;

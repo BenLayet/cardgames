@@ -11,11 +11,18 @@ export const View = ({path = ""}) => {
     const {t} = useTranslation();
     return (
         <div className="vstack  justify-content-between p-4" style={{backgroundColor: '#115511', position: 'relative'}}>
-            {v.isStartable && <div className="vstack justify-content-center align-items-center"
-                                   onClick={() => d.startGameRequested()}>
-                <button style={{fontSize: "5em"}} className="btn btn-primary px-5 ">
-                    <FontAwesomeIcon icon={faStar} />{t('ready')}<FontAwesomeIcon icon={faStar} />
+            {v.isStartable && <div className="vstack justify-content-center align-items-center">
+                <button onClick={() => d.startGameRequested()} style={{fontSize: "5em"}}
+                        className="btn btn-primary px-5 ">
+                    <FontAwesomeIcon icon={faStar}/>{t('ready')}<FontAwesomeIcon icon={faStar}/>
                 </button>
+                <div style={{fontSize:"2em", margin:"2em"}}>{t("cardCount")}
+                    <button className="btn btn-lg btn-secondary" onClick={() => d.incrementCardCountRequested()} disabled={!v.canIncrementCardCount}>+
+                    </button>
+                    <span style={{minWidth:"2em", display:"inline-block", textAlign:"center"}}>{v.cardCount}</span>
+                    <button className="btn btn-lg  btn-secondary" onClick={() => d.decrementCardCountRequested()} disabled={!v.canDecrementCardCount}>-
+                    </button>
+                </div>
             </div>}
             {v.isStarted && <Game path={c.game}/>}
             {v.shouldMenuBeVisible && <div style={{position: 'absolute'}}>

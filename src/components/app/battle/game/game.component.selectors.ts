@@ -37,18 +37,18 @@ const player1WonCards = flow(player1, wonCards);
 const player2WonCards = flow(player2, wonCards);
 
 const isStackEmpty = (cards: Card[]) => cards.length === 0;
-const shouldPlayer1PutCardsBackInHand = flow(player1RemainingCards, isStackEmpty);
-const shouldPlayer2PutCardsBackInHand = flow(player2RemainingCards, isStackEmpty);
+const shouldPlayer1RestackRemainingCards = and(flow(player1RemainingCards, isStackEmpty), flow(player1WonCards, not(isStackEmpty)));
+const shouldPlayer2RestackRemainingCards = and(flow(player2RemainingCards, isStackEmpty), flow(player2WonCards, not(isStackEmpty)));
 
 const cardsWithLocation = (state: State) => DECK.map(card => ({card, location: cardLocation(state)(card)}));
-const hasPlayer1WonGame = (state: State) => player2CardCount(state) === 0;
-const hasPlayer2WonGame = (state: State) => player1CardCount(state) === 0;
+const hasPlayer1WonGame = (state: State) => player2CardCount(state) === 0 && player1CardCount(state) > 0;
+const hasPlayer2WonGame = (state: State) => player1CardCount(state) === 0 && player2CardCount(state) > 0;
+const isTiedGame = (state: State) => player1CardCount(state) === 0 && player2CardCount(state) === 0;
 const hasGameEnded = (state: State) => state.gameEnded;
-const isTiedGame = and(hasGameEnded, not(hasPlayer1WonGame), not(hasPlayer2WonGame));
 
 const haveBothPlayerPlayed = (state: State) => player2BeingPlayedCards(state).length === player1BeingPlayedCards(state).length && player1BeingPlayedCards(state).length > 0;
-const canPlayer1Play = and(flow(player1, canPlay), not(shouldPlayer1PutCardsBackInHand));
-const canPlayer2Play = and(flow(player2, canPlay), not(shouldPlayer2PutCardsBackInHand));
+const canPlayer1Play = and(flow(player1, canPlay), not(shouldPlayer1RestackRemainingCards));
+const canPlayer2Play = and(flow(player2, canPlay), not(shouldPlayer2RestackRemainingCards));
 const shouldCardsBeShown = (state: State) => haveBothPlayerPlayed(state) && player1BeingPlayedCards(state).length % 2 === 1;
 
 const cardLocation = (state: State) =>
@@ -109,8 +109,8 @@ export const selectors = {
     hasPlayer1WonRound,
     hasPlayer2WonRound,
     cardsWithLocation,
-    shouldPlayer1PutCardsBackInHand,
-    shouldPlayer2PutCardsBackInHand,
+    shouldPlayer1RestackRemainingCards,
+    shouldPlayer2RestackRemainingCards,
     hasPlayer1WonGame,
     hasPlayer2WonGame,
     isTiedGame,

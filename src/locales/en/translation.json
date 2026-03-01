@@ -1,6 +1,7 @@
 {
   "title": "Card Game",
-  "ready": "Ready?",
+  "cardCount": "Card Count:",
+  "ready": "Start",
   "goHome": "Home",
   "victory": "Victory",
   "defeat": "You Lost...",

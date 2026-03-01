@@ -9,5 +9,11 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
     },
     goHomeRequested: ({state}) => {
         state.isStarted = false;
+    },
+    cardCountIncremented: ({state}) => {
+        state.cardCount += 4;
+    },
+    cardCountDecremented: ({state}) => {
+        state.cardCount -= 4;
     }
 };

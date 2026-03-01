@@ -31,15 +31,16 @@ export const eventForwarders: InternalEventForwarders<Contract> = [
     {
         from: "readyForNextCards",
         to: "player1RestackedRemainingCards",
-        onCondition: ({values}) => values.shouldPlayer1PutCardsBackInHand()
+        onCondition: ({values}) => values.shouldPlayer1RestackRemainingCards()
     },
     {
         from: "readyForNextCards",
         to: "player2RestackedRemainingCards",
-        onCondition: ({values}) => values.shouldPlayer2PutCardsBackInHand()
+        onCondition: ({values}) => values.shouldPlayer2RestackRemainingCards()
     },
     {from: "readyForNextCards", to: "player1WonGame", onCondition: ({values}) => values.hasPlayer1WonGame()},
     {from: "readyForNextCards", to: "player2WonGame", onCondition: ({values}) => values.hasPlayer2WonGame()},
+    {from: "readyForNextCards", to: "gameEnded", onCondition: ({values}) => values.isTiedGame()},
     {from: "player1WonGame", to: "gameEnded"},
     {from: "player2WonGame", to: "gameEnded"},
 ];

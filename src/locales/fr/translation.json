@@ -1,6 +1,7 @@
 {
   "title": "Jeu de bataille",
-  "ready": "Prêt ?",
+  "cardCount": "Nombre de cartes :",
+  "ready": "Commencer",
   "goHome": "Accueil",
   "victory": "Victoire",
   "defeat": "Perdu...",
