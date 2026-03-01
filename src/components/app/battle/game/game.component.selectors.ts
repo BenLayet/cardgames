@@ -28,6 +28,9 @@ const player1BeingPlayedUpStates = flow(player1, cardsBeingPlayedUpStates);
 const player2BeingPlayedUpStates = flow(player2, cardsBeingPlayedUpStates);
 const hasPlayer1WonRound = (state: State) =>
     isFirstCardHigherValue(player1BeingPlayedCard(state), player2BeingPlayedCard(state));
+const player1CardCount = (state: State) => player1RemainingCards(state).length + player1BeingPlayedCards(state).length + player1WonCards(state).length;
+const player2CardCount = (state: State) => player2RemainingCards(state).length + player2BeingPlayedCards(state).length + player2WonCards(state).length;
+
 const hasPlayer2WonRound = (state: State) =>
     isFirstCardHigherValue(player2BeingPlayedCard(state), player1BeingPlayedCard(state));
 
@@ -83,17 +86,34 @@ const cardLocation = (state: State) =>
                 messyLevel: 10
             };
         }
-        return {stackLocation: "deck", index: DECK.indexOf(card), faceUp: false,
-            messyLevel: 0,};
+        return {
+            stackLocation: "deck", index: DECK.indexOf(card), faceUp: false,
+            messyLevel: 0,
+        };
     }
 const cardsWithLocation = (state: State) => DECK.map(card => ({card, location: cardLocation(state)(card)}));
+const hasPlayer1WonGame = (state: State) => player2CardCount(state) === 0;
+const hasPlayer2WonGame = (state: State) => player1CardCount(state) === 0;
+const hasGameEnded = (state: State) => state.gameEnded;
+
+const haveBothPlayerPlayed = (state: State) => player2BeingPlayedCards(state).length === player1BeingPlayedCards(state).length && player1BeingPlayedCards(state).length > 0;
+const canPlayer1Play = (state: State) => player1RemainingCards(state).length > 0 && !shouldPlayer1GiveHiddenCard(state) && !hasGameEnded(state);
+const canPlayer2Play = (state: State) => player2RemainingCards(state).length > 0 && !shouldPlayer2GiveHiddenCard(state) && !hasGameEnded(state);
+const canPlayer1GiveHiddenCard = (state: State) => player1RemainingCards(state).length > 0 && shouldPlayer1GiveHiddenCard(state) && !hasGameEnded(state);
+const canPlayer2GiveHiddenCard = (state: State) => player2RemainingCards(state).length > 0 && shouldPlayer2GiveHiddenCard(state) && !hasGameEnded(state);
 export const selectors = {
+    canPlayer1Play,
+    canPlayer2Play,
+    canPlayer1GiveHiddenCard,
+    canPlayer2GiveHiddenCard,
+    haveBothPlayerPlayed,
     hasPlayer1WonRound,
     hasPlayer2WonRound,
-    shouldPlayer1GiveHiddenCard,
-    shouldPlayer2GiveHiddenCard,
     cardsWithLocation,
     shouldPlayer1PutCardsBackInHand,
     shouldPlayer2PutCardsBackInHand,
+    hasPlayer1WonGame,
+    hasPlayer2WonGame,
+    hasGameEnded,
 } satisfies Selectors<State>;
 export type Values = ExtractComponentValuesContract<typeof selectors>;

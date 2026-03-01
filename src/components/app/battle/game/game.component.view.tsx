@@ -4,9 +4,12 @@ import type {GameContract} from "./game.component.ts";
 import {useMemo, useRef} from "react";
 import {useWindowSize} from "../../../../hooks/useWindowSize.ts";
 import {AnimatedCardView, type LayoutState} from "../../../card/AnimatedCardView.tsx";
+import {Fireworks} from "../../../fireworks/Fireworks.tsx";
+import {useTranslation} from "react-i18next";
 
 export const View = ({path = ""}) => {
     const [v, d] = useSofter<GameContract>(path);
+    const {t} = useTranslation();
     const windowSize = useWindowSize();
     const deckRef = useRef<HTMLDivElement>(null);
     const player1RemainingCardsRef = useRef<HTMLDivElement>(null);
@@ -30,30 +33,40 @@ export const View = ({path = ""}) => {
         };
     }, [windowSize, v.cardsWithLocation]);
     return <div
-        onClick={() => d.player1Clicked()}
-        style={{cursor: "pointer", position: "relative", width: "100%", height: "100%"}}>
-
-        <div style={{ position: "absolute", bottom: 0, right: 0, zIndex: 1000 }}>
-            <div ref={deckRef} className="stack-container" style={{borderStyle:"none"}}>
-                {v.cardsWithLocation.map(c =>
-                    <AnimatedCardView key={c.card} card={c.card} location={c.location} layoutState={layoutState}/>)}
+        style={{cursor: "pointer", width: "100%", height: "100%"}}>
+        <div
+            onClick={() => d.player1Clicked()}>
+            <div style={{position: "absolute", bottom: 0, right: 0, zIndex: 1000}}>
+                <div ref={deckRef} className="stack-container" style={{borderStyle: "none"}}>
+                    {v.cardsWithLocation.map(c =>
+                        <AnimatedCardView key={c.card} card={c.card} location={c.location} layoutState={layoutState}/>)}
+                </div>
+            </div>
+            <div className="d-flex justify-content-end position-relative">
+                <div ref={player2WonCardsRef} className="stack-container"/>
+                <div ref={player2RemainingCardsRef} className="stack-container"/>
+            </div>
+            <div className="hstack">
+                <div className="hstack flex-grow-1 m-5  justify-content-end">
+                    <div ref={player1BeingPlayedCardsRef} className="stack-container"/>
+                </div>
+                <div className="hstack flex-grow-1 m-5">
+                    <div ref={player2BeingPlayedCardsRef} className="stack-container"/>
+                </div>
+            </div>
+            <div className="d-flex justify-content-start position-relative">
+                <div ref={player1RemainingCardsRef} className="stack-container"/>
+                <div ref={player1WonCardsRef} className="stack-container"/>
             </div>
         </div>
-        <div className="d-flex justify-content-end position-relative">
-            <div ref={player2WonCardsRef} className="stack-container"/>
-            <div ref={player2RemainingCardsRef} className="stack-container"/>
+        {v.hasGameEnded && <div className="end-message-overlay" onClick={() => d.playAgainRequested()}>
+            {v.hasPlayer1WonGame && <>
+                <Fireworks/>
+                <h1>{t("victory")}</h1>
+            </>
+            }
+            {v.hasPlayer2WonGame && <h1>{t("defeat")}</h1>}
         </div>
-        <div className="hstack">
-            <div className="hstack flex-grow-1 m-5  justify-content-end">
-                <div ref={player1BeingPlayedCardsRef} className="stack-container"/>
-            </div>
-            <div className="hstack flex-grow-1 m-5">
-                <div ref={player2BeingPlayedCardsRef} className="stack-container"/>
-            </div>
-        </div>
-        <div className="d-flex justify-content-start position-relative">
-            <div ref={player1RemainingCardsRef} className="stack-container"/>
-            <div ref={player1WonCardsRef} className="stack-container"/>
-        </div>
+        }
     </div>
 };

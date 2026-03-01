@@ -1,10 +1,11 @@
 import type {StateUpdaters} from "@softer-components/types";
 
 import type {Contract} from "./game.component.contract.ts";
-import {type State} from "./game.component.state.ts";
+import {initialState, type State} from "./game.component.state.ts";
 import {assertIsNotUndefined} from "@softer-components/utils";
 
 export const stateUpdaters: StateUpdaters<Contract, State> = {
+    dealRequested: () => initialState,
     dealCompleted: ({state, payload}) => {
         state.player1.remainingCards = payload.player1Cards;
         state.player2.remainingCards = payload.player2Cards;
@@ -56,5 +57,8 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
     player2WonCardsBackInHand: ({state}) => {
         state.player2.remainingCards = [...state.player2.remainingCards, ...state.player2.wonCards];
         state.player2.wonCards = [];
+    },
+    gameEnded: ({state}) => {
+        state.gameEnded = true;
     },
 };

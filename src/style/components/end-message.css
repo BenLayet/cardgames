@@ -1,0 +1,21 @@
+.end-message-overlay {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    top: 0;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #0006;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.end-message-overlay h1 {
+    color: #e3d93f;
+    font-size: 15em;
+    text-shadow: 0 0 20px rgba(0, 0, 0, 0.8), 0 0 40px rgba(227, 217, 63, 0.6), 4px 4px 8px rgba(0, 0, 0, 0.5);
+}

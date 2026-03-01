@@ -5,7 +5,7 @@ import type {Card} from "../../../../model/deck.model.ts";
 export type EventNames =
     | "dealRequested"
     | "dealCompleted"
-    | "cardsPlaced"
+    | "bothPlayersPlayed"
     | "cardsAcknowledgmentStarted"
     | "cardsAcknowledgmentCompleted"
     | "checkWinnerRequested"
@@ -20,8 +20,12 @@ export type EventNames =
     | "player1Played"
     | "player2Played"
     | "player1WonCardsBackInHand"
-    | "player2WonCardsBackInHand";
-export const uiEvents: EventNames[] = ["player1Clicked"];
+    | "player2WonCardsBackInHand"
+    | "player1WonGame"
+    | "player2WonGame"
+    | "gameEnded"
+    | "playAgainRequested";
+export const uiEvents= ["player1Clicked", "playAgainRequested"] as const satisfies readonly EventNames[];
 
 export type Events = EventsContract<
     EventNames, { dealCompleted: { player1Cards: Card[], player2Cards: Card[] } }, typeof uiEvents

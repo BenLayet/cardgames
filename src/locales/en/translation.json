@@ -1,6 +1,9 @@
 {
   "title": "Card Game",
   "ready": "Ready?",
-  "goHome": "Home"
+  "goHome": "Home",
+  "victory": "Victory",
+  "defeat": "You Lost...",
+  "playAgain": "Click Anywhere To Play Again"
 }
 

@@ -13,7 +13,7 @@ export const effects: Effects<Contract> = {
         // auto click player 2 after a short delay to give the impression that player 2 is playing in response to player 1
         setTimeout(player2Clicked, 100)
     },
-    cardsPlaced:({cardsAcknowledgmentStarted}) => {
+    bothPlayersPlayed:({cardsAcknowledgmentStarted}) => {
         setTimeout(cardsAcknowledgmentStarted, 1000)
     },
     cardsAcknowledgmentStarted:({cardsAcknowledgmentCompleted}) => {

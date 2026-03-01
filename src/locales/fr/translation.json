@@ -1,6 +1,9 @@
 {
   "title": "Jeu de bataille",
   "ready": "Prêt ?",
-  "goHome": "Accueil"
+  "goHome": "Accueil",
+  "victory": "Victoire",
+  "defeat": "Perdu...",
+  "playAgain": "Cliquer n'importe où pour rejouer"
 }
 

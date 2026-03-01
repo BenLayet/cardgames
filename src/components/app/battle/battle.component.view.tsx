@@ -11,9 +11,9 @@ export const View = ({path = ""}) => {
     const {t} = useTranslation();
     return (
         <div className="vstack  justify-content-between p-4" style={{backgroundColor: '#115511', position: 'relative'}}>
-            {v.isStartable && <div className="vstack justify-content-center align-items-center">
-                <button style={{fontSize: "5em"}} className="btn btn-primary px-5 "
-                        onClick={() => d.startGameRequested()}>
+            {v.isStartable && <div className="vstack justify-content-center align-items-center"
+                                   onClick={() => d.startGameRequested()}>
+                <button style={{fontSize: "5em"}} className="btn btn-primary px-5 ">
                     <FontAwesomeIcon icon={faStar} />{t('ready')}<FontAwesomeIcon icon={faStar} />
                 </button>
             </div>}
