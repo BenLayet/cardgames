@@ -1,7 +1,7 @@
 import type {ExtractComponentValuesContract, Selectors,} from "@softer-components/types";
 
 import {type PlayerState, type State} from "./game.component.state.ts";
-import {type Card, type CardLocation, DECK, isFirstCardHigherValue} from "../../../../model/deck.model.ts";
+import {type Card, type CardWithPlacement, isFirstCardHigherValue} from "../../../../model/deck.model.ts";
 import {flow} from "lodash";
 import {and, not} from "@softer-components/utils";
 
@@ -9,7 +9,7 @@ import {and, not} from "@softer-components/utils";
 const player1 = (state: State) => state.player1;
 const player2 = (state: State) => state.player2;
 const remainingCards = (player: PlayerState) => player.remainingCards;
-const beingPlayedCards = (player: PlayerState) => player.beingPlayedCards;
+const beingPlayedCards = (player: PlayerState): Card[] => player.beingPlayedCards;
 const lastCard = (cards: Card[]) => cards[cards.length - 1];
 const wonCards = (player: PlayerState) => player.wonCards;
 const cardsBeingPlayedUpStates = (player: PlayerState) => player.beingPlayedCardsUpStates;
@@ -40,7 +40,6 @@ const isStackEmpty = (cards: Card[]) => cards.length === 0;
 const shouldPlayer1RestackRemainingCards = and(flow(player1RemainingCards, isStackEmpty), flow(player1WonCards, not(isStackEmpty)));
 const shouldPlayer2RestackRemainingCards = and(flow(player2RemainingCards, isStackEmpty), flow(player2WonCards, not(isStackEmpty)));
 
-const cardsWithLocation = (state: State) => DECK.map(card => ({card, location: cardLocation(state)(card)}));
 const hasPlayer1WonGame = (state: State) => player2CardCount(state) === 0 && player1CardCount(state) > 0;
 const hasPlayer2WonGame = (state: State) => player1CardCount(state) === 0 && player2CardCount(state) > 0;
 const isTiedGame = (state: State) => player1CardCount(state) === 0 && player2CardCount(state) === 0;
@@ -50,57 +49,62 @@ const haveBothPlayerPlayed = (state: State) => player2BeingPlayedCards(state).le
 const canPlayer1Play = and(flow(player1, canPlay), not(shouldPlayer1RestackRemainingCards));
 const canPlayer2Play = and(flow(player2, canPlay), not(shouldPlayer2RestackRemainingCards));
 const shouldCardsBeShown = (state: State) => haveBothPlayerPlayed(state) && player1BeingPlayedCards(state).length % 2 === 1;
-
-const cardLocation = (state: State) =>
-    (card: Card): CardLocation => {
-        if (player1BeingPlayedCards(state).includes(card)) {
-            return {
-                stackLocation: "player1BeingPlayedCards",
-                index: player1BeingPlayedCards(state).indexOf(card),
-                faceUp: player1BeingPlayedUpStates(state)[player1BeingPlayedCards(state).indexOf(card)],
-                messyLevel: 2,
-            };
+const cardsWithLocation = (state: State): CardWithPlacement[] => ([
+    ...player1BeingPlayedCards(state).map((card, index) => ({
+        card,
+        placement:{
+            stackLocation: "player1BeingPlayedCards" as const,
+            index,
+            faceUp: player1BeingPlayedUpStates(state)[index],
+            messyLevel: 2
         }
-        if (player2BeingPlayedCards(state).includes(card)) {
-            return {
-                stackLocation: "player2BeingPlayedCards",
-                index: player2BeingPlayedCards(state).indexOf(card),
-                faceUp: player2BeingPlayedUpStates(state)[player2BeingPlayedCards(state).indexOf(card)],
-                messyLevel: 2,
-            };
+    })),
+    ...player2BeingPlayedCards(state).map((card, index) => ({
+        card,
+        placement:{
+            stackLocation: "player2BeingPlayedCards" as const,
+            index,
+            faceUp: player2BeingPlayedUpStates(state)[index],
+            messyLevel: 2
         }
-        if (player1RemainingCards(state).includes(card)) {
-            return {
-                stackLocation: "player1RemainingCards", index: player1RemainingCards(state).indexOf(card),
-                faceUp: false,
-                messyLevel: 0,
-            };
+    })),
+    ...player1RemainingCards(state).map((card, index) => ({
+        card,
+        placement:{
+            stackLocation: "player1RemainingCards" as const,
+            index,
+            faceUp: false,
+            messyLevel: 2
         }
-        if (player2RemainingCards(state).includes(card)) {
-            return {
-                stackLocation: "player2RemainingCards",
-                index: player2RemainingCards(state).indexOf(card),
-                faceUp: false,
-                messyLevel: 0,
-            };
+    })),
+    ...player2RemainingCards(state).map((card, index) => ({
+        card,
+        placement:{
+            stackLocation: "player2RemainingCards" as const,
+            index,
+            faceUp: false,
+            messyLevel: 2
         }
-        if (player1WonCards(state).includes(card)) {
-            return {
-                stackLocation: "player1WonCards", index: player1WonCards(state).indexOf(card), faceUp: true,
-                messyLevel: 10,
-            };
+    })),
+    ...player1WonCards(state).map((card, index) => ({
+        card,
+        placement:{
+            stackLocation: "player1WonCards" as const,
+            index,
+            faceUp: true,
+            messyLevel: 10
         }
-        if (player2WonCards(state).includes(card)) {
-            return {
-                stackLocation: "player2WonCards", index: player2WonCards(state).indexOf(card), faceUp: true,
-                messyLevel: 10
-            };
+    })),
+    ...player2WonCards(state).map((card, index) => ({
+        card,
+        placement:{
+            stackLocation: "player2WonCards" as const,
+            index,
+            faceUp: true,
+            messyLevel: 10
         }
-        return {
-            stackLocation: "deck", index: DECK.indexOf(card), faceUp: false,
-            messyLevel: 0,
-        };
-    }
+    })),
+]);
 export const selectors = {
     canPlayer1Play,
     canPlayer2Play,

@@ -1,11 +1,11 @@
 import {CardView} from "./CardView.tsx";
 import {useLayoutEffect, useRef, useState} from "react";
 import gsap from "gsap";
-import type {Card, CardLocation, StackLocation} from "../../model/deck.model.ts";
+import type {Card, CardPlacement, StackLocation} from "../../model/deck.model.ts";
 
 interface CardProps {
     card: Card;
-    location: CardLocation;
+    placement: CardPlacement;
     layoutState: LayoutState;
 }
 
@@ -24,7 +24,7 @@ function translateRangeKeeping0(value: number) {
     return (value + 1.5) % 1 - 0.5;
 }
 
-function computeFinalPosition(location: CardLocation, layoutState: LayoutState) {
+function computeFinalPosition(location: CardPlacement, layoutState: LayoutState) {
     const stackCoordinates = {
         top: (layoutState.stackLocations[location.stackLocation]?.top ?? 0) - (layoutState.table?.top ?? 0),
         left: (layoutState.stackLocations[location.stackLocation]?.left ?? 0) - (layoutState.table?.left ?? 0)
@@ -41,7 +41,7 @@ function computeFinalPosition(location: CardLocation, layoutState: LayoutState) 
     };
 }
 
-export function AnimatedCardView({card, location, layoutState}: CardProps) {
+export function AnimatedCardView({card, placement, layoutState}: CardProps) {
     const ref = useRef<HTMLDivElement>(null);
     const [, setScrollPos] = useState(0);
 
@@ -56,13 +56,13 @@ export function AnimatedCardView({card, location, layoutState}: CardProps) {
 
     useLayoutEffect(() => {
         if (!ref.current) return;
-        const {x, y, rotation} = computeFinalPosition(location, layoutState);
+        const {x, y, rotation} = computeFinalPosition(placement, layoutState);
         gsap.to(ref.current, {x, y, rotation, duration: 0.3, ease: "power2.out"});
-    }, [location.stackLocation, location.index, layoutState]);
+    }, [placement.stackLocation, placement.index, layoutState]);
 
     return (
-        <div ref={ref} className="card" style={{position: "absolute", zIndex: location.index + 1000}}>
-            <CardView card={card} faceUp={location.faceUp}/>
+        <div ref={ref} className="card" style={{position: "absolute", zIndex: placement.index + 1000}}>
+            <CardView card={card} faceUp={placement.faceUp}/>
         </div>
     );
 }

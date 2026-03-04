@@ -39,7 +39,7 @@ export const View = ({path = ""}) => {
             <div style={{position: "absolute", bottom: 0, right: 0, zIndex: 1000}}>
                 <div ref={deckRef} className="stack-container" style={{borderStyle: "none"}}>
                     {v.cardsWithLocation.map(c =>
-                        <AnimatedCardView key={c.card} card={c.card} location={c.location} layoutState={layoutState}/>)}
+                        <AnimatedCardView key={c.card} card={c.card} placement={c.placement} layoutState={layoutState}/>)}
                 </div>
             </div>
             <div className="d-flex justify-content-end position-relative">

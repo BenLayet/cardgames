@@ -11,12 +11,16 @@ export type StackLocation =
     | "player2RemainingCards"
     | "player2WonCards"
     | "player2BeingPlayedCards";
-export type CardLocation = {
+export type CardPlacement = {
     faceUp: boolean;
     stackLocation: StackLocation;
     index: number;
     messyLevel: number;
 }
+export type CardWithPlacement = {
+    card: Card;
+    placement: CardPlacement;
+};
 export const createDeck = (cardCount: number): Card[] => {
     if (cardCount % SUITS.length !== 0) {
         throw new Error("Card count must be a multiple of 4 to create a balanced deck.");
