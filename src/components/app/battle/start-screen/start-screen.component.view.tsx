@@ -10,9 +10,8 @@ export const View = ({path = ""}) => {
     const [v, d] = useSofter<StartScreenContract>(path);
     const {t} = useTranslation();
     return (<div className="vstack justify-content-center align-items-center">
-            <h1 className="game-title">JEU DE BATAILLE !</h1>
+            <h1 className="game-title">{t("title")}</h1>
             <div className="settings-container">
-                {/* Language Switcher */}
                 <div className="settings-row">
                     <label className="settings-label">{t("language")}</label>
                     <LanguageSwitcher/>
