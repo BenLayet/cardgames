@@ -1,4 +1,4 @@
-import type {ChildrenConfig, InternalEventForwarders} from "@softer-components/types";
+import type {ChildrenConfig} from "@softer-components/types";
 
 import type {Contract} from "./battle.component.contract";
 
@@ -8,15 +8,15 @@ export const childrenConfig: ChildrenConfig<Contract> = {
             {
                 from: "startGameRequested",
                 to: "dealRequested",
-                withPayload: ({values}) =>values.cardCount()
+                withPayload: ({values}) => values.cardCount()
             },
         ],
         listeners: [
             {from: "playAgainRequested", to: "goHomeRequested"}
         ]
     },
+    startScreen: {
+        listeners: [
+            {from: "startGameRequested", to: "startGameRequested"},]
+    }
 };
-export const eventForwarders: InternalEventForwarders<Contract> = [
-    {from: "incrementCardCountRequested", to: "cardCountIncremented", onCondition: ({values}) => values.canIncrementCardCount()},
-    {from: "decrementCardCountRequested", to: "cardCountDecremented", onCondition: ({values}) => values.canDecrementCardCount()},
-]

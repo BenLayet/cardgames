@@ -1,20 +1,18 @@
 import type {
-  ExtractComponentValuesContract,
-  Selectors,
+    ExtractComponentValuesContract,
+    Selectors, Selector
 } from "@softer-components/types";
-import {createBaseSelectors, not} from "@softer-components/utils";
+import type {State} from "./battle.component.state";
+import type {Children} from "./battle.component.children.ts";
 
-import {type State, initialState } from "./battle.component.state";
-
-const isStartable = (state:State) => !state.isStarted;
-const shouldMenuBeVisible = not(isStartable);
-const canIncrementCardCount = (state:State) => state.cardCount < 52;
-const canDecrementCardCount = (state:State) => state.cardCount > 4;
+const isStarted = (state: State) => state.isStarted;
+const isStartable = (state: State) => !state.isStarted;
+const cardCount: Selector<State, Children> = (_, childrenValues) => childrenValues.startScreen.values.cardCount();
+const shouldMenuBeVisible = isStarted;
 export const selectors = {
-  ...createBaseSelectors(initialState),
+    isStarted,
+    cardCount,
     isStartable,
     shouldMenuBeVisible,
-    canIncrementCardCount,
-    canDecrementCardCount
-} satisfies Selectors<State>;
+} satisfies Selectors<State, Children>;
 export type Values = ExtractComponentValuesContract<typeof selectors>;
