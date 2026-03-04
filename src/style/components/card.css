@@ -1,0 +1,36 @@
+.card-view {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-image {
+    height: 200px;
+    width: auto;
+    max-width: 143px;
+    object-fit: contain;
+}
+
+/* Mobile responsive adjustments for card images */
+@media (max-width: 576px) {
+    .card-image {
+        height: 110px;
+        max-width: 80px;
+    }
+}
+
+@media (max-width: 480px) {
+    .card-image {
+        height: 84px;
+        max-width: 60px;
+    }
+}
+
+/* Landscape mode - small height */
+@media (orientation: landscape) and (max-height: 500px) {
+    .card-image {
+        height: 70px;
+        max-width: 50px;
+    }
+}
+
