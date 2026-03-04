@@ -46,11 +46,11 @@ export const View = ({path = ""}) => {
                 <div ref={player2WonCardsRef} className="stack-container"/>
                 <div ref={player2RemainingCardsRef} className="stack-container"/>
             </div>
-            <div className="hstack">
-                <div className="hstack flex-grow-1 m-5  justify-content-end">
+            <div style={{display: "flex", justifyContent: "space-between"}}>
+                <div className="hstack flex-grow-1  justify-content-end">
                     <div ref={player1BeingPlayedCardsRef} className="stack-container"/>
                 </div>
-                <div className="hstack flex-grow-1 m-5">
+                <div className="hstack flex-grow-1">
                     <div ref={player2BeingPlayedCardsRef} className="stack-container"/>
                 </div>
             </div>

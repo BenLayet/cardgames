@@ -14,6 +14,7 @@ export type StackLocation =
 export type CardPlacement = {
     faceUp: boolean;
     stackLocation: StackLocation;
+    stackIndex: number;
     index: number;
     messyLevel: number;
 }

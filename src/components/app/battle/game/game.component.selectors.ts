@@ -54,6 +54,7 @@ const cardsWithLocation = (state: State): CardWithPlacement[] => ([
         card,
         placement:{
             stackLocation: "player1BeingPlayedCards" as const,
+            stackIndex:3,
             index,
             faceUp: player1BeingPlayedUpStates(state)[index],
             messyLevel: 2
@@ -63,6 +64,7 @@ const cardsWithLocation = (state: State): CardWithPlacement[] => ([
         card,
         placement:{
             stackLocation: "player2BeingPlayedCards" as const,
+            stackIndex:3,
             index,
             faceUp: player2BeingPlayedUpStates(state)[index],
             messyLevel: 2
@@ -72,6 +74,7 @@ const cardsWithLocation = (state: State): CardWithPlacement[] => ([
         card,
         placement:{
             stackLocation: "player1RemainingCards" as const,
+            stackIndex:1,
             index,
             faceUp: false,
             messyLevel: 2
@@ -81,6 +84,7 @@ const cardsWithLocation = (state: State): CardWithPlacement[] => ([
         card,
         placement:{
             stackLocation: "player2RemainingCards" as const,
+            stackIndex:1,
             index,
             faceUp: false,
             messyLevel: 2
@@ -90,6 +94,7 @@ const cardsWithLocation = (state: State): CardWithPlacement[] => ([
         card,
         placement:{
             stackLocation: "player1WonCards" as const,
+            stackIndex:2,
             index,
             faceUp: true,
             messyLevel: 10
@@ -99,6 +104,7 @@ const cardsWithLocation = (state: State): CardWithPlacement[] => ([
         card,
         placement:{
             stackLocation: "player2WonCards" as const,
+            stackIndex:2,
             index,
             faceUp: true,
             messyLevel: 10

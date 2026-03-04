@@ -57,11 +57,11 @@ export function AnimatedCardView({card, placement, layoutState}: CardProps) {
     useLayoutEffect(() => {
         if (!ref.current) return;
         const {x, y, rotation} = computeFinalPosition(placement, layoutState);
-        gsap.to(ref.current, {x, y, rotation, duration: 0.3, ease: "power2.out"});
+        gsap.to(ref.current, {x, y, rotation, duration: 0.5, ease: "power2.out"});
     }, [placement.stackLocation, placement.index, layoutState]);
 
     return (
-        <div ref={ref} className="card" style={{position: "absolute", zIndex: placement.index + 1000}}>
+        <div ref={ref} style={{position: "absolute", zIndex: placement.index + placement.stackIndex * 100}}>
             <CardView card={card} faceUp={placement.faceUp}/>
         </div>
     );
