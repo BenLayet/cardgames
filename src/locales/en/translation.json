@@ -1,6 +1,7 @@
 {
   "title": "Card Game",
   "cardCount": "Card Count:",
+  "language": "Language:",
   "ready": "Start",
   "goHome": "Home",
   "victory": "Victory",

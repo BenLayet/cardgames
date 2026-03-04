@@ -1,6 +1,7 @@
 {
   "title": "Jeu de bataille",
   "cardCount": "Nombre de cartes :",
+  "language": "Langue :",
   "ready": "Commencer",
   "goHome": "Accueil",
   "victory": "Victoire",

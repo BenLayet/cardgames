@@ -5,24 +5,49 @@ import {useTranslation} from "react-i18next";
 import {Game} from "./game";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faHome, faStar} from "@fortawesome/free-solid-svg-icons";
+import {LanguageSwitcher} from "../../language-switcher";
 
 export const View = ({path = ""}) => {
     const [v, d, c] = useSofter<BattleContract>(path);
     const {t} = useTranslation();
     return (
         <div className="vstack  justify-content-between p-4" style={{backgroundColor: '#115511', position: 'relative'}}>
+
             {v.isStartable && <div className="vstack justify-content-center align-items-center">
-                <button onClick={() => d.startGameRequested()} style={{fontSize: "5em"}}
+                {/* Settings Section */}
+                <div className="settings-container">
+                    {/* Language Switcher */}
+                    <div className="settings-row">
+                        <label className="settings-label">{t("language")}</label>
+                        <LanguageSwitcher/>
+                    </div>
+
+                    {/* Card Count */}
+                    <div className="settings-row">
+                        <label className="settings-label">{t("cardCount")}</label>
+                        <div className="card-count-controls">
+                            <button className="btn btn-lg btn-secondary"
+                                    onClick={() => d.decrementCardCountRequested()}
+                                    disabled={!v.canDecrementCardCount}>
+                                −
+                            </button>
+                            <span className="card-count-display">
+                                {v.cardCount}
+                            </span>
+                            <button className="btn btn-lg btn-secondary"
+                                    onClick={() => d.incrementCardCountRequested()}
+                                    disabled={!v.canIncrementCardCount}>
+                                +
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <button onClick={() => d.startGameRequested()} style={{fontSize: "5em", minWidth: "10em", display:"inline-flex",
+                    alignItems: "center",
+                    justifyContent:"space-between"}}
                         className="btn btn-primary px-5 ">
                     <FontAwesomeIcon icon={faStar}/>{t('ready')}<FontAwesomeIcon icon={faStar}/>
                 </button>
-                <div style={{fontSize:"2em", margin:"2em"}}>{t("cardCount")}
-                    <button className="btn btn-lg btn-secondary" onClick={() => d.incrementCardCountRequested()} disabled={!v.canIncrementCardCount}>+
-                    </button>
-                    <span style={{minWidth:"2em", display:"inline-block", textAlign:"center"}}>{v.cardCount}</span>
-                    <button className="btn btn-lg  btn-secondary" onClick={() => d.decrementCardCountRequested()} disabled={!v.canDecrementCardCount}>-
-                    </button>
-                </div>
             </div>}
             {v.isStarted && <Game path={c.game}/>}
             {v.shouldMenuBeVisible && <div style={{position: 'absolute'}}>
