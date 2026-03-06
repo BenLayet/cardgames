@@ -13,7 +13,6 @@ export const View = ({path = ""}) => {
             <h1 className="game-title">{t("title")}</h1>
             <div className="d-flex flex-column gap-2 text-center">
                 <div className="row">
-                    <label className="fs-3 ">{t("language")}</label>
                     <div>
                         <LanguageSwitcher/>
                     </div>
@@ -31,9 +30,8 @@ export const View = ({path = ""}) => {
                     </div>
                 </div>
             </div>
-
             <button onClick={() => d.startGameRequested()}
-                    className="btn btn-lg btn-primary px-2 mt-1">
+                    className="btn btn-lg btn-primary px-2 mt-1 fs-1">
                 <FontAwesomeIcon icon={faStar}/> {t('start')} <FontAwesomeIcon icon={faStar}/>
             </button>
         </div>

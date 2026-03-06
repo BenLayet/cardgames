@@ -1,6 +1,6 @@
 {
-  "title": "Jeu de bataille",
-  "cardCount": "Cartes :",
+  "title": "Jeu de bataille\u00a0!",
+  "cardCount": "Nombre de cartes :",
   "language": "Langue :",
   "start": "Commencer",
   "goHome": "Accueil",
@@ -9,4 +9,3 @@
   "tie": "Match nul !",
   "playAgain": "Cliquer n'importe où pour rejouer"
 }
-
