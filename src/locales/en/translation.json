@@ -2,7 +2,7 @@
   "title": "Battle Card Game",
   "cardCount": "Card Count:",
   "language": "Language:",
-  "ready": "Start",
+  "start": "Start",
   "goHome": "Home",
   "victory": "Victory",
   "defeat": "You Lost...",

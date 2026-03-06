@@ -1,4 +1,6 @@
 :root {
-  --bs-body-font-family: "Cherry Bomb One", system-ui;
-  --bs-body-font-weight: 400;
+    --bs-body-font-family: "Cherry Bomb One", system-ui;
+    --bs-body-font-weight: 400;
+    --bs-body-font-size: max(14px, min(6vw, 4vh, 28px));
+    font-size: var(--bs-body-font-size);
 }

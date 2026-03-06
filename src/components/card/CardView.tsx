@@ -11,7 +11,7 @@ const getCardBackImage = () => {
 export const CardView = ({card="1S" as Card, faceUp = true}) => {
     return (
         <div>
-            <img src={faceUp ? getCardImage(card) : getCardBackImage()} alt={`card ${card}`} height={200}/>
+            <img className="card-image" src={faceUp ? getCardImage(card) : getCardBackImage()} alt={`card ${card}`} height={200}/>
         </div>
     )
 };

@@ -2,7 +2,7 @@
   "title": "Jeu de bataille",
   "cardCount": "Cartes :",
   "language": "Langue :",
-  "ready": "Commencer",
+  "start": "Commencer",
   "goHome": "Accueil",
   "victory": "Victoire",
   "defeat": "Perdu...",

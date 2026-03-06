@@ -11,7 +11,7 @@ export const View = ({path = ""}) => {
     }, [d]);
     return (
         <>
-            {v.page === "GAME" && <Battle path={c.battle}/>}
+            {v.page === "BATTLE" && <Battle path={c.battle}/>}
         </>
     );
 };

@@ -1,97 +1,82 @@
-:root {
-    --bs-primary:  #ffaa00;
-    --bs-primary-active: #ba7e00;
-  --bs-secondary: #333333;
-  --bs-secondary-active: #222222;
-  --bs-secondary-active-border: #111111;
-  --bs-primary-rgb: 184, 134, 0;
-  --bs-link-color-rgb: 184, 134, 0;
-  --bs-link-hover-color-rgb: 255, 255, 255;
-  --bs-link-hover-color: #ffffff;
-  --bs-link-color: var(--bs-primary);
-  --text-color: #fffee8;
-  --text-color-secondary: #cccccc;
-  --text-color-muted: #999999;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale; /* Global radius scale (smaller than Bootstrap defaults) */
-  --bs-border-radius: 0.5em;
-  --bs-border-radius-sm: var(--bs-border-radius);
-  --bs-border-radius-lg: var(--bs-border-radius);
-  --bs-border-radius-xl: var(--bs-border-radius);
-  --bs-border-radius-xxl: var(--bs-border-radius);
-  --bs-border-radius-pill: var(--bs-border-radius);
+:root{
+    /* Base colors */
+    --bs-primary: #fd7e14;
+    --bs-secondary: #6c757d;
+    --bs-success: #198754;
+    --bs-info: #0dcaf0;
+    --bs-warning: #ffc107;
+    --bs-danger: #dc3545;
+    --bs-light: #f8f9fa;
+    --bs-dark: #212529;
+    --bs-body-bg: #115511;
+    --bs-body-color: white;
+
+    /* RGB values for creating opacity variants */
+    --bs-primary-rgb: 253, 126, 20;
+    --bs-secondary-rgb: 108, 117, 125;
+    --bs-success-rgb: 25, 135, 84;
+    --bs-info-rgb: 13, 202, 240;
+    --bs-warning-rgb: 255, 193, 7;
+    --bs-danger-rgb: 220, 53, 69;
+    --bs-light-rgb: 248, 249, 250;
+    --bs-dark-rgb: 33, 37, 41;
+    --bs-body-bg-rgb: 17, 85, 17;
+    --bs-body-color-rgb: 255, 255, 255;
+
+    /* Opacity variants - Primary */
+    --bs-primary-10: rgba(var(--bs-primary-rgb), 0.1);
+    --bs-primary-25: rgba(var(--bs-primary-rgb), 0.25);
+    --bs-primary-50: rgba(var(--bs-primary-rgb), 0.5);
+    --bs-primary-75: rgba(var(--bs-primary-rgb), 0.75);
+    --bs-primary-90: rgba(var(--bs-primary-rgb), 0.9);
+
+    /* Opacity variants - Secondary */
+    --bs-secondary-10: rgba(var(--bs-secondary-rgb), 0.1);
+    --bs-secondary-25: rgba(var(--bs-secondary-rgb), 0.25);
+    --bs-secondary-50: rgba(var(--bs-secondary-rgb), 0.5);
+    --bs-secondary-75: rgba(var(--bs-secondary-rgb), 0.75);
+    --bs-secondary-90: rgba(var(--bs-secondary-rgb), 0.9);
+
+    /* Opacity variants - Body color (white) */
+    --bs-body-color-10: rgba(var(--bs-body-color-rgb), 0.1);
+    --bs-body-color-25: rgba(var(--bs-body-color-rgb), 0.25);
+    --bs-body-color-50: rgba(var(--bs-body-color-rgb), 0.5);
+    --bs-body-color-75: rgba(var(--bs-body-color-rgb), 0.75);
+    --bs-body-color-90: rgba(var(--bs-body-color-rgb), 0.9);
+
+    /* Opacity variants - Success */
+    --bs-success-10: rgba(var(--bs-success-rgb), 0.1);
+    --bs-success-25: rgba(var(--bs-success-rgb), 0.25);
+    --bs-success-50: rgba(var(--bs-success-rgb), 0.5);
+    --bs-success-75: rgba(var(--bs-success-rgb), 0.75);
+
+    /* Opacity variants - Danger */
+    --bs-danger-10: rgba(var(--bs-danger-rgb), 0.1);
+    --bs-danger-25: rgba(var(--bs-danger-rgb), 0.25);
+    --bs-danger-50: rgba(var(--bs-danger-rgb), 0.5);
+    --bs-danger-75: rgba(var(--bs-danger-rgb), 0.75);
 }
 
-[data-bs-theme="dark"] {
-  --bs-body-bg: #000000;
-  --bs-body-color: #ffffff;
-}
-[data-bs-theme="dark"] .link-primary:hover {
-  color: var(--bs-link-hover-color) !important;
-  text-decoration-color: RGBA(
-    var(--bs-link-hover-color),
-    var(--bs-link-underline-opacity, 1)
-  ) !important;
-}
-
-body {
-  color: var(--text-color);
-}
-
-h1, h2, h3, h4, h5, h6 {
-  color: var(--text-color);
-}
-
-.text-secondary {
-  color: var(--text-color-secondary) !important;
-}
-
-.text-muted {
-  color: var(--text-color-muted) !important;
+.btn {
+    --bs-btn-color: var(--bs-body-color);
+    --bs-btn-border-color: var(--bs-body-color);
+    --bs-btn-hover-color: var(--bs-body-color);
+    --bs-btn-hover-border-color: var(--bs-body-color-75);
+    --bs-btn-active-color:var(--bs-body-color-75);
+    --bs-btn-active-border-color:var(--bs-body-color-75);
+    --bs-btn-disabled-color: var(--bs-body-color-50);
+    --bs-btn-focus-shadow-rgb: var(--bs-primary-rgb);
 }
 .btn-primary {
-    --bs-btn-color: #fff;
     --bs-btn-bg: var(--bs-primary);
-    --bs-btn-border-color: white;
-    --bs-btn-hover-color: #fff;
-    --bs-btn-hover-bg: var(--bs-primary-active);
-    --bs-btn-hover-border-color:  white;
-    --bs-btn-focus-shadow-rgb: 49,132,253;
-    --bs-btn-active-color: #fff;
-    --bs-btn-active-bg: var(--bs-primary-active);
-    --bs-btn-active-border-color: #0a53be;
-    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
-    --bs-btn-disabled-color: #fff;
-    --bs-btn-disabled-bg: #0d6efd;
-    --bs-btn-disabled-border-color: #0d6efd;
+    --bs-btn-hover-bg: var(--bs-primary-90);
+    --bs-btn-active-bg: var(--bs-primary-75);
+    --bs-btn-disabled-bg: var(--bs-primary);
+    --bs-btn-disabled-border-color: var(--bs-primary);
 }
+
 .btn-outline-primary {
-  --bs-btn-color: var(--bs-primary);
-  --bs-btn-border-color: var(--bs-primary);
-  --bs-btn-hover-bg: var(--bs-primary);
-  --bs-btn-hover-border-color: var(--bs-primary);
-  --bs-btn-active-bg: var(--bs-primary);
-  --bs-btn-active-border-color: var(--bs-primary);
-  --bs-btn-disabled-color: var(--bs-primary);
-  --bs-btn-disabled-border-color: var(--bs-primary);
-}
-.btn-secondary {
-  --bs-btn-color: #fff;
-  --bs-btn-bg: var(--bs-secondary);
-  --bs-btn-border-color: var(--bs-secondary);
-  --bs-btn-hover-color: #fff;
-  --bs-btn-hover-bg: var(--bs-secondary-active);
-  --bs-btn-hover-border-color: var(--bs-secondary-active);
-  --bs-btn-focus-shadow-rgb: 130, 138, 145;
-  --bs-btn-active-color: #fff;
-  --bs-btn-active-bg: var(--bs-secondary-active);
-  --bs-btn-active-border-color: var(--bs-secondary-active-border);
-  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
-  --bs-btn-disabled-color: #fff;
-  --bs-btn-disabled-bg: var(--bs-secondary);
-  --bs-btn-disabled-border-color: var(--bs-secondary);
-}
-.btn{
-    --bs-btn-border-width:3px;
+    --bs-btn-border-color: var(--bs-primary);
+    --bs-btn-hover-bg: var(--bs-primary-90);
+    --bs-btn-active-bg: var(--bs-primary);
 }

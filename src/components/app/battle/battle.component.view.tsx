@@ -11,29 +11,19 @@ export const View = ({path = ""}) => {
     const [v, d, c] = useSofter<BattleContract>(path);
     const {t} = useTranslation();
     return (
-        <div className="vstack  justify-content-between p-4" style={{backgroundColor: '#115511', position: 'relative'}}>
+        <div className="vstack p-2 justify-content-between position-relative" style={{backgroundColor: '', position: 'relative'}}>
 
             {v.isStartable && <StartScreen path={c.startScreen}/>}
-            {v.isStarted && <Game path={c.game}/>}
-            {v.shouldMenuBeVisible && <div style={{position: 'absolute'}}>
-                <div className="menu">
-                    {/* Home Icon Button */}
-                    <button
-                        className="btn btn btn-primary"
-                        style={{
-                            top: '1rem',
-                            left: '1rem',
-                            fontSize: '3em',
-                            border: 'none',
-                            cursor: 'pointer'
-                        }}
-                        title={t('goHome')}
-                        onClick={() => d.goHomeRequested()}
-                    >
-                        <FontAwesomeIcon icon={faHome}/>
-                    </button>
-                </div>
+            {v.shouldMenuBeVisible && <div className="m-2">
+                <button
+                    className="btn btn-primary"
+                    title={t('goHome')}
+                    onClick={() => d.goHomeRequested()}
+                >
+                    <FontAwesomeIcon icon={faHome}/>
+                </button>
             </div>}
+            {v.isStarted && <Game path={c.game}/>}
         </div>
     );
 };

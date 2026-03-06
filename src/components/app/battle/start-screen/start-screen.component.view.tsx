@@ -9,32 +9,32 @@ import {LanguageSwitcher} from "../../../language-switcher";
 export const View = ({path = ""}) => {
     const [v, d] = useSofter<StartScreenContract>(path);
     const {t} = useTranslation();
-    return (<div className="vstack justify-content-center align-items-center">
+    return (<div className="vstack justify-content-around align-items-center">
             <h1 className="game-title">{t("title")}</h1>
-            <div className="settings-container">
-                <div className="settings-row">
-                    <label className="settings-label">{t("language")}</label>
-                    <LanguageSwitcher/>
+            <div className="d-flex flex-column gap-2 text-center">
+                <div className="row">
+                    <label className="fs-3 ">{t("language")}</label>
+                    <div>
+                        <LanguageSwitcher/>
+                    </div>
                 </div>
-                <div className="settings-row">
-                    <label className="settings-label">{t("cardCount")}</label>
-                    <div className="card-count-controls">
+                <div className="row">
+                    <label className="fs-3">{t("cardCount")}</label>
+                    <div className=" d-flex gap-2 justify-content-center flex-wrap">
                         {v.cardCountOptions.map((option) => <button
-                            className={`btn btn-lg ${v.cardCount === option? 'btn-primary' : 'btn-outline-primary'}`}
-                                    onClick={() => d.setCardCountRequested(option)}>
-                            {option}
+                                key={option}
+                                className={`btn ${v.cardCount === option ? 'btn-primary' : 'btn-outline-primary'}`}
+                                onClick={() => d.setCardCountRequested(option)}>
+                                {option}
                             </button>
                         )}
                     </div>
                 </div>
             </div>
-            <button onClick={() => d.startGameRequested()} style={{
-                fontSize: "5em", minWidth: "10em", display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "space-between"
-            }}
-                    className="btn btn-primary px-5 ">
-                <FontAwesomeIcon icon={faStar}/>{t('ready')}<FontAwesomeIcon icon={faStar}/>
+
+            <button onClick={() => d.startGameRequested()}
+                    className="btn btn-lg btn-primary px-2 mt-1">
+                <FontAwesomeIcon icon={faStar}/> {t('start')} <FontAwesomeIcon icon={faStar}/>
             </button>
         </div>
     );

@@ -32,31 +32,30 @@ export const View = ({path = ""}) => {
             }
         };
     }, [windowSize, v.cardsWithLocation]);
-    return <div
-        style={{cursor: "pointer", width: "100%", height: "100%"}}>
-        <div
+    return <>
+        <div className="vstack justify-content-between"
             onClick={() => d.player1Clicked()}>
             <div style={{position: "absolute", bottom: 0, right: 0, zIndex: 1000}}>
-                <div ref={deckRef} className="stack-container" style={{borderStyle: "none"}}>
+                <div ref={deckRef} className="card-stack-container" style={{borderStyle: "none"}}>
                     {v.cardsWithLocation.map(c =>
                         <AnimatedCardView key={c.card} card={c.card} placement={c.placement} layoutState={layoutState}/>)}
                 </div>
             </div>
-            <div className="d-flex justify-content-end position-relative">
-                <div ref={player2WonCardsRef} className="stack-container"/>
-                <div ref={player2RemainingCardsRef} className="stack-container"/>
+            <div className="d-flex justify-content-end">
+                <div ref={player2WonCardsRef} className="card-stack-container"/>
+                <div ref={player2RemainingCardsRef} className="card-stack-container"/>
             </div>
-            <div style={{display: "flex", justifyContent: "space-between"}}>
-                <div className="hstack flex-grow-1  justify-content-end">
-                    <div ref={player1BeingPlayedCardsRef} className="stack-container"/>
+            <div className="d-flex">
+                <div className="flex-grow-1 d-flex justify-content-end">
+                    <div ref={player1BeingPlayedCardsRef} className="card-stack-container"/>
                 </div>
-                <div className="hstack flex-grow-1">
-                    <div ref={player2BeingPlayedCardsRef} className="stack-container"/>
+                <div className="flex-grow-1">
+                    <div ref={player2BeingPlayedCardsRef} className="card-stack-container"/>
                 </div>
             </div>
-            <div className="d-flex justify-content-start position-relative">
-                <div ref={player1RemainingCardsRef} className="stack-container"/>
-                <div ref={player1WonCardsRef} className="stack-container"/>
+            <div className="d-flex">
+                <div ref={player1RemainingCardsRef} className="card-stack-container"/>
+                <div ref={player1WonCardsRef} className="card-stack-container"/>
             </div>
         </div>
         {v.hasGameEnded && <div className="end-message-overlay" onClick={() => d.playAgainRequested()}>
@@ -69,5 +68,5 @@ export const View = ({path = ""}) => {
             {v.isTiedGame && <h1>{t("tie")}</h1>}
         </div>
         }
-    </div>
+    </>
 };
