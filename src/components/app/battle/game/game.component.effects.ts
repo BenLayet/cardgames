@@ -9,6 +9,7 @@ export type Dependencies = {
 };
 export const effects = ({audioService}: Dependencies): Effects<Contract> => ({
         dealRequested: ({dealCompleted}, {payload: cardCount}) => {
+            audioService.startBackgroundMusic();
             const cardsToDeal = createDeck(cardCount);
             const shuffledDeck = shuffleDeck(cardsToDeal);
             const player1Cards = shuffledDeck.slice(0, cardsToDeal.length / 2);

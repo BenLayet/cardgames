@@ -2,10 +2,32 @@ import type {AudioService} from "../services/audio.service.ts";
 import applauseSoundUrl from "../assets/audio/applause.mp3";
 import crowdDisappointmentSoundUrl from "../assets/audio/crowd-disappointment.mp3";
 import cardSlideSoundUrl from "../assets/audio/card-slide-1.mp3";
+import backgroundMusicUrl from "../assets/audio/soft-piano-loop.mp3";
 
 export class AudioAdapter implements AudioService {
     private currentAudio: HTMLAudioElement | null = null;
     private readonly cardSlideAudio = new Audio(cardSlideSoundUrl);
+    private backgroundMusic: HTMLAudioElement | null = null;
+
+    // Loops forever once started; not affected by stopAll()
+    startBackgroundMusic(): void {
+        if (this.backgroundMusic) return;
+        const music = new Audio(backgroundMusicUrl);
+        music.loop = true;
+        music.volume = 0.3;
+        this.backgroundMusic = music;
+        music.play().catch(error => {
+            // allow a retry at the next game start
+            this.backgroundMusic = null;
+            console.error("Failed to play background music:", error);
+        });
+    }
+
+    stopBackgroundMusic(): void {
+        if (!this.backgroundMusic) return;
+        this.backgroundMusic.pause();
+        this.backgroundMusic = null;
+    }
 
     stopAll(): void {
         if (this.currentAudio) {

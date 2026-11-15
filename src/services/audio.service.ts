@@ -3,4 +3,6 @@ export interface AudioService {
     playApplause(): void;
     playCrowdDisappointment(): void;
     playCardSlide(): void;
+    startBackgroundMusic(): void;
+    stopBackgroundMusic(): void;
 }

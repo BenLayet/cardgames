@@ -7,6 +7,7 @@ import {selectors} from "./battle.component.selectors";
 import {type State, initialState} from "./battle.component.state";
 import {stateUpdaters} from "./battle.component.updaters";
 import {gameDef, type GameDependencies} from "./game";
+import {effects} from "./battle.component.effects";
 import {startScreenDef} from "./start-screen";
 
 export type  Dependencies = GameDependencies;
@@ -17,6 +18,7 @@ export const componentDef = (dependencies: Dependencies): ComponentDef<Contract,
         uiEvents,
         stateUpdaters,
         childrenConfig,
+        effects: effects(dependencies),
         childrenComponentDefs: {
             game: gameDef(dependencies),
             startScreen: startScreenDef()
