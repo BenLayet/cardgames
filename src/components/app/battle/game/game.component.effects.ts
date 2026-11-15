@@ -20,6 +20,10 @@ export const effects = ({audioService}: Dependencies): Effects<Contract> => ({
             setTimeout(player2Clicked, 100);
             audioService.stopAll();
         },
+        // Card flips
+        suspenseCompleted: () => audioService.playCardSlide(),
+        player1RestackedRemainingCards: () => audioService.playCardSlide(),
+        player2RestackedRemainingCards: () => audioService.playCardSlide(),
         suspenseStarted: ({suspenseCompleted}) => {
             setTimeout(suspenseCompleted, 600)
         },
@@ -28,6 +32,7 @@ export const effects = ({audioService}: Dependencies): Effects<Contract> => ({
         },
         // leave time to see the revealed pair before it goes to the winner's stack
         hiddenPairRevealed: ({pairTransferred}) => {
+            audioService.playCardSlide();
             setTimeout(pairTransferred, 1500)
         },
         pairTransferPaused: ({pairTransferRequested}) => {
