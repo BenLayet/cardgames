@@ -4,20 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-patchedDependencies:
-  '@softer-components/app-utilities@0.9.0':
-    hash: 120eaef8e59e3730caa5ffcb5f49b0567c9b60ff133eeb0a35c9700851a41a5d
-    path: patches/@softer-components__app-utilities@0.9.0.patch
-  '@softer-components/base-adapter@0.9.0':
-    hash: f03d6b722ff0a078ad8e2be89bf07f6dddf1d77d62ed428e95e71504fd951063
-    path: patches/@softer-components__base-adapter@0.9.0.patch
-  '@softer-components/redux-adapter@0.9.1':
-    hash: 721ff4fdfe736eb3c213b693f390bb426ada6d2ba3eeb7a8d4e5186a89b1b222
-    path: patches/@softer-components__redux-adapter@0.9.1.patch
-  '@softer-components/test-utilities@0.9.0':
-    hash: 07b95cfc979a630a575fdcbd27bfd7ae2c959cb12dcfcdf00bbc24652f276456
-    path: patches/@softer-components__test-utilities@0.9.0.patch
-
 importers:
 
   .:
@@ -29,11 +15,11 @@ importers:
         specifier: ^3.2.0
         version: 3.2.0(@fortawesome/fontawesome-svg-core@7.2.0)(react@19.2.4)
       '@softer-components/app-utilities':
-        specifier: ^0.9.0
-        version: 0.9.0(patch_hash=120eaef8e59e3730caa5ffcb5f49b0567c9b60ff133eeb0a35c9700851a41a5d)
-      '@softer-components/redux-adapter':
         specifier: ^0.9.1
-        version: 0.9.1(patch_hash=721ff4fdfe736eb3c213b693f390bb426ada6d2ba3eeb7a8d4e5186a89b1b222)(@types/react@19.2.14)(redux@5.0.1)
+        version: 0.9.1(@softer-components/types@0.9.0)
+      '@softer-components/redux-adapter':
+        specifier: ^0.9.2
+        version: 0.9.2(@softer-components/types@0.9.0)(@types/react@19.2.14)(redux@5.0.1)
       '@softer-components/types':
         specifier: ^0.9.0
         version: 0.9.0
@@ -63,8 +49,8 @@ importers:
         specifier: ^9.39.1
         version: 9.39.2
       '@softer-components/test-utilities':
-        specifier: ^0.9.0
-        version: 0.9.0(patch_hash=07b95cfc979a630a575fdcbd27bfd7ae2c959cb12dcfcdf00bbc24652f276456)
+        specifier: ^0.9.1
+        version: 0.9.1(@softer-components/types@0.9.0)
       '@types/node':
         specifier: ^24.10.1
         version: 24.10.13
@@ -1145,17 +1131,25 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@softer-components/app-utilities@0.9.0':
-    resolution: {integrity: sha512-LBeRMsIMQ/bMu7NkJJYOFySiTrl4vT6NOgIDBu2ucNpMQHSSEQZCtyhBhmO7XURUpb/aP9AbCD6ZwF7rn9525Q==}
+  '@softer-components/app-utilities@0.9.1':
+    resolution: {integrity: sha512-bzpVavbbjbnKOylJnEEttZrUYtpfxoeLVjWdXk2IHVfstLG2FOFUqM+6dFFbJW4sQetco2VB2Lc2BOQZEtaCGA==}
+    peerDependencies:
+      '@softer-components/types': ^0.9.0
 
-  '@softer-components/base-adapter@0.9.0':
-    resolution: {integrity: sha512-Hheo75xG0t6EZBT8n3EmXSut1UrUrUK5BhKLZ4tA7RVOs4OIaC8F4CB8QaGqTYNkFnEcsHTTfk1G5OC5/Bxv5A==}
+  '@softer-components/base-adapter@0.9.1':
+    resolution: {integrity: sha512-ot3b802EVfavmciCxDZ22cXF2RC/EGZudnEZ/2G5qYrkA1Qkoau9vG/qYu9SW85rH1UNY5H1mEPbf60/yhNBlw==}
+    peerDependencies:
+      '@softer-components/types': ^0.9.0
 
-  '@softer-components/redux-adapter@0.9.1':
-    resolution: {integrity: sha512-p0ViFcJC9FNSbU/EhI/EfgiToSXAycw0w1srsm/stGptrSQ2gFbx8TvRr5oeZOtikpyNhqX51Grb7Bczdf/QhA==}
+  '@softer-components/redux-adapter@0.9.2':
+    resolution: {integrity: sha512-hN2DJpZv4oCuqSnRg6BJHZX0F+rgTPyoaWfm52SfFnC0TQljnV5u+t/bvd44X4CvDBAtsVmgDlXdpjbk7AO6+Q==}
+    peerDependencies:
+      '@softer-components/types': ^0.9.0
 
-  '@softer-components/test-utilities@0.9.0':
-    resolution: {integrity: sha512-0QAYMzjEzXrqlRynIKcwOTWaC+ZVzD6WVdZSGUDSyCoWmLEfmlQ4aSm8vDRO2HsAMxAEH+GyTxZsuQnjnMDFkw==}
+  '@softer-components/test-utilities@0.9.1':
+    resolution: {integrity: sha512-Fc/Iv5J03piNarmGtK0mYawI2nieGu7Ol9bx4QPoU/TN8R5Ui+jTqEt0giXC0dW6OCNyez5fqiT/YMUU8xW8eg==}
+    peerDependencies:
+      '@softer-components/types': ^0.9.0
 
   '@softer-components/types@0.9.0':
     resolution: {integrity: sha512-vdU8J98r724r+iU6EJN4VGq/EMSFfkBKDhHSvyd6OnlPis3luPZMCt3wKp6OiazVp2Kxsp8mIxpHRjTqPN6xyQ==}
@@ -3810,20 +3804,21 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.57.1':
     optional: true
 
-  '@softer-components/app-utilities@0.9.0(patch_hash=120eaef8e59e3730caa5ffcb5f49b0567c9b60ff133eeb0a35c9700851a41a5d)':
+  '@softer-components/app-utilities@0.9.1(@softer-components/types@0.9.0)':
     dependencies:
       '@softer-components/types': 0.9.0
 
-  '@softer-components/base-adapter@0.9.0(patch_hash=f03d6b722ff0a078ad8e2be89bf07f6dddf1d77d62ed428e95e71504fd951063)':
+  '@softer-components/base-adapter@0.9.1(@softer-components/types@0.9.0)':
     dependencies:
       '@softer-components/types': 0.9.0
       immer: 10.2.0
       lodash: 4.17.23
 
-  '@softer-components/redux-adapter@0.9.1(patch_hash=721ff4fdfe736eb3c213b693f390bb426ada6d2ba3eeb7a8d4e5186a89b1b222)(@types/react@19.2.14)(redux@5.0.1)':
+  '@softer-components/redux-adapter@0.9.2(@softer-components/types@0.9.0)(@types/react@19.2.14)(redux@5.0.1)':
     dependencies:
       '@reduxjs/toolkit': 2.11.2(react-redux@9.2.0(@types/react@19.2.14)(react@19.2.4)(redux@5.0.1))(react@19.2.4)
-      '@softer-components/base-adapter': 0.9.0(patch_hash=f03d6b722ff0a078ad8e2be89bf07f6dddf1d77d62ed428e95e71504fd951063)
+      '@softer-components/base-adapter': 0.9.1(@softer-components/types@0.9.0)
+      '@softer-components/types': 0.9.0
       react: 19.2.4
       react-redux: 9.2.0(@types/react@19.2.14)(react@19.2.4)(redux@5.0.1)
       reselect: 5.1.1
@@ -3831,9 +3826,10 @@ snapshots:
       - '@types/react'
       - redux
 
-  '@softer-components/test-utilities@0.9.0(patch_hash=07b95cfc979a630a575fdcbd27bfd7ae2c959cb12dcfcdf00bbc24652f276456)':
+  '@softer-components/test-utilities@0.9.1(@softer-components/types@0.9.0)':
     dependencies:
-      '@softer-components/base-adapter': 0.9.0(patch_hash=f03d6b722ff0a078ad8e2be89bf07f6dddf1d77d62ed428e95e71504fd951063)
+      '@softer-components/base-adapter': 0.9.1(@softer-components/types@0.9.0)
+      '@softer-components/types': 0.9.0
       immer: 10.2.0
       lodash: 4.17.23
 
