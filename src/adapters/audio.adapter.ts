@@ -1,5 +1,6 @@
 import type {AudioService} from "../services/audio.service.ts";
 import applauseSoundUrl from "../assets/audio/applause.mp3";
+import crowdDisappointmentSoundUrl from "../assets/audio/crowd-disappointment.mp3";
 
 export class AudioAdapter implements AudioService {
     private currentAudio: HTMLAudioElement | null = null;
@@ -13,14 +14,21 @@ export class AudioAdapter implements AudioService {
     }
 
     playApplause(): void {
+        this.play(applauseSoundUrl);
+    }
+
+    playCrowdDisappointment(): void {
+        this.play(crowdDisappointmentSoundUrl);
+    }
+
+    private play(soundUrl: string): void {
         // Stop any currently playing audio
         this.stopAll();
 
-        // Create new audio element
-        const audio = new Audio(applauseSoundUrl);
-        audio.volume =1;
+        const audio = new Audio(soundUrl);
+        audio.volume = 1;
         audio.play().catch(error => {
-            console.error("Failed to play applause sound:", error);
+            console.error(`Failed to play sound ${soundUrl}:`, error);
         });
 
         this.currentAudio = audio;

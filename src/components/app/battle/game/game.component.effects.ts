@@ -28,6 +28,9 @@ export const effects = ({audioService}: Dependencies): Effects<Contract> => ({
         },
         player1WonGame: () => {
             audioService.playApplause();
+        },
+        player2WonGame: () => {
+            audioService.playCrowdDisappointment();
         }
     }
 )

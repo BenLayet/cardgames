@@ -1,0 +1,89 @@
+.tomatoes {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 9999;
+}
+
+.tomato-throw {
+    position: absolute;
+    transform: translate(-50%, -50%);
+}
+
+.tomato-flying {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    animation: tomato-fly 0.75s cubic-bezier(0.3, 0.6, 0.6, 1) var(--delay) both;
+}
+
+@keyframes tomato-fly {
+    0% {
+        opacity: 1;
+        transform: translate(var(--from-x), 80vh) scale(0.25) rotate(0deg);
+    }
+    50% {
+        transform: translate(calc(var(--from-x) / 2), -12vh) scale(0.6) rotate(calc(var(--rotation) / 2));
+    }
+    98% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1.15) rotate(var(--rotation));
+    }
+    100% {
+        opacity: 0;
+        transform: translate(0, 0) scale(1.15) rotate(var(--rotation));
+    }
+}
+
+.tomato-splat {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    animation: tomato-splat 0.35s ease-out calc(var(--delay) + 0.73s) both,
+    tomato-slide 8s linear calc(var(--delay) + 1s) both;
+}
+
+.tomato-splat svg {
+    flex-shrink: 0;
+    filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.4));
+}
+
+@keyframes tomato-splat {
+    0% {
+        opacity: 1;
+        scale: 0.3 0.2;
+    }
+    60% {
+        scale: 1.2 1.05;
+    }
+    100% {
+        opacity: 1;
+        scale: 1;
+    }
+}
+
+@keyframes tomato-slide {
+    to {
+        translate: 0 25px;
+    }
+}
+
+.tomato-drip {
+    position: absolute;
+    top: 60%;
+    width: 7px;
+    height: 0;
+    background: #c81d12;
+    border-radius: 0 0 4px 4px;
+    animation: tomato-drip 3s ease-in calc(var(--delay) + 1s + var(--drip-delay)) both;
+}
+
+@keyframes tomato-drip {
+    to {
+        height: calc(var(--drip-length) + 30%);
+    }
+}

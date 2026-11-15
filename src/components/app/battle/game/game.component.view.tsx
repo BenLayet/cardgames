@@ -5,6 +5,7 @@ import {useMemo, useRef} from "react";
 import {useWindowSize} from "../../../../hooks/useWindowSize.ts";
 import {AnimatedCardView, type LayoutState} from "../../../card/AnimatedCardView.tsx";
 import {Fireworks} from "../../../fireworks/Fireworks.tsx";
+import {Tomatoes} from "../../../tomatoes/Tomatoes.tsx";
 import {useTranslation} from "react-i18next";
 
 export const View = ({path = ""}) => {
@@ -64,7 +65,11 @@ export const View = ({path = ""}) => {
                 <h1>{t("victory")}</h1>
             </>
             }
-            {v.hasPlayer2WonGame && <h1>{t("defeat")}</h1>}
+            {v.hasPlayer2WonGame && <>
+                <h1>{t("defeat")}</h1>
+                <Tomatoes/>
+            </>
+            }
             {v.isTiedGame && <h1>{t("tie")}</h1>}
         </div>
         }
