@@ -1,13 +1,13 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from "vitest";
-import {initTestStore, type TestStore} from "@softer-components/utils/test-utilities";
+import {initTestStore, type TestStore} from "@softer-components/test-utilities";
+import type {ExtractEventNameUnion, ExtractPayload} from "@softer-components/types";
 
 import {gameDef, type GameContract} from "./game.component.ts";
 import type {Card, StackLocation} from "../../../../model/deck.model.ts";
 import {fakeAudioService} from "../../../../test/fakes.ts";
 import {TimeoutSchedulerAdapter} from "../../../../adapters/scheduler.adapter.ts";
 
-type Events = GameContract["events"];
-const event = <N extends Events["eventName"]>(name: N, payload?: Events["payloads"][N & keyof Events["payloads"]]) =>
+const event = <N extends ExtractEventNameUnion<GameContract>>(name: N, payload?: ExtractPayload<GameContract, N>) =>
     ({name, payload, statePath: []});
 
 let audioService: ReturnType<typeof fakeAudioService>;

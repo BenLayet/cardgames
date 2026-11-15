@@ -4,12 +4,13 @@ import type {GameContract} from "./game";
 import type {StartScreenContract} from "./start-screen";
 import type {Values} from "./battle.component.selectors";
 
-export type EventNames =
-    | "startGameRequested"
-    | "goHomeRequested";
-export const uiEvents = ["goHomeRequested"] as const satisfies readonly EventNames[];
+export const uiEvents = ["goHomeRequested"] as const;
+export const allEvents = [
+    ...uiEvents,
+    "startGameRequested",
+] as const;
 export type Events = EventsContract<
-    EventNames, Record<never, never>, typeof uiEvents
+    typeof allEvents, Record<never, never>, typeof uiEvents
 >;
 
 export type Children = {

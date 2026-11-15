@@ -2,7 +2,7 @@ import type {StateUpdaters} from "@softer-components/types";
 
 import type {Contract} from "./game.component.contract.ts";
 import {initialState, opponentOf, PLAYERS, type PlayerState, type State} from "./game.component.state.ts";
-import {assertIsNotUndefined} from "@softer-components/utils";
+import {assertIsNotUndefined} from "../../../../utils/assert.functions.ts";
 
 // The helpers below change the state in place and return nothing,
 // because a value returned by an updater would replace the whole state.

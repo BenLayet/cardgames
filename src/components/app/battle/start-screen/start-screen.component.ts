@@ -13,7 +13,9 @@ export const startScreenDef = (dependencies: StartScreenDependencies): Component
     selectors,
     uiEvents,
     stateUpdaters,
-    effects: effects(dependencies),
+    config: {
+        effects: effects(dependencies),
+    },
 });
 export const StartScreen = View;
 export type StartScreenContract = Contract;

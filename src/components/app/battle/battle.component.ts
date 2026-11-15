@@ -1,7 +1,7 @@
 import type {ComponentDef} from "@softer-components/types";
 
 import {type Contract, uiEvents} from "./battle.component.contract";
-import {childrenConfig} from "./battle.component.forwarders";
+import {eventForwarders} from "./battle.component.forwarders";
 import {selectors} from "./battle.component.selectors";
 import {type State, initialState} from "./battle.component.state";
 import {stateUpdaters} from "./battle.component.updaters";
@@ -16,11 +16,13 @@ export const battleDef = (dependencies: BattleDependencies): ComponentDef<Contra
     selectors,
     uiEvents,
     stateUpdaters,
-    childrenConfig,
-    effects: effects(dependencies),
-    childrenComponentDefs: {
-        game: gameDef(dependencies),
-        startScreen: startScreenDef(dependencies),
+    eventForwarders,
+    config: {
+        effects: effects(dependencies),
+        childrenDefs: {
+            game: gameDef(dependencies),
+            startScreen: startScreenDef(dependencies),
+        },
     },
 });
 export const Battle = View;

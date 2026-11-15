@@ -1,0 +1,28 @@
+diff --git a/lib/index.d.ts b/lib/index.d.ts
+index 9360f4f1a47ee5ec9cc2987506f6be55934cf003..e7c9940a33e79c165bdcb073f15d8147db865a7f 100644
+--- a/lib/index.d.ts
++++ b/lib/index.d.ts
+@@ -1,15 +1,15 @@
+-import { ComponentContract } from '../../../types/src';
+-import { ComponentDef } from '../../../types/src';
++import { ComponentContract } from '@softer-components/types';
++import { ComponentDef } from '@softer-components/types';
+ import { configureStore } from '@reduxjs/toolkit';
+-import { EffectsManager } from '../../base-adapter/src';
+-import { ExtractChildrenPaths } from '../../../types/src';
+-import { ExtractUiDispatchers } from '../../../types/src';
++import { EffectsManager } from '@softer-components/base-adapter';
++import { ExtractChildrenPaths } from '@softer-components/types';
++import { ExtractUiDispatchers } from '@softer-components/types';
+ import { ListenerMiddleware } from '@reduxjs/toolkit';
+-import { Payload } from '../../../types/src';
++import { Payload } from '@softer-components/types';
+ import { Reducer } from '@reduxjs/toolkit';
+-import { StateTree } from '../../base-adapter/src';
++import { StateTree } from '@softer-components/base-adapter';
+ import { ThunkDispatch } from '@reduxjs/toolkit';
+-import { TreeStateManager } from '../../base-adapter/src';
++import { TreeStateManager } from '@softer-components/base-adapter';
+ import { UnknownAction } from '@reduxjs/toolkit';
+ 
+ declare type ChildrenPaths = Record<string, string[] | string | (string | undefined)>;

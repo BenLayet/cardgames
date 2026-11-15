@@ -12,9 +12,11 @@ export const appDef = (dependencies: AppDependencies): ComponentDef<Contract, St
     initialState,
     selectors,
     uiEvents,
-    childrenComponentDefs: {
-        battle: battleDef(dependencies),
-        settings: settingsDef(dependencies),
+    config: {
+        childrenDefs: {
+            battle: battleDef(dependencies),
+            settings: settingsDef(dependencies),
+        },
     },
 });
 export const App = View;

@@ -15,7 +15,9 @@ export const gameDef = (dependencies: GameDependencies): ComponentDef<Contract, 
     uiEvents,
     stateUpdaters,
     eventForwarders,
-    effects: effects(dependencies),
+    config: {
+        effects: effects(dependencies),
+    },
 });
 export const Game = View;
 export type GameContract = Contract;

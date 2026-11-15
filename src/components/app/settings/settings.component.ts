@@ -13,7 +13,9 @@ export const settingsDef = (dependencies: SettingsDependencies): ComponentDef<Co
     selectors,
     uiEvents,
     stateUpdaters,
-    effects: effects(dependencies),
+    config: {
+        effects: effects(dependencies),
+    },
 });
 export const Settings = View;
 export type SettingsContract = Contract;

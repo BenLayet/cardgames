@@ -1,5 +1,5 @@
 import {describe, expect, it, vi} from "vitest";
-import {initTestStore} from "@softer-components/utils/test-utilities";
+import {initTestStore} from "@softer-components/test-utilities";
 
 import {settingsDef} from "./settings.component.ts";
 import {fakeAudioService, fakeSettingsService} from "../../../test/fakes.ts";

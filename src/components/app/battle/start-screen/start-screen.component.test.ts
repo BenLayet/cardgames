@@ -1,5 +1,5 @@
 import {describe, expect, it} from "vitest";
-import {initTestStore} from "@softer-components/utils/test-utilities";
+import {initTestStore} from "@softer-components/test-utilities";
 
 import {startScreenDef} from "./start-screen.component.ts";
 import {fakeSettingsService} from "../../../../test/fakes.ts";

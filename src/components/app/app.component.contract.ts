@@ -4,11 +4,12 @@ import type {BattleContract} from "./battle";
 import type {SettingsContract} from "./settings";
 import type {Values} from "./app.component.selectors";
 
-export type EventNames =
-    | "displayed";
-export const uiEvents = ["displayed"] as const satisfies readonly EventNames[];
+export const uiEvents = ["displayed"] as const;
+export const allEvents = [
+    ...uiEvents,
+] as const;
 export type Events = EventsContract<
-    EventNames, Record<never, never>, typeof uiEvents
+    typeof allEvents, Record<never, never>, typeof uiEvents
 >;
 
 export type Children = {

@@ -3,7 +3,7 @@ import type {
   Selector,
   Selectors,
 } from "@softer-components/types";
-import { createBaseSelectors } from "@softer-components/utils";
+import { createBaseSelectors } from "@softer-components/app-utilities";
 
 import {type State, initialState } from "./app.component.state";
 import type {Children} from "./app.component.contract.ts";

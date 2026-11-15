@@ -1,5 +1,5 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from "vitest";
-import {initTestStore, type TestStore} from "@softer-components/utils/test-utilities";
+import {initTestStore, type TestStore} from "@softer-components/test-utilities";
 
 import {battleDef, type BattleContract} from "./battle.component.ts";
 import {fakeAudioService, fakeSettingsService} from "../../../test/fakes.ts";
