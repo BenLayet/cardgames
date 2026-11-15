@@ -8,10 +8,22 @@ export class AudioAdapter implements AudioService {
     private currentAudio: HTMLAudioElement | null = null;
     private readonly cardSlideAudio = new Audio(cardSlideSoundUrl);
     private backgroundMusic: HTMLAudioElement | null = null;
+    private musicEnabled = true;
+    private soundsEnabled = true;
+
+    setMusicEnabled(enabled: boolean): void {
+        this.musicEnabled = enabled;
+        if (!enabled) this.stopBackgroundMusic();
+    }
+
+    setSoundsEnabled(enabled: boolean): void {
+        this.soundsEnabled = enabled;
+        if (!enabled) this.stopAll();
+    }
 
     // Loops forever once started; not affected by stopAll()
     startBackgroundMusic(): void {
-        if (this.backgroundMusic) return;
+        if (!this.musicEnabled || this.backgroundMusic) return;
         const music = new Audio(backgroundMusicUrl);
         music.loop = true;
         music.volume = 0.3;
@@ -47,6 +59,7 @@ export class AudioAdapter implements AudioService {
 
     // Short sound effect that can overlap with itself and with the other sounds
     playCardSlide(): void {
+        if (!this.soundsEnabled) return;
         const audio = this.cardSlideAudio.cloneNode() as HTMLAudioElement;
         audio.volume = 0.7;
         audio.play().catch(error => {
@@ -57,6 +70,7 @@ export class AudioAdapter implements AudioService {
     private play(soundUrl: string): void {
         // Stop any currently playing audio
         this.stopAll();
+        if (!this.soundsEnabled) return;
 
         const audio = new Audio(soundUrl);
         audio.volume = 1;

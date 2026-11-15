@@ -8,9 +8,9 @@ import {type State, initialState} from "./battle.component.state";
 import {stateUpdaters} from "./battle.component.updaters";
 import {gameDef, type GameDependencies} from "./game";
 import {effects} from "./battle.component.effects";
-import {startScreenDef} from "./start-screen";
+import {startScreenDef, type StartScreenDependencies} from "./start-screen";
 
-export type  Dependencies = GameDependencies;
+export type Dependencies = GameDependencies & StartScreenDependencies;
 export const componentDef = (dependencies: Dependencies): ComponentDef<Contract, State> => {
     return {
         initialState,
@@ -21,7 +21,7 @@ export const componentDef = (dependencies: Dependencies): ComponentDef<Contract,
         effects: effects(dependencies),
         childrenComponentDefs: {
             game: gameDef(dependencies),
-            startScreen: startScreenDef()
+            startScreen: startScreenDef(dependencies)
         },
     };
 };

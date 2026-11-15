@@ -1,7 +1,10 @@
 {
   "title": "Battle!",
   "cardCount": "Card Count:",
-  "language": "Language:",
+  "language": "Language",
+  "settings": "Settings",
+  "music": "Music",
+  "sounds": "Sounds",
   "start": "Start",
   "goHome": "Home",
   "victory": "Victory",

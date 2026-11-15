@@ -1,7 +1,10 @@
 {
   "title": "Jeu de bataille\u00a0!",
   "cardCount": "Nombre de cartes :",
-  "language": "Langue :",
+  "language": "Langue",
+  "settings": "Réglages",
+  "music": "Musique",
+  "sounds": "Sons",
   "start": "Commencer",
   "goHome": "Accueil",
   "victory": "Victoire",

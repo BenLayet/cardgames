@@ -7,4 +7,13 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
     setCardCountRequested: ({payload:cardCount, state}) => {
         state.cardCount = cardCount;
     },
+    toggleMusicRequested: ({state}) => {
+        state.musicEnabled = !state.musicEnabled;
+    },
+    toggleSoundsRequested: ({state}) => {
+        state.soundsEnabled = !state.soundsEnabled;
+    },
+    toggleSettingsMenuRequested: ({state}) => {
+        state.isSettingsMenuOpen = !state.isSettingsMenuOpen;
+    },
 };
