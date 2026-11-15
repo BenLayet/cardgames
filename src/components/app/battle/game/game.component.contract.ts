@@ -1,7 +1,43 @@
-import type {Events} from "./game.component.events.ts";
+import type {EventsContract} from "@softer-components/types";
+
+import type {Card} from "../../../../model/deck.model.ts";
 import type {Values} from "./game.component.selectors.ts";
 
+export type EventNames =
+    | "gameStarted"
+    | "gameEnded"
+    | "dealRequested"
+    | "dealCompleted"
+    | "readyForNextCards"
+    | "bothPlayersPlayed"
+    | "suspenseStarted"
+    | "suspenseCompleted"
+    | "reviewWinnerStarted"
+    | "reviewWinnerCompleted"
+    | "checkWinnerRequested"
+    | "tieOccurred"
+    | "player1WonRound"
+    | "player2WonRound"
+    | "roundCompleted"
+    | "pairTransferRequested"
+    | "hiddenPairRevealed"
+    | "pairTransferred"
+    | "pairTransferPaused"
+    | "player1Clicked"
+    | "player2Clicked"
+    | "player1Played"
+    | "player2Played"
+    | "player1RestackedRemainingCards"
+    | "player2RestackedRemainingCards"
+    | "player1WonGame"
+    | "player2WonGame"
+    | "playAgainRequested";
+export const uiEvents = ["player1Clicked", "playAgainRequested"] as const satisfies readonly EventNames[];
+export type Events = EventsContract<
+    EventNames, { dealRequested: number, dealCompleted: { player1Cards: Card[], player2Cards: Card[] } }, typeof uiEvents
+>;
+
 export type Contract = {
-  events: Events;
-  values: Values;
+    events: Events;
+    values: Values;
 };

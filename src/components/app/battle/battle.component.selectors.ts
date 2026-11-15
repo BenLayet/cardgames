@@ -3,7 +3,7 @@ import type {
     Selectors, Selector
 } from "@softer-components/types";
 import type {State} from "./battle.component.state";
-import type {Children} from "./battle.component.children.ts";
+import type {Children} from "./battle.component.contract.ts";
 
 const isStarted = (state: State) => state.isStarted;
 const isStartable = (state: State) => !state.isStarted;
