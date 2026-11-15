@@ -1,5 +1,5 @@
 import {CardView} from "./CardView.tsx";
-import {useLayoutEffect, useRef, useState} from "react";
+import {useLayoutEffect, useRef} from "react";
 import gsap from "gsap";
 import type {Card, CardPlacement, StackLocation} from "../../model/deck.model.ts";
 
@@ -29,8 +29,7 @@ function computeFinalPosition(location: CardPlacement, layoutState: LayoutState)
         top: (layoutState.stackLocations[location.stackLocation]?.top ?? 0) - (layoutState.table?.top ?? 0),
         left: (layoutState.stackLocations[location.stackLocation]?.left ?? 0) - (layoutState.table?.left ?? 0)
     }
-    // Convert viewport coordinates (from getBoundingClientRect) to document coordinates
-    // by adding the scroll offset, then subtract the element's initial position
+    // stack and table coordinates come from the same viewport, so scrolling does not change their difference
     const x = stackCoordinates.left + location.index / 2;
     const y = stackCoordinates.top - location.index;
 
@@ -43,17 +42,6 @@ function computeFinalPosition(location: CardPlacement, layoutState: LayoutState)
 
 export function AnimatedCardView({card, placement, layoutState}: CardProps) {
     const ref = useRef<HTMLDivElement>(null);
-    const [, setScrollPos] = useState(0);
-
-    useLayoutEffect(() => {
-        const handleScroll = () => {
-            setScrollPos(window.scrollY + window.scrollX);
-        };
-
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
-
     useLayoutEffect(() => {
         if (!ref.current) return;
         const {x, y, rotation} = computeFinalPosition(placement, layoutState);
