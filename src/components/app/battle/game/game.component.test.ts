@@ -4,6 +4,7 @@ import {initTestStore, type TestStore} from "@softer-components/utils/test-utili
 import {gameDef, type GameContract} from "./game.component.ts";
 import type {Card, CardWithPlacement, StackLocation} from "../../../../model/deck.model.ts";
 import {fakeAudioService} from "../../../../test/fakes.ts";
+import {TimeoutSchedulerAdapter} from "../../../../adapters/scheduler.adapter.ts";
 
 type Events = GameContract["events"];
 const event = <N extends Events["eventName"]>(name: N, payload?: Events["payloads"][N & keyof Events["payloads"]]) =>
@@ -15,7 +16,7 @@ let store: TestStore<GameContract>;
 beforeEach(() => {
     vi.useFakeTimers();
     audioService = fakeAudioService();
-    store = initTestStore(gameDef({audioService}));
+    store = initTestStore(gameDef({audioService, schedulerService: new TimeoutSchedulerAdapter()}));
 });
 afterEach(() => {
     vi.useRealTimers();

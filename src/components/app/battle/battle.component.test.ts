@@ -3,6 +3,7 @@ import {initTestStore, type TestStore} from "@softer-components/utils/test-utili
 
 import {battleDef, type BattleContract} from "./battle.component.ts";
 import {fakeAudioService, fakeSettingsService} from "../../../test/fakes.ts";
+import {TimeoutSchedulerAdapter} from "../../../adapters/scheduler.adapter.ts";
 
 const startScreenPath = [["startScreen", "0"]];
 const gamePath = [["game", "0"]];
@@ -15,7 +16,7 @@ beforeEach(() => {
     vi.useFakeTimers();
     audioService = fakeAudioService();
     settingsService = fakeSettingsService({cardCount: 16});
-    store = initTestStore(battleDef({audioService, settingsService}));
+    store = initTestStore(battleDef({audioService, settingsService, schedulerService: new TimeoutSchedulerAdapter()}));
 });
 afterEach(() => {
     vi.useRealTimers();
@@ -39,5 +40,15 @@ describe("battle", () => {
         expect(store.getValues().isStarted()).toBe(false);
         expect(audioService.stopAll).toHaveBeenCalled();
         expect(audioService.stopBackgroundMusic).toHaveBeenCalled();
+    });
+
+    it("forgets the pending steps of a round when going home in the middle of it", async () => {
+        await store.when({name: "startGameRequested", statePath: startScreenPath});
+        await vi.runAllTimersAsync();
+        await store.when({name: "player1Clicked", statePath: gamePath});
+
+        await store.when({name: "goHomeRequested", statePath: []});
+
+        expect(vi.getTimerCount()).toBe(0);
     });
 });
