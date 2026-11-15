@@ -5,7 +5,6 @@ import {Provider} from "react-redux";
 
 import {appDef} from "./components/app";
 import "./style/style.css";
-import "./i18n";
 import AppShell from "./AppShell.tsx";
 import {configuration} from "./configuration.tsx";
 

@@ -3,6 +3,7 @@ import {useEffect} from "react";
 
 import type {AppContract} from "./app.component";
 import {Battle} from "./battle";
+import {Settings} from "./settings";
 
 export const View = ({path = ""}) => {
     const [v, d, c] = useSofter<AppContract>(path);
@@ -11,6 +12,7 @@ export const View = ({path = ""}) => {
     }, [d]);
     return (
         <>
+            {v.areSettingsAvailable && <Settings path={c.settings}/>}
             {v.page === "BATTLE" && <Battle path={c.battle}/>}
         </>
     );

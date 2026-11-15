@@ -2,7 +2,7 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import enTranslation from './locales/en/translation.json';
 import frTranslation from './locales/fr/translation.json';
-import {LocalStorageSettingsAdapter} from './adapters/settings.adapter.ts';
+import {DEFAULT_LANGUAGE, type Language} from './services/language.service.ts';
 
 export const resources = {
   en: {
@@ -11,20 +11,15 @@ export const resources = {
   fr: {
     translation: frTranslation,
   },
-} as const;
+} as const satisfies Record<Language, unknown>;
 
-const settingsService = new LocalStorageSettingsAdapter();
-
-i18n.use(initReactI18next).init({
+export const initI18n = (language: Language) => i18n.use(initReactI18next).init({
   resources,
-  lng: settingsService.load().language ?? 'fr',
-  fallbackLng: 'fr',
+  lng: language,
+  fallbackLng: DEFAULT_LANGUAGE,
   interpolation: {
     escapeValue: false,
   },
 });
 
-i18n.on('languageChanged', (language) => settingsService.save({language}));
-
 export default i18n;
-

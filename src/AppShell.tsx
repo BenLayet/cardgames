@@ -1,4 +1,3 @@
-import "./i18n";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
