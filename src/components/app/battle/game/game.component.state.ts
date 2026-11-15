@@ -1,5 +1,9 @@
 import type {Card} from "../../../../model/deck.model.ts";
 
+export const PLAYERS = ["player1", "player2"] as const;
+export type PlayerId = (typeof PLAYERS)[number];
+export const opponentOf = (id: PlayerId): PlayerId => id === "player1" ? "player2" : "player1";
+
 export const initialPlayerState = {
     remainingCards: [] as Card[],
     wonCards: [] as Card[],
@@ -12,7 +16,7 @@ export const initialState = {
     player1: initialPlayerState,
     player2: initialPlayerState,
     gameEnded: false,
-    roundWinner: null as "player1" | "player2" | null,
+    roundWinner: null as PlayerId | null,
 }
 
 export type State = typeof initialState;

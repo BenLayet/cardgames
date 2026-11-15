@@ -1,8 +1,28 @@
 import type {StateUpdaters} from "@softer-components/types";
 
 import type {Contract} from "./game.component.contract.ts";
-import {initialState, type State} from "./game.component.state.ts";
+import {initialState, opponentOf, PLAYERS, type PlayerState, type State} from "./game.component.state.ts";
 import {assertIsNotUndefined} from "@softer-components/utils";
+
+// The helpers below change the state in place and return nothing,
+// because a value returned by an updater would replace the whole state.
+const playTopCard = (player: PlayerState): void => {
+    const card = player.remainingCards.pop();
+    assertIsNotUndefined(card);
+    player.beingPlayedCards.push(card);
+    player.beingPlayedCardsUpStates.push(false);
+    player.canPlay = false;
+};
+const revealTopCards = (state: State): void => {
+    PLAYERS.forEach(id => {
+        const upStates = state[id].beingPlayedCardsUpStates;
+        upStates[upStates.length - 1] = true;
+    });
+};
+const restack = (player: PlayerState): void => {
+    player.remainingCards = [...player.remainingCards, ...player.wonCards];
+    player.wonCards = [];
+};
 
 export const stateUpdaters: StateUpdaters<Contract, State> = {
     dealRequested: () => initialState,
@@ -10,28 +30,14 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
         state.player1.remainingCards = payload.player1Cards;
         state.player2.remainingCards = payload.player2Cards;
     },
-    player1Played: ({state}) => {
-        const beingPlayedCard = state.player1.remainingCards.pop();
-        assertIsNotUndefined(beingPlayedCard)
-        state.player1.beingPlayedCards.push(beingPlayedCard);
-        state.player1.beingPlayedCardsUpStates.push(false);
-        state.player1.canPlay = false;
-    },
-    player2Played: ({state}) => {
-        const beingPlayedCard = state.player2.remainingCards.pop();
-        assertIsNotUndefined(beingPlayedCard)
-        state.player2.beingPlayedCards.push(beingPlayedCard);
-        state.player2.beingPlayedCardsUpStates.push(false);
-        state.player2.canPlay = false;
-    },
+    player1Played: ({state}) => playTopCard(state.player1),
+    player2Played: ({state}) => playTopCard(state.player2),
     readyForNextCards: ({state}) => {
-        state.player1.canPlay = true;
-        state.player2.canPlay = true;
+        PLAYERS.forEach(id => {
+            state[id].canPlay = true;
+        });
     },
-    suspenseCompleted: ({state}) => {
-        state.player1.beingPlayedCardsUpStates[state.player1.beingPlayedCardsUpStates.length - 1] = true;
-        state.player2.beingPlayedCardsUpStates[state.player2.beingPlayedCardsUpStates.length - 1] = true;
-    },
+    suspenseCompleted: ({state}) => revealTopCards(state),
     player1WonRound: ({state}) => {
         state.roundWinner = "player1";
     },
@@ -39,14 +45,11 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
         state.roundWinner = "player2";
     },
     // The played cards go to the round winner pair by pair, starting from the top of the stacks
-    hiddenPairRevealed: ({state}) => {
-        state.player1.beingPlayedCardsUpStates[state.player1.beingPlayedCardsUpStates.length - 1] = true;
-        state.player2.beingPlayedCardsUpStates[state.player2.beingPlayedCardsUpStates.length - 1] = true;
-    },
+    hiddenPairRevealed: ({state}) => revealTopCards(state),
     pairTransferred: ({state}) => {
         const winner = state.roundWinner;
         if (winner === null) throw new Error("A pair can only be transferred once the round has a winner");
-        const loser = winner === "player1" ? "player2" : "player1";
+        const loser = opponentOf(winner);
         const winnerCard = state[winner].beingPlayedCards.pop();
         const loserCard = state[loser].beingPlayedCards.pop();
         assertIsNotUndefined(winnerCard);
@@ -58,14 +61,8 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
     roundCompleted: ({state}) => {
         state.roundWinner = null;
     },
-    player1RestackedRemainingCards: ({state}) => {
-        state.player1.remainingCards = [...state.player1.remainingCards, ...state.player1.wonCards];
-        state.player1.wonCards = [];
-    },
-    player2RestackedRemainingCards: ({state}) => {
-        state.player2.remainingCards = [...state.player2.remainingCards, ...state.player2.wonCards];
-        state.player2.wonCards = [];
-    },
+    player1RestackedRemainingCards: ({state}) => restack(state.player1),
+    player2RestackedRemainingCards: ({state}) => restack(state.player2),
     gameEnded: ({state}) => {
         state.gameEnded = true;
     },

@@ -1,151 +1,91 @@
 import type {ExtractComponentValuesContract, Selectors,} from "@softer-components/types";
 
-import {type PlayerState, type State} from "./game.component.state.ts";
-import {type Card, type CardWithPlacement, cardValue, isFirstCardHigherValue} from "../../../../model/deck.model.ts";
-import {pipe} from "../../../../utils/function.utils.ts";
-import {and, not} from "@softer-components/utils";
+import {opponentOf, type PlayerId, PLAYERS, type PlayerState, type State} from "./game.component.state.ts";
+import {
+    type Card,
+    type CardWithPlacement,
+    cardValue,
+    isFirstCardHigherValue,
+    type StackLocation
+} from "../../../../model/deck.model.ts";
 
-
-const player1 = (state: State) => state.player1;
-const player2 = (state: State) => state.player2;
-const remainingCards = (player: PlayerState) => player.remainingCards;
-const beingPlayedCards = (player: PlayerState): Card[] => player.beingPlayedCards;
+// Rules about one player
 const lastCard = (cards: Card[]) => cards[cards.length - 1];
-const wonCards = (player: PlayerState) => player.wonCards;
-const cardsBeingPlayedUpStates = (player: PlayerState) => player.beingPlayedCardsUpStates;
-const canPlay = (player: PlayerState) => player.canPlay;
-
-const player1RemainingCards = pipe(player1, remainingCards);
-const player2RemainingCards = pipe(player2, remainingCards);
-
-const player1BeingPlayedCards = pipe(player1, beingPlayedCards);
-const player2BeingPlayedCards = pipe(player2, beingPlayedCards);
-const player1BeingPlayedCard = pipe(player1BeingPlayedCards, lastCard);
-const player2BeingPlayedCard = pipe(player2BeingPlayedCards, lastCard);
-
-const player1BeingPlayedUpStates = pipe(player1, cardsBeingPlayedUpStates);
-const player2BeingPlayedUpStates = pipe(player2, cardsBeingPlayedUpStates);
-const hasPlayer1WonRound = (state: State) =>
-    isFirstCardHigherValue(player1BeingPlayedCard(state), player2BeingPlayedCard(state));
-const player1CardCount = (state: State) => player1RemainingCards(state).length + player1WonCards(state).length;
-const player2CardCount = (state: State) => player2RemainingCards(state).length + player2WonCards(state).length;
-
-const hasPlayer2WonRound = (state: State) =>
-    isFirstCardHigherValue(player2BeingPlayedCard(state), player1BeingPlayedCard(state));
-
-const player1WonCards = pipe(player1, wonCards);
-const player2WonCards = pipe(player2, wonCards);
-
 const isStackEmpty = (cards: Card[]) => cards.length === 0;
-const shouldPlayer1RestackRemainingCards = and(pipe(player1RemainingCards, isStackEmpty), pipe(player1WonCards, not(isStackEmpty)));
-const shouldPlayer2RestackRemainingCards = and(pipe(player2RemainingCards, isStackEmpty), pipe(player2WonCards, not(isStackEmpty)));
+const cardCount = (player: PlayerState) => player.remainingCards.length + player.wonCards.length;
+const shouldRestack = (player: PlayerState) => isStackEmpty(player.remainingCards) && !isStackEmpty(player.wonCards);
+const canPlay = (player: PlayerState) => player.canPlay && !shouldRestack(player);
+const playedCard = (player: PlayerState) => lastCard(player.beingPlayedCards);
 
-const hasPlayer1WonGame = (state: State) => player2CardCount(state) === 0 && player1CardCount(state) > 0;
-const hasPlayer2WonGame = (state: State) => player1CardCount(state) === 0 && player2CardCount(state) > 0;
-const isTiedGame = (state: State) => player1CardCount(state) === 0 && player2CardCount(state) === 0;
+// Rules about one player against the other
+const hasWonRound = (id: PlayerId) => (state: State) =>
+    isFirstCardHigherValue(playedCard(state[id]), playedCard(state[opponentOf(id)]));
+const hasWonGame = (id: PlayerId) => (state: State) =>
+    cardCount(state[opponentOf(id)]) === 0 && cardCount(state[id]) > 0;
+
+const isTiedGame = (state: State) => cardCount(state.player1) === 0 && cardCount(state.player2) === 0;
 const hasGameEnded = (state: State) => state.gameEnded;
 
 const isTopPairHidden = (state: State) => {
-    const upStates = player1BeingPlayedUpStates(state);
+    const upStates = state.player1.beingPlayedCardsUpStates;
     return upStates.length > 0 && !upStates[upStates.length - 1];
 };
-const areCardsBeingPlayed = (state: State) => player1BeingPlayedCards(state).length > 0;
+const areCardsBeingPlayed = (state: State) => state.player1.beingPlayedCards.length > 0;
 
 // Number of battles in the current round: each revealed pair of equal cards (at even indexes) is a battle.
 // It is 0 when there is no battle or once the round has a winner.
 const battleCount = (state: State) => {
     if (state.roundWinner !== null) return 0;
-    const player1Cards = player1BeingPlayedCards(state);
-    const player2Cards = player2BeingPlayedCards(state);
-    const player1UpStates = player1BeingPlayedUpStates(state);
-    const player2UpStates = player2BeingPlayedUpStates(state);
+    const {player1, player2} = state;
     let count = 0;
-    for (let i = 0; i < player1Cards.length && i < player2Cards.length; i += 2) {
-        if (!player1UpStates[i] || !player2UpStates[i]) break;
-        if (cardValue(player1Cards[i]) !== cardValue(player2Cards[i])) break;
+    for (let i = 0; i < player1.beingPlayedCards.length && i < player2.beingPlayedCards.length; i += 2) {
+        if (!player1.beingPlayedCardsUpStates[i] || !player2.beingPlayedCardsUpStates[i]) break;
+        if (cardValue(player1.beingPlayedCards[i]) !== cardValue(player2.beingPlayedCards[i])) break;
         count++;
     }
     return count;
 };
 
-const haveBothPlayerPlayed = (state: State) => player2BeingPlayedCards(state).length === player1BeingPlayedCards(state).length && player1BeingPlayedCards(state).length > 0;
-const canPlayer1Play = and(pipe(player1, canPlay), not(shouldPlayer1RestackRemainingCards));
-const canPlayer2Play = and(pipe(player2, canPlay), not(shouldPlayer2RestackRemainingCards));
-const shouldCardsBeShown = (state: State) => haveBothPlayerPlayed(state) && player1BeingPlayedCards(state).length % 2 === 1;
-const cardsWithLocation = (state: State): CardWithPlacement[] => ([
-    ...player1BeingPlayedCards(state).map((card, index) => ({
-        card,
-        placement:{
-            stackLocation: "player1BeingPlayedCards" as const,
-            stackIndex:3,
-            index,
-            faceUp: player1BeingPlayedUpStates(state)[index],
-            messyLevel: 2
-        }
-    })),
-    ...player2BeingPlayedCards(state).map((card, index) => ({
-        card,
-        placement:{
-            stackLocation: "player2BeingPlayedCards" as const,
-            stackIndex:3,
-            index,
-            faceUp: player2BeingPlayedUpStates(state)[index],
-            messyLevel: 2
-        }
-    })),
-    ...player1RemainingCards(state).map((card, index) => ({
-        card,
-        placement:{
-            stackLocation: "player1RemainingCards" as const,
-            stackIndex:1,
-            index,
-            faceUp: false,
-            messyLevel: 2
-        }
-    })),
-    ...player2RemainingCards(state).map((card, index) => ({
-        card,
-        placement:{
-            stackLocation: "player2RemainingCards" as const,
-            stackIndex:1,
-            index,
-            faceUp: false,
-            messyLevel: 2
-        }
-    })),
-    ...player1WonCards(state).map((card, index) => ({
-        card,
-        placement:{
-            stackLocation: "player1WonCards" as const,
-            stackIndex:2,
-            index,
-            faceUp: true,
-            messyLevel: 10
-        }
-    })),
-    ...player2WonCards(state).map((card, index) => ({
-        card,
-        placement:{
-            stackLocation: "player2WonCards" as const,
-            stackIndex:2,
-            index,
-            faceUp: true,
-            messyLevel: 10
-        }
-    })),
-]);
+const haveBothPlayerPlayed = (state: State) =>
+    state.player2.beingPlayedCards.length === state.player1.beingPlayedCards.length && areCardsBeingPlayed(state);
+// cards at odd positions (1st, 3rd...) are shown, the ones in between are the hidden cards of a battle
+const shouldCardsBeShown = (state: State) => haveBothPlayerPlayed(state) && state.player1.beingPlayedCards.length % 2 === 1;
+
+// How each stack of a player is drawn on the table
+const STACKS = [
+    {name: "BeingPlayedCards", cards: (p: PlayerState) => p.beingPlayedCards, stackIndex: 3, messyLevel: 2, faceUp: (p: PlayerState, index: number) => p.beingPlayedCardsUpStates[index]},
+    {name: "RemainingCards", cards: (p: PlayerState) => p.remainingCards, stackIndex: 1, messyLevel: 2, faceUp: () => false},
+    {name: "WonCards", cards: (p: PlayerState) => p.wonCards, stackIndex: 2, messyLevel: 10, faceUp: () => true},
+] as const;
+
+const cardsWithLocation = (state: State): CardWithPlacement[] =>
+    STACKS.flatMap(stack => PLAYERS.flatMap(id => {
+        const player = state[id];
+        const stackLocation: StackLocation = `${id}${stack.name}`;
+        return stack.cards(player).map((card, index) => ({
+            card,
+            placement: {
+                stackLocation,
+                stackIndex: stack.stackIndex,
+                index,
+                faceUp: stack.faceUp(player, index),
+                messyLevel: stack.messyLevel,
+            }
+        }));
+    }));
+
 export const selectors = {
-    canPlayer1Play,
-    canPlayer2Play,
+    canPlayer1Play: (state: State) => canPlay(state.player1),
+    canPlayer2Play: (state: State) => canPlay(state.player2),
     shouldCardsBeShown,
     haveBothPlayerPlayed,
-    hasPlayer1WonRound,
-    hasPlayer2WonRound,
+    hasPlayer1WonRound: hasWonRound("player1"),
+    hasPlayer2WonRound: hasWonRound("player2"),
     cardsWithLocation,
-    shouldPlayer1RestackRemainingCards,
-    shouldPlayer2RestackRemainingCards,
-    hasPlayer1WonGame,
-    hasPlayer2WonGame,
+    shouldPlayer1RestackRemainingCards: (state: State) => shouldRestack(state.player1),
+    shouldPlayer2RestackRemainingCards: (state: State) => shouldRestack(state.player2),
+    hasPlayer1WonGame: hasWonGame("player1"),
+    hasPlayer2WonGame: hasWonGame("player2"),
     isTiedGame,
     hasGameEnded,
     isTopPairHidden,
