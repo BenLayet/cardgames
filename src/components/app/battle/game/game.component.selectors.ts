@@ -1,7 +1,7 @@
 import type {ExtractComponentValuesContract, Selectors,} from "@softer-components/types";
 
 import {type PlayerState, type State} from "./game.component.state.ts";
-import {type Card, type CardWithPlacement, isFirstCardHigherValue} from "../../../../model/deck.model.ts";
+import {type Card, type CardWithPlacement, cardValue, isFirstCardHigherValue} from "../../../../model/deck.model.ts";
 import {flow} from "lodash";
 import {and, not} from "@softer-components/utils";
 
@@ -50,6 +50,23 @@ const isTopPairHidden = (state: State) => {
     return upStates.length > 0 && !upStates[upStates.length - 1];
 };
 const areCardsBeingPlayed = (state: State) => player1BeingPlayedCards(state).length > 0;
+
+// Number of battles in the current round: each revealed pair of equal cards (at even indexes) is a battle.
+// It is 0 when there is no battle or once the round has a winner.
+const battleCount = (state: State) => {
+    if (state.roundWinner !== null) return 0;
+    const player1Cards = player1BeingPlayedCards(state);
+    const player2Cards = player2BeingPlayedCards(state);
+    const player1UpStates = player1BeingPlayedUpStates(state);
+    const player2UpStates = player2BeingPlayedUpStates(state);
+    let count = 0;
+    for (let i = 0; i < player1Cards.length && i < player2Cards.length; i += 2) {
+        if (!player1UpStates[i] || !player2UpStates[i]) break;
+        if (cardValue(player1Cards[i]) !== cardValue(player2Cards[i])) break;
+        count++;
+    }
+    return count;
+};
 
 const haveBothPlayerPlayed = (state: State) => player2BeingPlayedCards(state).length === player1BeingPlayedCards(state).length && player1BeingPlayedCards(state).length > 0;
 const canPlayer1Play = and(flow(player1, canPlay), not(shouldPlayer1RestackRemainingCards));
@@ -133,5 +150,6 @@ export const selectors = {
     hasGameEnded,
     isTopPairHidden,
     areCardsBeingPlayed,
+    battleCount,
 } satisfies Selectors<State>;
 export type Values = ExtractComponentValuesContract<typeof selectors>;

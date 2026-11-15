@@ -46,7 +46,11 @@ export const View = ({path = ""}) => {
                 <div ref={player2WonCardsRef} className="card-stack-container"/>
                 <div ref={player2RemainingCardsRef} className="card-stack-container"/>
             </div>
-            <div className="d-flex">
+            <div className="d-flex position-relative">
+                {v.battleCount > 0 &&
+                    <div key={v.battleCount} className="battle-message">
+                        {t("battle")}{v.battleCount > 1 && ` x${v.battleCount}`}
+                    </div>}
                 <div className="flex-grow-1 d-flex justify-content-end">
                     <div ref={player1BeingPlayedCardsRef} className="card-stack-container"/>
                 </div>
