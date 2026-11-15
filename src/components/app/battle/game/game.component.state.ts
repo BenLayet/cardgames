@@ -12,6 +12,7 @@ export const initialState = {
     player1: initialPlayerState,
     player2: initialPlayerState,
     gameEnded: false,
+    roundWinner: null as "player1" | "player2" | null,
     deck: [] as Card[],
 }
 

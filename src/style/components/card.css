@@ -14,3 +14,29 @@
 }
 
 
+
+.card-flip {
+    perspective: 1000px;
+}
+
+.card-flip-inner {
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.45s ease-in-out;
+}
+
+.card-flip--face-down .card-flip-inner {
+    transform: rotateY(180deg);
+}
+
+.card-face {
+    display: block;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+.card-face--back {
+    position: absolute;
+    inset: 0;
+    transform: rotateY(180deg);
+}

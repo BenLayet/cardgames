@@ -45,6 +45,12 @@ const hasPlayer2WonGame = (state: State) => player1CardCount(state) === 0 && pla
 const isTiedGame = (state: State) => player1CardCount(state) === 0 && player2CardCount(state) === 0;
 const hasGameEnded = (state: State) => state.gameEnded;
 
+const isTopPairHidden = (state: State) => {
+    const upStates = player1BeingPlayedUpStates(state);
+    return upStates.length > 0 && !upStates[upStates.length - 1];
+};
+const areCardsBeingPlayed = (state: State) => player1BeingPlayedCards(state).length > 0;
+
 const haveBothPlayerPlayed = (state: State) => player2BeingPlayedCards(state).length === player1BeingPlayedCards(state).length && player1BeingPlayedCards(state).length > 0;
 const canPlayer1Play = and(flow(player1, canPlay), not(shouldPlayer1RestackRemainingCards));
 const canPlayer2Play = and(flow(player2, canPlay), not(shouldPlayer2RestackRemainingCards));
@@ -125,5 +131,7 @@ export const selectors = {
     hasPlayer2WonGame,
     isTiedGame,
     hasGameEnded,
+    isTopPairHidden,
+    areCardsBeingPlayed,
 } satisfies Selectors<State>;
 export type Values = ExtractComponentValuesContract<typeof selectors>;

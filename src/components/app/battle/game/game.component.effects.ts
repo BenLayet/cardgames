@@ -24,7 +24,14 @@ export const effects = ({audioService}: Dependencies): Effects<Contract> => ({
             setTimeout(suspenseCompleted, 600)
         },
         reviewWinnerStarted: ({reviewWinnerCompleted}) => {
-            setTimeout(reviewWinnerCompleted, 500)
+            setTimeout(reviewWinnerCompleted, 1000)
+        },
+        // leave time to see the revealed pair before it goes to the winner's stack
+        hiddenPairRevealed: ({pairTransferred}) => {
+            setTimeout(pairTransferred, 1500)
+        },
+        pairTransferPaused: ({pairTransferRequested}) => {
+            setTimeout(pairTransferRequested, 300)
         },
         player1WonGame: () => {
             audioService.playApplause();

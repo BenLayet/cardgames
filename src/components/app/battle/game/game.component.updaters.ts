@@ -33,18 +33,30 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
         state.player2.beingPlayedCardsUpStates[state.player2.beingPlayedCardsUpStates.length - 1] = true;
     },
     player1WonRound: ({state}) => {
-        state.player1.wonCards = [...state.player1.wonCards, ...state.player2.beingPlayedCards, ...state.player1.beingPlayedCards];
-        state.player1.beingPlayedCards = [];
-        state.player1.beingPlayedCardsUpStates = [];
-        state.player2.beingPlayedCards = [];
-        state.player2.beingPlayedCardsUpStates = [];
+        state.roundWinner = "player1";
     },
     player2WonRound: ({state}) => {
-        state.player2.wonCards = [...state.player2.wonCards, ...state.player1.beingPlayedCards, ...state.player2.beingPlayedCards];
-        state.player1.beingPlayedCards = [];
-        state.player1.beingPlayedCardsUpStates = [];
-        state.player2.beingPlayedCards = [];
-        state.player2.beingPlayedCardsUpStates = [];
+        state.roundWinner = "player2";
+    },
+    // The played cards go to the round winner pair by pair, starting from the top of the stacks
+    hiddenPairRevealed: ({state}) => {
+        state.player1.beingPlayedCardsUpStates[state.player1.beingPlayedCardsUpStates.length - 1] = true;
+        state.player2.beingPlayedCardsUpStates[state.player2.beingPlayedCardsUpStates.length - 1] = true;
+    },
+    pairTransferred: ({state}) => {
+        const winner = state.roundWinner;
+        if (winner === null) throw new Error("A pair can only be transferred once the round has a winner");
+        const loser = winner === "player1" ? "player2" : "player1";
+        const winnerCard = state[winner].beingPlayedCards.pop();
+        const loserCard = state[loser].beingPlayedCards.pop();
+        assertIsNotUndefined(winnerCard);
+        assertIsNotUndefined(loserCard);
+        state[winner].beingPlayedCardsUpStates.pop();
+        state[loser].beingPlayedCardsUpStates.pop();
+        state[winner].wonCards.push(loserCard, winnerCard);
+    },
+    roundCompleted: ({state}) => {
+        state.roundWinner = null;
     },
     player1RestackedRemainingCards: ({state}) => {
         state.player1.remainingCards = [...state.player1.remainingCards, ...state.player1.wonCards];

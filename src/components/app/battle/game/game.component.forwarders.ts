@@ -24,8 +24,12 @@ export const eventForwarders: InternalEventForwarders<Contract> = [
         from: "reviewWinnerCompleted", to: "tieOccurred",
         onCondition: ({values}) => !values.hasPlayer2WonRound() && !values.hasPlayer1WonRound()
     },
-    {from: "player1WonRound", to: "roundCompleted"},
-    {from: "player2WonRound", to: "roundCompleted"},
+    {from: "player1WonRound", to: "pairTransferRequested"},
+    {from: "player2WonRound", to: "pairTransferRequested"},
+    {from: "pairTransferRequested", to: "hiddenPairRevealed", onCondition: ({values}) => values.isTopPairHidden()},
+    {from: "pairTransferRequested", to: "pairTransferred", onCondition: ({values}) => !values.isTopPairHidden()},
+    {from: "pairTransferred", to: "pairTransferPaused", onCondition: ({values}) => values.areCardsBeingPlayed()},
+    {from: "pairTransferred", to: "roundCompleted", onCondition: ({values}) => !values.areCardsBeingPlayed()},
     {from: "tieOccurred", to: "readyForNextCards"},
     {from: "roundCompleted", to: "readyForNextCards"},
     {
