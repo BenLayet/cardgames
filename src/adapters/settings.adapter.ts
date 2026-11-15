@@ -1,12 +1,6 @@
-import type {Settings, SettingsService} from "../services/settings.service.ts";
+import {DEFAULT_SETTINGS, type Settings, type SettingsService} from "../services/settings.service.ts";
 
 const STORAGE_KEY = "cardgames.settings";
-const DEFAULT_SETTINGS: Settings = {
-    language: null,
-    musicEnabled: true,
-    soundsEnabled: true,
-    cardCount: 32,
-};
 
 // Stores the settings in the browser; falls back to defaults when storage is unavailable (private mode, blocked...)
 export class LocalStorageSettingsAdapter implements SettingsService {

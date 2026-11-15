@@ -13,7 +13,6 @@ export const initialState = {
     player2: initialPlayerState,
     gameEnded: false,
     roundWinner: null as "player1" | "player2" | null,
-    deck: [] as Card[],
 }
 
 export type State = typeof initialState;

@@ -2,7 +2,7 @@ import type {ExtractComponentValuesContract, Selectors,} from "@softer-component
 
 import {type PlayerState, type State} from "./game.component.state.ts";
 import {type Card, type CardWithPlacement, cardValue, isFirstCardHigherValue} from "../../../../model/deck.model.ts";
-import {flow} from "lodash";
+import {pipe} from "../../../../utils/function.utils.ts";
 import {and, not} from "@softer-components/utils";
 
 
@@ -15,16 +15,16 @@ const wonCards = (player: PlayerState) => player.wonCards;
 const cardsBeingPlayedUpStates = (player: PlayerState) => player.beingPlayedCardsUpStates;
 const canPlay = (player: PlayerState) => player.canPlay;
 
-const player1RemainingCards = flow(player1, remainingCards);
-const player2RemainingCards = flow(player2, remainingCards);
+const player1RemainingCards = pipe(player1, remainingCards);
+const player2RemainingCards = pipe(player2, remainingCards);
 
-const player1BeingPlayedCards = flow(player1, beingPlayedCards);
-const player2BeingPlayedCards = flow(player2, beingPlayedCards);
-const player1BeingPlayedCard = flow(player1BeingPlayedCards, lastCard);
-const player2BeingPlayedCard = flow(player2BeingPlayedCards, lastCard);
+const player1BeingPlayedCards = pipe(player1, beingPlayedCards);
+const player2BeingPlayedCards = pipe(player2, beingPlayedCards);
+const player1BeingPlayedCard = pipe(player1BeingPlayedCards, lastCard);
+const player2BeingPlayedCard = pipe(player2BeingPlayedCards, lastCard);
 
-const player1BeingPlayedUpStates = flow(player1, cardsBeingPlayedUpStates);
-const player2BeingPlayedUpStates = flow(player2, cardsBeingPlayedUpStates);
+const player1BeingPlayedUpStates = pipe(player1, cardsBeingPlayedUpStates);
+const player2BeingPlayedUpStates = pipe(player2, cardsBeingPlayedUpStates);
 const hasPlayer1WonRound = (state: State) =>
     isFirstCardHigherValue(player1BeingPlayedCard(state), player2BeingPlayedCard(state));
 const player1CardCount = (state: State) => player1RemainingCards(state).length + player1WonCards(state).length;
@@ -33,12 +33,12 @@ const player2CardCount = (state: State) => player2RemainingCards(state).length +
 const hasPlayer2WonRound = (state: State) =>
     isFirstCardHigherValue(player2BeingPlayedCard(state), player1BeingPlayedCard(state));
 
-const player1WonCards = flow(player1, wonCards);
-const player2WonCards = flow(player2, wonCards);
+const player1WonCards = pipe(player1, wonCards);
+const player2WonCards = pipe(player2, wonCards);
 
 const isStackEmpty = (cards: Card[]) => cards.length === 0;
-const shouldPlayer1RestackRemainingCards = and(flow(player1RemainingCards, isStackEmpty), flow(player1WonCards, not(isStackEmpty)));
-const shouldPlayer2RestackRemainingCards = and(flow(player2RemainingCards, isStackEmpty), flow(player2WonCards, not(isStackEmpty)));
+const shouldPlayer1RestackRemainingCards = and(pipe(player1RemainingCards, isStackEmpty), pipe(player1WonCards, not(isStackEmpty)));
+const shouldPlayer2RestackRemainingCards = and(pipe(player2RemainingCards, isStackEmpty), pipe(player2WonCards, not(isStackEmpty)));
 
 const hasPlayer1WonGame = (state: State) => player2CardCount(state) === 0 && player1CardCount(state) > 0;
 const hasPlayer2WonGame = (state: State) => player1CardCount(state) === 0 && player2CardCount(state) > 0;
@@ -69,8 +69,8 @@ const battleCount = (state: State) => {
 };
 
 const haveBothPlayerPlayed = (state: State) => player2BeingPlayedCards(state).length === player1BeingPlayedCards(state).length && player1BeingPlayedCards(state).length > 0;
-const canPlayer1Play = and(flow(player1, canPlay), not(shouldPlayer1RestackRemainingCards));
-const canPlayer2Play = and(flow(player2, canPlay), not(shouldPlayer2RestackRemainingCards));
+const canPlayer1Play = and(pipe(player1, canPlay), not(shouldPlayer1RestackRemainingCards));
+const canPlayer2Play = and(pipe(player2, canPlay), not(shouldPlayer2RestackRemainingCards));
 const shouldCardsBeShown = (state: State) => haveBothPlayerPlayed(state) && player1BeingPlayedCards(state).length % 2 === 1;
 const cardsWithLocation = (state: State): CardWithPlacement[] => ([
     ...player1BeingPlayedCards(state).map((card, index) => ({

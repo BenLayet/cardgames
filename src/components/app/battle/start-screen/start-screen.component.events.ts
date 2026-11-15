@@ -7,7 +7,7 @@ export type EventNames =
     | "toggleMusicRequested"
     | "toggleSoundsRequested"
     | "toggleSettingsMenuRequested";
-export const uiEvents: EventNames[] = ["startGameRequested", "setCardCountRequested", "toggleMusicRequested", "toggleSoundsRequested", "toggleSettingsMenuRequested"];
+export const uiEvents = ["startGameRequested", "setCardCountRequested", "toggleMusicRequested", "toggleSoundsRequested", "toggleSettingsMenuRequested"] as const satisfies readonly EventNames[];
 
 export type Events = EventsContract<
     EventNames, { setCardCountRequested: number }, typeof uiEvents
