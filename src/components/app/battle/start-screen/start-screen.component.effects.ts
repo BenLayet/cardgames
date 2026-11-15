@@ -9,6 +9,9 @@ export type Dependencies = {
     settingsService: SettingsService,
 };
 export const effects = ({audioService, settingsService}: Dependencies): Effects<Contract> => ({
+    setCardCountRequested: (_, {payload: cardCount}) => {
+        settingsService.save({cardCount});
+    },
     toggleMusicRequested: (_, {values}) => {
         const musicEnabled = values.musicEnabled();
         audioService.setMusicEnabled(musicEnabled);

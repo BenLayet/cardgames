@@ -5,6 +5,7 @@ const DEFAULT_SETTINGS: Settings = {
     language: null,
     musicEnabled: true,
     soundsEnabled: true,
+    cardCount: 32,
 };
 
 // Stores the settings in the browser; falls back to defaults when storage is unavailable (private mode, blocked...)
