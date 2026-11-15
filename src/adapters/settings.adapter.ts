@@ -6,8 +6,11 @@ const STORAGE_KEY = "cardgames.settings";
 export class LocalStorageSettingsAdapter implements SettingsService {
     load(): Settings {
         try {
-            const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}");
-            return {...DEFAULT_SETTINGS, ...stored};
+            const stored: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}");
+            // ignore anything else than an object, such as a value written by hand
+            return typeof stored === "object" && stored !== null
+                ? {...DEFAULT_SETTINGS, ...(stored as Partial<Settings>)}
+                : DEFAULT_SETTINGS;
         } catch {
             return DEFAULT_SETTINGS;
         }

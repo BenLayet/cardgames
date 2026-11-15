@@ -1,0 +1,46 @@
+diff --git a/lib/index.d.ts b/lib/index.d.ts
+index 9ef6fe51eca580205caa08057590c92fadb19fe4..744fb06c47ff2347a8614d30e08fe5beb69fae86 100644
+--- a/lib/index.d.ts
++++ b/lib/index.d.ts
+@@ -1,12 +1,12 @@
+-import { ChildrenValues } from '../../types/src';
+-import { ComponentContract } from '../../types/src';
+-import { ComponentDef } from '../../types/src';
+-import { ContextsValues } from '../../types/src';
+-import { Event } from '../../types/src';
+-import { EventConsumerInput } from '../../types/src';
+-import { OptionalValue } from '../../types/src';
+-import { State } from '../../types/src';
+-import { Values } from '../../types/src';
++import { ChildrenValues } from '@softer-components/types';
++import { ComponentContract } from '@softer-components/types';
++import { ComponentDef } from '@softer-components/types';
++import { ContextsValues } from '@softer-components/types';
++import { Event } from '@softer-components/types';
++import { EventConsumerInput } from '@softer-components/types';
++import { OptionalValue } from '@softer-components/types';
++import { State } from '@softer-components/types';
++import { Values } from '@softer-components/types';
+ 
+ export declare const and: <T = any>(...predicates: Array<(value: T) => boolean>) => (value: T) => boolean;
+ 
+diff --git a/lib/test-utilities.d.ts b/lib/test-utilities.d.ts
+index a7963bd20cc3d439696b0d5d3a0d85fe8bc39b05..11bcb60e107d5e9ca5c81f3190b5d251d06d0d4e 100644
+--- a/lib/test-utilities.d.ts
++++ b/lib/test-utilities.d.ts
+@@ -1,9 +1,9 @@
+-import { ComponentContract } from '../../../types/src';
+-import { ComponentDef } from '../../../types/src';
+-import { Event } from '../../types/src';
+-import { GetContractAtStatePath } from '../../../types/src';
+-import { StatePaths } from '../../../types/src';
+-import { Values } from '../../../types/src';
++import { ComponentContract } from '@softer-components/types';
++import { ComponentDef } from '@softer-components/types';
++import { Event } from '@softer-components/types';
++import { GetContractAtStatePath } from '@softer-components/types';
++import { StatePaths } from '@softer-components/types';
++import { Values } from '@softer-components/types';
+ 
+ declare type ChildKey = string;
+ 

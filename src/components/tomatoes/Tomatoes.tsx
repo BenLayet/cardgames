@@ -10,7 +10,7 @@ const between = (min: number, max: number) => min + random() * (max - min);
 
 const splatPath = () => {
     const points = 16;
-    const coordinates = [...Array(points)].map((_, i) => {
+    const coordinates = Array.from({length: points}, (_, i) => {
         const angle = (i / points) * Math.PI * 2;
         const radius = i % 2 === 0 ? between(36, 48) : between(22, 32);
         return [50 + Math.cos(angle) * radius, 50 + Math.sin(angle) * radius];
@@ -26,7 +26,7 @@ const splatPath = () => {
     return path + " Z";
 };
 
-const TOMATOES = [...Array(14)].map((_, i) => ({
+const TOMATOES = Array.from({length: 14}, (_, i) => ({
     left: between(8, 85),
     top: between(8, 60),
     size: between(70, 130),
@@ -35,12 +35,12 @@ const TOMATOES = [...Array(14)].map((_, i) => ({
     rotation: between(-540, 540),
     splatRotation: between(0, 360),
     path: splatPath(),
-    droplets: [...Array(5)].map(() => ({
+    droplets: Array.from({length: 5}, () => ({
         angle: between(0, Math.PI * 2),
         distance: between(48, 62),
         radius: between(2.5, 6),
     })),
-    drips: [...Array(2)].map(() => ({x: between(35, 65), length: between(15, 40), delay: between(0, 1.5)})),
+    drips: Array.from({length: 2}, () => ({x: between(35, 65), length: between(15, 40), delay: between(0, 1.5)})),
 }));
 
 const Tomato = () => <svg viewBox="0 0 100 100" width="100%" height="100%">
@@ -72,7 +72,7 @@ export const Tomatoes = () => {
                             <circle key={j} r={droplet.radius} fill="#c81d12"
                                     cx={50 + Math.cos(droplet.angle) * droplet.distance}
                                     cy={50 + Math.sin(droplet.angle) * droplet.distance}/>)}
-                        {[...Array(6)].map((_, j) =>
+                        {Array.from({length: 6}, (_, j) =>
                             <ellipse key={`seed-${j}`} rx="2.5" ry="1.5" fill="#f7d56b"
                                      cx={38 + (j % 3) * 12} cy={42 + Math.floor(j / 3) * 14}
                                      transform={`rotate(${j * 40} ${38 + (j % 3) * 12} ${42 + Math.floor(j / 3) * 14})`}/>)}

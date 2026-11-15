@@ -2,7 +2,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from "vitest";
 import {initTestStore, type TestStore} from "@softer-components/utils/test-utilities";
 
 import {gameDef, type GameContract} from "./game.component.ts";
-import type {Card, CardWithPlacement, StackLocation} from "../../../../model/deck.model.ts";
+import type {Card, StackLocation} from "../../../../model/deck.model.ts";
 import {fakeAudioService} from "../../../../test/fakes.ts";
 import {TimeoutSchedulerAdapter} from "../../../../adapters/scheduler.adapter.ts";
 
@@ -24,7 +24,7 @@ afterEach(() => {
 
 const values = () => store.getValues("");
 // cards of a stack, from the bottom to the top
-const stack = (location: StackLocation): Card[] => (values().cardsWithLocation() as CardWithPlacement[])
+const stack = (location: StackLocation): Card[] => (values().cardsWithLocation())
     .filter(c => c.placement.stackLocation === location)
     .sort((a, b) => a.placement.index - b.placement.index)
     .map(c => c.card);

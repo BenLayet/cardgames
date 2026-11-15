@@ -5,8 +5,8 @@ import {battleDef, type BattleContract} from "./battle.component.ts";
 import {fakeAudioService, fakeSettingsService} from "../../../test/fakes.ts";
 import {TimeoutSchedulerAdapter} from "../../../adapters/scheduler.adapter.ts";
 
-const startScreenPath = [["startScreen", "0"]];
-const gamePath = [["game", "0"]];
+const startScreenPath: [string, string][] = [["startScreen", "0"]];
+const gamePath: [string, string][] = [["game", "0"]];
 
 let audioService: ReturnType<typeof fakeAudioService>;
 let settingsService: ReturnType<typeof fakeSettingsService>;
@@ -27,7 +27,7 @@ describe("battle", () => {
         await store.when({name: "startGameRequested", statePath: startScreenPath});
         await vi.runAllTimersAsync();
 
-        expect(store.getValues().isStarted()).toBe(true);
+        expect(store.getValues("").isStarted()).toBe(true);
         expect(store.getValues("/game").cardsWithLocation()).toHaveLength(16);
     });
 
@@ -37,7 +37,7 @@ describe("battle", () => {
 
         await store.when({name: "playAgainRequested", statePath: gamePath});
 
-        expect(store.getValues().isStarted()).toBe(false);
+        expect(store.getValues("").isStarted()).toBe(false);
         expect(audioService.stopAll).toHaveBeenCalled();
         expect(audioService.stopBackgroundMusic).toHaveBeenCalled();
     });

@@ -17,7 +17,7 @@ export type CardPlacement = {
     stackIndex: number;
     index: number;
     messyLevel: number;
-}
+};
 export type CardWithPlacement = {
     card: Card;
     placement: CardPlacement;
@@ -34,13 +34,13 @@ export const createDeck = (cardCount: number): Card[] => {
     }
     const rankCount = cardCount / SUITS.length;
     const ranksToUse = RANKS.slice(RANKS.length - rankCount);
-    return SUITS.reduce(
+    return SUITS.reduce<Card[]>(
         (acc, suit) => acc.concat(ranksToUse.map((rank): Card => `${rank}${suit}`)),
-        [] as Card[],
+        [],
     );
 }
 export const DECK: Card[] = createDeck(SUITS.length * RANKS.length);
-export const rankValue = (rank: Rank) => RANKS.indexOf(rank as (typeof RANKS)[number]);
+export const rankValue = (rank: Rank) => RANKS.indexOf(rank);
 export const cardValue = (card: Card) => rankValue(card.charAt(0) as Rank);
 export const isFirstCardHigherValue = (card1: Card | undefined, card2: Card | undefined): boolean =>
     !!card1 &&

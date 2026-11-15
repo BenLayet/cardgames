@@ -7,7 +7,7 @@ import type {Children} from "./battle.component.contract.ts";
 
 const isStarted = (state: State) => state.isStarted;
 const isStartable = (state: State) => !state.isStarted;
-const cardCount: Selector<State, Children> = (_, childrenValues) => childrenValues.startScreen.values.cardCount();
+const cardCount = ((_, childrenValues) => childrenValues.startScreen.values.cardCount()) satisfies Selector<State, Children>;
 const shouldMenuBeVisible = isStarted;
 export const selectors = {
     isStarted,

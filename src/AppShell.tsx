@@ -8,7 +8,7 @@ const AppShell = () => {
   const {t, i18n } = useTranslation();
   useEffect(() => {
     const appTitle = t('title');
-    document.title = `${appTitle}`;
+    document.title = appTitle;
   }, [t, i18n.language]);
 
   return i18n.isInitialized ? (

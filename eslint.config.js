@@ -19,6 +19,22 @@ export default defineConfig([
         languageOptions: {
             ecmaVersion: 2020,
             globals: globals.browser,
+            parserOptions: {
+                // the type-checked rules need the TypeScript project
+                projectService: {
+                    // vite.config.ts is outside the src folder covered by tsconfig.json
+                    allowDefaultProject: ['vite.config.ts'],
+                },
+                tsconfigRootDir: import.meta.dirname,
+            },
+        },
+        rules: {
+            // numbers are used to build CSS values in template literals
+            '@typescript-eslint/restrict-template-expressions': ['error', {allowNumber: true}],
+            // allows short arrow functions such as () => audioService.playCardSlide()
+            '@typescript-eslint/no-confusing-void-expression': ['error', {ignoreArrowShorthand: true}],
+            // softer-components contracts must be type aliases: an interface has no implicit index signature
+            '@typescript-eslint/consistent-type-definitions': 'off',
         },
     },
 ])

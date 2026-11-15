@@ -4,6 +4,14 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@softer-components/redux-adapter@0.7.0':
+    hash: bb1783172120f8d7b9ffc4222151c0c096ebb4ac34283493b520e915fc4549af
+    path: patches/@softer-components__redux-adapter@0.7.0.patch
+  '@softer-components/utils@0.7.0':
+    hash: 270b5523504d51ac08afeac0744a19f4c3b6004fa8ad79076710295215a6a3cd
+    path: patches/@softer-components__utils@0.7.0.patch
+
 importers:
 
   .:
@@ -16,13 +24,13 @@ importers:
         version: 3.2.0(@fortawesome/fontawesome-svg-core@7.2.0)(react@19.2.4)
       '@softer-components/redux-adapter':
         specifier: ^0.7.0
-        version: 0.7.0(@types/react@19.2.14)(redux@5.0.1)
+        version: 0.7.0(patch_hash=bb1783172120f8d7b9ffc4222151c0c096ebb4ac34283493b520e915fc4549af)(@types/react@19.2.14)(redux@5.0.1)
       '@softer-components/types':
         specifier: ^0.7.0
         version: 0.7.0
       '@softer-components/utils':
         specifier: ^0.7.0
-        version: 0.7.0
+        version: 0.7.0(patch_hash=270b5523504d51ac08afeac0744a19f4c3b6004fa8ad79076710295215a6a3cd)
       bootstrap:
         specifier: ^5.3.8
         version: 5.3.8(@popperjs/core@2.11.8)
@@ -3787,11 +3795,11 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.57.1':
     optional: true
 
-  '@softer-components/redux-adapter@0.7.0(@types/react@19.2.14)(redux@5.0.1)':
+  '@softer-components/redux-adapter@0.7.0(patch_hash=bb1783172120f8d7b9ffc4222151c0c096ebb4ac34283493b520e915fc4549af)(@types/react@19.2.14)(redux@5.0.1)':
     dependencies:
       '@reduxjs/toolkit': 2.11.2(react-redux@9.2.0(@types/react@19.2.14)(react@19.2.4)(redux@5.0.1))(react@19.2.4)
       '@softer-components/types': 0.7.0
-      '@softer-components/utils': 0.7.0
+      '@softer-components/utils': 0.7.0(patch_hash=270b5523504d51ac08afeac0744a19f4c3b6004fa8ad79076710295215a6a3cd)
       react: 19.2.4
       react-redux: 9.2.0(@types/react@19.2.14)(react@19.2.4)(redux@5.0.1)
       reselect: 5.1.1
@@ -3801,7 +3809,7 @@ snapshots:
 
   '@softer-components/types@0.7.0': {}
 
-  '@softer-components/utils@0.7.0':
+  '@softer-components/utils@0.7.0(patch_hash=270b5523504d51ac08afeac0744a19f4c3b6004fa8ad79076710295215a6a3cd)':
     dependencies:
       '@softer-components/types': 0.7.0
       immer: 10.2.0

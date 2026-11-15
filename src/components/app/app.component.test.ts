@@ -20,10 +20,10 @@ describe("app", () => {
             schedulerService: new TimeoutSchedulerAdapter(),
             languageService: {setLanguage: vi.fn()},
         }));
-        expect(store.getValues().areSettingsAvailable()).toBe(true);
+        expect(store.getValues("").areSettingsAvailable()).toBe(true);
 
         await store.when({name: "startGameRequested", statePath: [["battle", "0"], ["startScreen", "0"]]});
 
-        expect(store.getValues().areSettingsAvailable()).toBe(false);
+        expect(store.getValues("").areSettingsAvailable()).toBe(false);
     });
 });

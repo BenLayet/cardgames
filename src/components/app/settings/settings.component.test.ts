@@ -15,28 +15,28 @@ const setup = (settings = {}) => {
 describe("settings", () => {
     it("starts with the stored settings", () => {
         const {store} = setup({language: "en", musicEnabled: false});
-        expect(store.getValues().language()).toBe("en");
-        expect(store.getValues().musicEnabled()).toBe(false);
-        expect(store.getValues().soundsEnabled()).toBe(true);
+        expect(store.getValues("").language()).toBe("en");
+        expect(store.getValues("").musicEnabled()).toBe(false);
+        expect(store.getValues("").soundsEnabled()).toBe(true);
     });
 
     it("uses French when the stored language is missing or no longer supported", () => {
-        expect(setup({language: null}).store.getValues().language()).toBe("fr");
-        expect(setup({language: "de"}).store.getValues().language()).toBe("fr");
+        expect(setup({language: null}).store.getValues("").language()).toBe("fr");
+        expect(setup({language: "de"}).store.getValues("").language()).toBe("fr");
     });
 
     it("opens and closes the menu", async () => {
         const {store} = setup();
         await store.when({name: "toggleMenuRequested", statePath: []});
-        expect(store.getValues().isMenuOpen()).toBe(true);
+        expect(store.getValues("").isMenuOpen()).toBe(true);
         await store.when({name: "toggleMenuRequested", statePath: []});
-        expect(store.getValues().isMenuOpen()).toBe(false);
+        expect(store.getValues("").isMenuOpen()).toBe(false);
     });
 
     it("changes the language and remembers it", async () => {
         const {store, languageService, settingsService} = setup();
         await store.when({name: "setLanguageRequested", payload: "en", statePath: []});
-        expect(store.getValues().language()).toBe("en");
+        expect(store.getValues("").language()).toBe("en");
         expect(languageService.setLanguage).toHaveBeenCalledWith("en");
         expect(settingsService.load().language).toBe("en");
     });

@@ -28,7 +28,7 @@ export class AudioAdapter implements AudioService {
         music.loop = true;
         music.volume = 0.3;
         this.backgroundMusic = music;
-        music.play().catch(error => {
+        music.play().catch((error: unknown) => {
             // allow a retry at the next game start
             this.backgroundMusic = null;
             console.error("Failed to play background music:", error);
@@ -62,7 +62,7 @@ export class AudioAdapter implements AudioService {
         if (!this.soundsEnabled) return;
         const audio = this.cardSlideAudio.cloneNode() as HTMLAudioElement;
         audio.volume = 0.7;
-        audio.play().catch(error => {
+        audio.play().catch((error: unknown) => {
             console.error("Failed to play card slide sound:", error);
         });
     }
@@ -74,7 +74,7 @@ export class AudioAdapter implements AudioService {
 
         const audio = new Audio(soundUrl);
         audio.volume = 1;
-        audio.play().catch(error => {
+        audio.play().catch((error: unknown) => {
             console.error(`Failed to play sound ${soundUrl}:`, error);
         });
 

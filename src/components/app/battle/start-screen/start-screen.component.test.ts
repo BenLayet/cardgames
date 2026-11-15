@@ -13,18 +13,18 @@ const setup = (settings = {}) => {
 describe("start screen", () => {
     it("starts with the stored settings", () => {
         const {store} = setup({cardCount: 16});
-        expect(store.getValues().cardCount()).toBe(16);
+        expect(store.getValues("").cardCount()).toBe(16);
     });
 
     it("ignores a stored card count that is no longer offered", () => {
         const {store} = setup({cardCount: 20});
-        expect(store.getValues().cardCount()).toBe(32);
+        expect(store.getValues("").cardCount()).toBe(32);
     });
 
     it("remembers the chosen card count", async () => {
         const {store, settingsService} = setup();
         await store.when({name: "setCardCountRequested", payload: 52, statePath: []});
-        expect(store.getValues().cardCount()).toBe(52);
+        expect(store.getValues("").cardCount()).toBe(52);
         expect(settingsService.load().cardCount).toBe(52);
     });
 });

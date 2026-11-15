@@ -24,7 +24,7 @@ function translateRangeKeeping0(value: number) {
     return (value + 1.5) % 1 - 0.5;
 }
 
-function computeFinalPosition(location: CardPlacement, layoutState: LayoutState) {
+function computeFinalPosition(location: Pick<CardPlacement, "stackLocation" | "index" | "messyLevel">, layoutState: LayoutState) {
     const stackCoordinates = {
         top: (layoutState.stackLocations[location.stackLocation]?.top ?? 0) - (layoutState.table?.top ?? 0),
         left: (layoutState.stackLocations[location.stackLocation]?.left ?? 0) - (layoutState.table?.left ?? 0)
@@ -42,11 +42,12 @@ function computeFinalPosition(location: CardPlacement, layoutState: LayoutState)
 
 export function AnimatedCardView({card, placement, layoutState}: CardProps) {
     const ref = useRef<HTMLDivElement>(null);
+    const {stackLocation, index, messyLevel} = placement;
     useLayoutEffect(() => {
         if (!ref.current) return;
-        const {x, y, rotation} = computeFinalPosition(placement, layoutState);
+        const {x, y, rotation} = computeFinalPosition({stackLocation, index, messyLevel}, layoutState);
         gsap.to(ref.current, {x, y, rotation, duration: 0.5, ease: "power2.out"});
-    }, [placement.stackLocation, placement.index, layoutState]);
+    }, [stackLocation, index, messyLevel, layoutState]);
 
     return (
         <div ref={ref} style={{position: "absolute", zIndex: placement.index + placement.stackIndex * 100}}>

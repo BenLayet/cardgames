@@ -13,6 +13,7 @@ export const View = ({path = ""}) => {
     return (
         <>
             {v.areSettingsAvailable && <Settings path={c.settings}/>}
+            {/* eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- there is only one page for now */}
             {v.page === "BATTLE" && <Battle path={c.battle}/>}
         </>
     );

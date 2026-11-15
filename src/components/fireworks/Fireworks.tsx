@@ -38,7 +38,7 @@ export const Fireworks = () => {
 
             {/* Firework 1 - Top Left */}
             <g className="firework" style={{ transformOrigin: '20% 30%' }}>
-                {[...Array(20)].map((_, i) => (
+                {Array.from({length: 20}, (_, i) => (
                     <line
                         key={i}
                         x1="20%"
@@ -86,7 +86,7 @@ export const Fireworks = () => {
 
             {/* Firework 2 - Top Right */}
             <g className="firework" style={{ transformOrigin: '80% 25%' }}>
-                {[...Array(20)].map((_, i) => (
+                {Array.from({length: 20}, (_, i) => (
                     <line
                         key={i}
                         x1="80%"
@@ -137,7 +137,7 @@ export const Fireworks = () => {
 
             {/* Firework 3 - Center */}
             <g className="firework" style={{ transformOrigin: '50% 40%' }}>
-                {[...Array(24)].map((_, i) => (
+                {Array.from({length: 24}, (_, i) => (
                     <line
                         key={i}
                         x1="50%"
@@ -188,7 +188,7 @@ export const Fireworks = () => {
 
             {/* Firework 4 - Bottom Left */}
             <g className="firework" style={{ transformOrigin: '30% 70%' }}>
-                {[...Array(18)].map((_, i) => (
+                {Array.from({length: 18}, (_, i) => (
                     <line
                         key={i}
                         x1="30%"
@@ -239,7 +239,7 @@ export const Fireworks = () => {
 
             {/* Firework 5 - Bottom Right */}
             <g className="firework" style={{ transformOrigin: '75% 65%' }}>
-                {[...Array(22)].map((_, i) => (
+                {Array.from({length: 22}, (_, i) => (
                     <line
                         key={i}
                         x1="75%"
@@ -289,7 +289,7 @@ export const Fireworks = () => {
             </g>
 
             {/* Sparks/particles */}
-            {[...Array(50)].map((_, i) => (
+            {Array.from({length: 50}, (_, i) => (
                 <circle
                     key={`spark-${i}`}
                     cx={`${10 + (i * 3) % 80}%`}

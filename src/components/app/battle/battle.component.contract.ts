@@ -9,7 +9,7 @@ export type EventNames =
     | "goHomeRequested";
 export const uiEvents = ["goHomeRequested"] as const satisfies readonly EventNames[];
 export type Events = EventsContract<
-    EventNames, {}, typeof uiEvents
+    EventNames, Record<never, never>, typeof uiEvents
 >;
 
 export type Children = {

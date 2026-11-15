@@ -1,2 +1,5 @@
 onlyBuiltDependencies:
   - esbuild
+patchedDependencies:
+  '@softer-components/redux-adapter@0.7.0': patches/@softer-components__redux-adapter@0.7.0.patch
+  '@softer-components/utils@0.7.0': patches/@softer-components__utils@0.7.0.patch
