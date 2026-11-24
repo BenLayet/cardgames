@@ -111,6 +111,42 @@ describe("game", () => {
         expect(stack("player1WonCards")).toEqual(["QH", "KS"]);
     });
 
+    describe("player 2 never plays before player 1", () => {
+        it("when player 1 double clicks on a hidden card of a battle", async () => {
+            await deal(["2S", "3S", "KS"], ["5H", "4H", "KH"]);
+            await playRound(); // KS vs KH: battle
+
+            await store.when(event("player1Clicked")); // plays the hidden card
+            await vi.advanceTimersByTimeAsync(50);
+            await store.when(event("player1Clicked")); // ignored
+            await vi.advanceTimersByTimeAsync(200);
+
+            expect(stack("player1BeingPlayedCards")).toEqual(["KS", "3S"]);
+            expect(stack("player2BeingPlayedCards")).toEqual(["KH", "4H"]);
+        });
+
+        it("when player 1 clicks just before the cards are dealt", async () => {
+            await store.when(event("dealRequested", 12));
+            await vi.advanceTimersByTimeAsync(450);
+            await store.when(event("player1Clicked")); // ignored
+            await vi.advanceTimersByTimeAsync(200);
+
+            expect(stack("player1BeingPlayedCards")).toEqual([]);
+            expect(stack("player2BeingPlayedCards")).toEqual([]);
+        });
+
+        it("when player 1 clicks just before the round is completed", async () => {
+            await deal(["2S", "KS"], ["3H", "QH"]);
+            await store.when(event("player1Clicked"));
+            await vi.advanceTimersByTimeAsync(1650);
+            await store.when(event("player1Clicked")); // ignored
+            await vi.advanceTimersByTimeAsync(200);
+
+            expect(stack("player1BeingPlayedCards")).toEqual([]);
+            expect(stack("player2BeingPlayedCards")).toEqual([]);
+        });
+    });
+
     it("ends the game with a victory when player 2 has no card left", async () => {
         await deal(["KS"], ["QH"]);
 
