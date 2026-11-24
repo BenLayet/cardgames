@@ -93,14 +93,15 @@ The pauses between the steps of a round are delays in effects, not animation cal
 | `pairTransferPause` | 300 ms  | two pairs going to the winner's stack                        |
 
 Effects schedule the next action through `SchedulerService`
-(`src/services/scheduler.service.ts`), for example:
+(`src/services/scheduler.service.ts`, implemented with `setTimeout` by
+`TimeoutSchedulerAdapter` in `src/adapters/scheduler.adapter.ts`), for example:
 
 ```ts
 suspenseStarted: ({suspenseCompleted}) => after(DELAYS_MS.suspense, suspenseCompleted),
 ```
 
 `dealRequested` calls `schedulerService.cancelAll()` first, so nothing pending from a previous
-game runs in the new one. Tests can replace the scheduler with a fake (`src/test/fakes.ts`).
+game runs in the new one.
 
 When a delay is shorter than the GSAP tween (0.5 s), the next movement starts from wherever
 the card is: `gsap.to` always starts from the current position.
@@ -130,7 +131,7 @@ for each new battle and the keyframes play again.
 
 ## Debugging
 
-1. Redux DevTools: is the card in the expected stack after the action?
+1. Redux DevTools (the store is a Redux store, from `configureSofterStore`): is the card in the expected stack after the action?
 2. `cardsWithLocation`: does the card have the expected `stackLocation` and `index`?
 3. React DevTools: is `layoutState` measured (not null) and are the stack coordinates set?
 4. Browser DevTools: does the card's `transform` change when the placement changes?
