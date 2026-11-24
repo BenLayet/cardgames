@@ -68,30 +68,80 @@ describe("spider game", () => {
         expect(values().moveCount()).toBe(0);
     });
 
-    it("moves the cards selected by a click to the column clicked next", async () => {
-        await deal([cards("8S"), cards("9H"), []]);
+    it("moves a clicked card right away when it can only go to one column", async () => {
+        await deal([cards("_4D", "8S"), cards("9H")]);
+
+        await store.when(event("cardClicked", {column: 0, index: 1}));
+
+        expect(column(1)).toEqual(["9H", "8S"]);
+        expect(column(0)).toEqual(["4D"]);
+        expect(values().selected()).toBeNull();
+    });
+
+    it("shows the columns where a clicked card can go, and moves it to the one clicked next", async () => {
+        await deal([cards("8S"), cards("9H"), cards("9D")]);
 
         await store.when(event("cardClicked", {column: 0, index: 0}));
         expect(values().selected()).toEqual({column: 0, index: 0});
+        expect(values().destinations()).toEqual([1, 2]);
 
-        await store.when(event("cardClicked", {column: 1, index: 0}));
-        expect(column(1)).toEqual(["9H", "8S"]);
-        expect(values().selected()).toBeNull();
+        await store.when(event("cardClicked", {column: 2, index: 0}));
+        expect(column(2)).toEqual(["9D", "8S"]);
+        expect(values().destinations()).toEqual([]);
+    });
 
-        await store.when(event("cardClicked", {column: 1, index: 1}));
+    it("moves the selected cards to an empty column when it is clicked", async () => {
+        await deal([cards("8S"), cards("9H"), []]);
+
+        await store.when(event("cardClicked", {column: 0, index: 0}));
         await store.when(event("columnClicked", 2));
+
         expect(column(2)).toEqual(["8S"]);
     });
 
-    it("does not select cards that cannot be moved, and unselects on a second click", async () => {
-        await deal([cards("_KS", "9H", "8S")]);
+    it("unselects on a click elsewhere or on the same card again", async () => {
+        await deal([cards("8S"), cards("9H"), cards("9D"), cards("JC")]);
+
+        await store.when(event("cardClicked", {column: 0, index: 0}));
+        await store.when(event("columnClicked", 3));
+        expect(values().selected()).toBeNull();
+        expect(column(3)).toEqual(["JC"]);
+
+        await store.when(event("cardClicked", {column: 0, index: 0}));
+        await store.when(event("cardClicked", {column: 0, index: 0}));
+        expect(values().selected()).toBeNull();
+    });
+
+    it("selects another card clicked while cards are selected", async () => {
+        await deal([cards("8S"), cards("9H"), cards("9D"), cards("8C")]);
+
+        await store.when(event("cardClicked", {column: 0, index: 0}));
+        await store.when(event("cardClicked", {column: 3, index: 0}));
+
+        expect(values().selected()).toEqual({column: 3, index: 0});
+    });
+
+    it("does nothing when a card that cannot be moved is clicked", async () => {
+        await deal([cards("_KS", "9H", "8S"), cards("TS")]);
 
         await store.when(event("cardClicked", {column: 0, index: 1}));
-        expect(values().selected()).toBeNull();
 
-        await store.when(event("cardClicked", {column: 0, index: 2}));
-        await store.when(event("cardClicked", {column: 0, index: 2}));
         expect(values().selected()).toBeNull();
+        expect(values().moveCount()).toBe(0);
+    });
+
+    it("shows the next hint at each press, and forgets it after a move", async () => {
+        await deal([cards("_2C", "8S"), cards("9H"), cards("9S")]);
+
+        await store.when(event("hintRequested"));
+        expect(values().hint()).toEqual({kind: "move", move: {from: {column: 0, index: 1}, to: 2}});
+        await store.when(event("hintRequested"));
+        expect(values().hint()).toEqual({kind: "move", move: {from: {column: 0, index: 1}, to: 1}});
+        await store.when(event("hintRequested"));
+        expect(values().hint()).toEqual({kind: "move", move: {from: {column: 0, index: 1}, to: 2}});
+
+        await store.when(event("cardsDropped", {from: {column: 0, index: 1}, to: 2}));
+        expect(values().hint()).toBeNull();
     });
 
     it("deals a row from the stock only when no column is empty", async () => {

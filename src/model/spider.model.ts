@@ -134,3 +134,53 @@ export const collectCompletedSequences = (table: Table): Table => {
 };
 
 export const isWon = (table: Table): boolean => table.completed.length === SEQUENCE_COUNT;
+
+// The columns where the cards from this position can go
+export const destinationsOf = (table: Table, from: CardPosition): number[] =>
+    table.columns.flatMap((_, to) => canMoveCards(table, from, to) ? [to] : []);
+
+export type Move = { from: CardPosition, to: number };
+export type Hint = { kind: "move", move: Move } | { kind: "deal" } | { kind: "none" };
+
+// How useful a move is, or null when it changes nothing worth doing
+const moveScore = (table: Table, {from, to}: Move): number | null => {
+    const column = table.columns[from.column];
+    const moved = column[from.index];
+    const below = from.index > 0 ? column[from.index - 1] : undefined;
+    const target = table.columns[to] as SpiderCard[] | undefined;
+    const targetTop = target?.[target.length - 1];
+    // a whole column moved to an empty one stays the same
+    if (below === undefined && targetTop === undefined) return null;
+    const buildsSuit = targetTop !== undefined && suitOf(targetTop.card) === suitOf(moved.card);
+    // the cards already lie on a card one rank higher: moving them only helps to join their own suit
+    if (below?.faceUp === true && spiderRank(below.card) === spiderRank(moved.card) + 1) {
+        return buildsSuit && suitOf(below.card) !== suitOf(moved.card) ? 1 : null;
+    }
+    let score = 0;
+    if (buildsSuit) score += 2;
+    if (below !== undefined && !below.faceUp) score += 3;
+    if (below === undefined) score += 1;
+    // an empty column is precious: better use a card when there is one
+    if (targetTop === undefined) score -= 2;
+    return score;
+};
+
+// The useful moves, the most useful first: building a suit, turning a card over, emptying a column
+export const findMoves = (table: Table): Move[] =>
+    table.columns
+        .flatMap((column, columnIndex) => {
+            if (column.length === 0) return [];
+            const from = {column: columnIndex, index: movableRunStart(column)};
+            return destinationsOf(table, from).map(to => ({from, to}));
+        })
+        .map(move => ({move, score: moveScore(table, move)}))
+        .filter((scored): scored is { move: Move, score: number } => scored.score !== null)
+        .sort((a, b) => b.score - a.score)
+        .map(scored => scored.move);
+
+// The hints shown one after the other: the useful moves, else dealing a row, else nothing left to do
+export const findHints = (table: Table): Hint[] => {
+    const moves = findMoves(table).map((move): Hint => ({kind: "move", move}));
+    if (moves.length > 0) return moves;
+    return [canDealRow(table) ? {kind: "deal"} : {kind: "none"}];
+};

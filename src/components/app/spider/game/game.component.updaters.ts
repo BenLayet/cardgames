@@ -6,6 +6,7 @@ import {
     canPickCards,
     collectCompletedSequences,
     dealRow,
+    destinationsOf,
     moveCards,
     type Table,
 } from "../../../../model/spider.model.ts";
@@ -16,6 +17,7 @@ const play = (state: State, next: (table: Table) => Table): void => {
     state.table = next(state.table);
     state.moveCount++;
     state.selected = null;
+    state.hintIndex = null;
 };
 
 export const stateUpdaters: StateUpdaters<Contract, State> = {
@@ -23,14 +25,18 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
     dealCompleted: ({state, payload}) => {
         state.table = payload;
     },
-    // a click on another column is a move, see the forwarders
-    cardClicked: ({state, payload}) => {
-        if (state.selected !== null && state.selected.column !== payload.column) return;
-        const isAlreadySelected = state.selected?.index === payload.index;
-        state.selected = !isAlreadySelected && canPickCards(state.table, payload) ? payload : null;
+    // a click on a card that is not where the selected cards go picks that card, see the forwarders
+    cardPicked: ({state, payload}) => {
+        const isAlreadySelected = state.selected?.column === payload.column && state.selected.index === payload.index;
+        // cards with a single destination go there right away, see the forwarders
+        const hasSeveralDestinations = canPickCards(state.table, payload) && destinationsOf(state.table, payload).length > 1;
+        state.selected = !isAlreadySelected && hasSeveralDestinations ? payload : null;
+        state.hintIndex = null;
     },
+    // a click on a column where the selected cards go moves them, see the forwarders
     columnClicked: ({state, payload: column}) => {
-        if (state.selected?.column === column) state.selected = null;
+        if (state.selected !== null && !destinationsOf(state.table, state.selected).includes(column)) state.selected = null;
+        state.hintIndex = null;
     },
     moveRequested: ({state}) => {
         state.selected = null;
@@ -38,6 +44,7 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
     cardsMoved: ({state, payload: {from, to}}) => play(state, table => moveCards(table, from, to)),
     stockClicked: ({state}) => {
         state.selected = null;
+        state.hintIndex = null;
     },
     rowDealt: ({state}) => play(state, dealRow),
     // collecting is part of the move or the deal before it: an undo restores the table before both
@@ -46,12 +53,18 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
     },
     undoRequested: ({state}) => {
         state.selected = null;
+        state.hintIndex = null;
     },
     moveUndone: ({state}) => {
         const previous = state.history.pop();
         if (previous === undefined) return;
         state.table = previous;
         state.moveCount++;
+    },
+    // each press shows the next hint
+    hintRequested: ({state}) => {
+        state.selected = null;
+        state.hintIndex = state.hintIndex === null ? 0 : state.hintIndex + 1;
     },
     gameEnded: ({state}) => {
         state.gameEnded = true;

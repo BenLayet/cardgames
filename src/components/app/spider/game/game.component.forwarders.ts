@@ -1,27 +1,31 @@
 import type {EventForwarders} from "@softer-components/types";
 
 import type {Contract} from "./game.component.contract.ts";
-import {canMoveCards} from "../../../../model/spider.model.ts";
+import {canMoveCards, destinationsOf} from "../../../../model/spider.model.ts";
 
 // the steps of a game: each event leads to the next one when its condition is met
 export const eventForwarders = {
     internal: [
-        // a click on a column while cards are selected in another one moves them there
+        // a click on a column where the selected cards can go moves them there
         {
             from: "cardClicked", to: "moveRequested",
-            onCondition: ({values, payload}) => {
-                const selected = values.selected();
-                return selected !== null && selected.column !== payload.column;
-            },
+            onCondition: ({values, payload}) => values.destinations().includes(payload.column),
             withPayload: ({values, payload}) => ({from: values.selected() ?? payload, to: payload.column}),
         },
         {
+            from: "cardClicked", to: "cardPicked",
+            onCondition: ({values, payload}) => !values.destinations().includes(payload.column),
+        },
+        {
             from: "columnClicked", to: "moveRequested",
-            onCondition: ({values, payload}) => {
-                const selected = values.selected();
-                return selected !== null && selected.column !== payload;
-            },
+            onCondition: ({values, payload}) => values.destinations().includes(payload),
             withPayload: ({values, payload}) => ({from: values.selected() ?? {column: payload, index: 0}, to: payload}),
+        },
+        // cards that can only go to one column go there right away
+        {
+            from: "cardPicked", to: "moveRequested",
+            onCondition: ({values, payload}) => destinationsOf(values.table(), payload).length === 1,
+            withPayload: ({values, payload}) => ({from: payload, to: destinationsOf(values.table(), payload)[0]}),
         },
         {from: "cardsDropped", to: "moveRequested"},
         {

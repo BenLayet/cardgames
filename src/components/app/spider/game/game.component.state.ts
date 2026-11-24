@@ -4,8 +4,10 @@ export const initialState = {
     table: EMPTY_TABLE,
     // the tables before each move, the last one is restored by an undo
     history: [] as Table[],
-    // the first of the cards chosen by a click, which a click on another column moves there
+    // the first of the cards chosen by a click when they can go to several columns
     selected: null as CardPosition | null,
+    // which of the hints is shown, none until the hint button is pressed
+    hintIndex: null as number | null,
     moveCount: 0,
     gameEnded: false,
 };
