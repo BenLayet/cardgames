@@ -15,7 +15,7 @@ export const effects = ({audioService, schedulerService}: Dependencies): Effects
         schedulerService.schedule(callback, delayMs);
     };
     return {
-        dealRequested: ({dealCompleted}, {payload: cardCount}) => {
+        dealRequested: ({dealCompleted}, {payload: {cardCount}}) => {
             // forget whatever was still pending from a previous game
             schedulerService.cancelAll();
             audioService.startBackgroundMusic();
@@ -26,9 +26,11 @@ export const effects = ({audioService, schedulerService}: Dependencies): Effects
             after(DELAYS_MS.deal, () => dealCompleted({player1Cards, player2Cards}));
         },
         player1Clicked: () => audioService.stopAll(),
-        // player 2 answers only when the click of player 1 played a card,
+        // the computer answers only when the click of player 1 played a card,
         // otherwise an ignored click would make player 2 play alone once the next cards can be played
-        player1Played: ({player2Clicked}) => after(DELAYS_MS.player2Answer, player2Clicked),
+        player1Played: ({player2Clicked}, {values}) => {
+            if (values.isPlayer2Computer()) after(DELAYS_MS.player2Answer, player2Clicked);
+        },
         // Card flips
         suspenseCompleted: () => audioService.playCardSlide(),
         player1RestackedRemainingCards: () => audioService.playCardSlide(),
@@ -41,6 +43,10 @@ export const effects = ({audioService, schedulerService}: Dependencies): Effects
         },
         pairTransferPaused: ({pairTransferRequested}) => after(DELAYS_MS.pairTransferPause, pairTransferRequested),
         player1WonGame: () => audioService.playApplause(),
-        player2WonGame: () => audioService.playCrowdDisappointment(),
+        // a human player 2 deserves applause too
+        player2WonGame: (_, {values}) => {
+            if (values.isPlayer2Computer()) audioService.playCrowdDisappointment();
+            else audioService.playApplause();
+        },
     };
 };

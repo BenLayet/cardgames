@@ -25,7 +25,7 @@ const restack = (player: PlayerState): void => {
 };
 
 export const stateUpdaters: StateUpdaters<Contract, State> = {
-    dealRequested: () => initialState,
+    dealRequested: ({payload: {isPlayer2Computer}}) => ({...initialState, isPlayer2Computer}),
     dealCompleted: ({state, payload}) => {
         state.player1.remainingCards = payload.player1Cards;
         state.player2.remainingCards = payload.player2Cards;
@@ -66,5 +66,5 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
     gameEnded: ({state}) => {
         state.gameEnded = true;
     },
-    playAgainRequested: () => initialState,
+    playAgainRequested: ({state}) => ({...initialState, isPlayer2Computer: state.isPlayer2Computer}),
 };

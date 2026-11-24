@@ -9,16 +9,18 @@ export const eventForwarders = {
                 {
                     from: "startGameRequested",
                     to: "dealRequested",
-                    withPayload: ({values}) => values.cardCount()
+                    withPayload: ({values}) => ({cardCount: values.cardCount(), isPlayer2Computer: values.isPlayer2Computer()}),
                 },
             ],
             listeners: [
                 {from: "playAgainRequested", to: "goHomeRequested"}
             ]
         },
-        startScreen: {
+        setup: {
             listeners: [
-                {from: "startGameRequested", to: "startGameRequested"},]
+                {from: "startGameRequested", to: "startGameRequested"},
+                {from: "backRequested", to: "homeRequested"},
+            ]
         }
     },
 } satisfies EventForwarders<Contract>;

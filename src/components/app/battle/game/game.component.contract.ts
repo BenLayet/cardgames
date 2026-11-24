@@ -3,7 +3,7 @@ import type {EventsContract} from "@softer-components/types";
 import type {Card} from "../../../../model/deck.model.ts";
 import type {Values} from "./game.component.selectors.ts";
 
-export const uiEvents = ["player1Clicked", "playAgainRequested"] as const;
+export const uiEvents = ["player1Clicked", "player2Clicked", "playAgainRequested"] as const;
 export const allEvents = [
     ...uiEvents,
     "gameStarted",
@@ -25,7 +25,6 @@ export const allEvents = [
     "hiddenPairRevealed",
     "pairTransferred",
     "pairTransferPaused",
-    "player2Clicked",
     "player1Played",
     "player2Played",
     "player1RestackedRemainingCards",
@@ -34,7 +33,7 @@ export const allEvents = [
     "player2WonGame",
 ] as const;
 export type Events = EventsContract<
-    typeof allEvents, { dealRequested: number, dealCompleted: { player1Cards: Card[], player2Cards: Card[] } }, typeof uiEvents
+    typeof allEvents, { dealRequested: { cardCount: number, isPlayer2Computer: boolean }, dealCompleted: { player1Cards: Card[], player2Cards: Card[] } }, typeof uiEvents
 >;
 
 export type Contract = {

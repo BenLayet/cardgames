@@ -1,7 +1,7 @@
 import {useSofter} from "@softer-components/redux-adapter";
 
 import type {GameContract} from "./game.component.ts";
-import {useRef} from "react";
+import {type MouseEvent, useRef} from "react";
 import {useMeasure} from "../../../../hooks/useMeasure.ts";
 import {AnimatedCardView, type LayoutState} from "../../../card/AnimatedCardView.tsx";
 import {Fireworks} from "../../../fireworks/Fireworks.tsx";
@@ -32,9 +32,15 @@ export const View = ({path = ""}) => {
             player1WonCards: player1WonCardsRef.current?.getBoundingClientRect(),
         }
     }), [gameRef]);
+    // against the computer the whole table plays for player 1,
+    // between two humans each one taps their own half: player 2 sits at the top
+    const onTableClicked = (event: MouseEvent<HTMLDivElement>) => {
+        const table = event.currentTarget.getBoundingClientRect();
+        if (!v.isPlayer2Computer && event.clientY < table.top + table.height / 2) d.player2Clicked();
+        else d.player1Clicked();
+    };
     return <>
-        <div ref={gameRef} className="vstack justify-content-between"
-            onClick={() => d.player1Clicked()}>
+        <div ref={gameRef} className="vstack justify-content-between" onClick={onTableClicked}>
             <div style={{position: "absolute", bottom: 0, right: 0, zIndex: 1000}}>
                 <div ref={deckRef} className="card-stack-container" style={{borderStyle: "none"}}>
                     {layoutState && v.cardsWithLocation.map(c =>
@@ -63,14 +69,19 @@ export const View = ({path = ""}) => {
             </div>
         </div>
         {v.hasGameEnded && <div className="end-message-overlay" onClick={() => d.playAgainRequested()}>
-            {v.hasPlayer1WonGame && <>
+            {v.isPlayer2Computer && v.hasPlayer1WonGame && <>
                 <Fireworks/>
                 <h1>{t("victory")}</h1>
             </>
             }
-            {v.hasPlayer2WonGame && <>
+            {v.isPlayer2Computer && v.hasPlayer2WonGame && <>
                 <h1>{t("defeat")}</h1>
                 <Tomatoes/>
+            </>
+            }
+            {!v.isPlayer2Computer && (v.hasPlayer1WonGame || v.hasPlayer2WonGame) && <>
+                <Fireworks/>
+                <h1>{t("playerWins", {number: v.hasPlayer1WonGame ? 1 : 2})}</h1>
             </>
             }
             {v.isTiedGame && <h1>{t("tie")}</h1>}

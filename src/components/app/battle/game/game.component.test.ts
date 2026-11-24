@@ -41,7 +41,7 @@ const playRound = async () => {
 
 describe("game", () => {
     it("deals half of the requested cards to each player", async () => {
-        await store.when(event("dealRequested", 12));
+        await store.when(event("dealRequested", {cardCount: 12, isPlayer2Computer: true}));
         await vi.runAllTimersAsync();
 
         expect(stack("player1RemainingCards")).toHaveLength(6);
@@ -126,7 +126,7 @@ describe("game", () => {
         });
 
         it("when player 1 clicks just before the cards are dealt", async () => {
-            await store.when(event("dealRequested", 12));
+            await store.when(event("dealRequested", {cardCount: 12, isPlayer2Computer: true}));
             await vi.advanceTimersByTimeAsync(450);
             await store.when(event("player1Clicked")); // ignored
             await vi.advanceTimersByTimeAsync(200);
@@ -173,6 +173,54 @@ describe("game", () => {
 
         expect(values().hasGameEnded()).toBe(true);
         expect(values().isTiedGame()).toBe(true);
+    });
+
+    describe("between two humans", () => {
+        const dealToHumans = async (player1Cards: Card[], player2Cards: Card[]) => {
+            await store.when(event("dealRequested", {cardCount: 12, isPlayer2Computer: false}));
+            await vi.runAllTimersAsync();
+            await deal(player1Cards, player2Cards);
+        };
+
+        it("waits for player 2 to play instead of answering for them", async () => {
+            await dealToHumans(["2S", "KS"], ["3H", "QH"]);
+
+            await playRound();
+            expect(stack("player1BeingPlayedCards")).toEqual(["KS"]);
+            expect(stack("player2BeingPlayedCards")).toEqual([]);
+
+            await store.when(event("player2Clicked"));
+            await vi.runAllTimersAsync();
+            expect(stack("player1WonCards")).toEqual(["QH", "KS"]);
+        });
+
+        it("lets player 2 play first", async () => {
+            await dealToHumans(["2S", "KS"], ["3H", "QH"]);
+
+            await store.when(event("player2Clicked"));
+            await playRound();
+
+            expect(stack("player1WonCards")).toEqual(["QH", "KS"]);
+        });
+
+        it("applauds player 2 when they win", async () => {
+            await dealToHumans(["QS"], ["KH"]);
+
+            await store.when(event("player2Clicked"));
+            await playRound();
+
+            expect(values().hasPlayer2WonGame()).toBe(true);
+            expect(audioService.playApplause).toHaveBeenCalled();
+            expect(audioService.playCrowdDisappointment).not.toHaveBeenCalled();
+        });
+
+        it("keeps two humans when playing again", async () => {
+            await dealToHumans(["KS"], ["QH"]);
+
+            await store.when(event("playAgainRequested"));
+
+            expect(values().isPlayer2Computer()).toBe(false);
+        });
     });
 
     it("resets the game when playing again", async () => {

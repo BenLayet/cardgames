@@ -79,4 +79,5 @@
     --bs-btn-border-color: var(--bs-primary);
     --bs-btn-hover-bg: var(--bs-primary-90);
     --bs-btn-active-bg: var(--bs-primary);
+    --bs-btn-disabled-border-color: var(--bs-primary-50);
 }

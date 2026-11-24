@@ -8,9 +8,10 @@ import {stateUpdaters} from "./battle.component.updaters";
 import {type Dependencies, effects} from "./battle.component.effects";
 import {View} from "./battle.component.view";
 import {gameDef, type GameDependencies} from "./game";
-import {startScreenDef, type StartScreenDependencies} from "./start-screen";
+import {setupDef, type SetupDependencies} from "../setup";
+import {gameDefinition} from "../../../model/games.model.ts";
 
-export type BattleDependencies = Dependencies & GameDependencies & StartScreenDependencies;
+export type BattleDependencies = Dependencies & GameDependencies & SetupDependencies;
 export const battleDef = (dependencies: BattleDependencies): ComponentDef<Contract, State> => ({
     initialState,
     selectors,
@@ -21,7 +22,7 @@ export const battleDef = (dependencies: BattleDependencies): ComponentDef<Contra
         effects: effects(dependencies),
         childrenDefs: {
             game: gameDef(dependencies),
-            startScreen: startScreenDef(dependencies),
+            setup: setupDef(gameDefinition("bataille"), dependencies),
         },
     },
 });
