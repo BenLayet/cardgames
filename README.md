@@ -1,8 +1,8 @@
 # Cardgames
 
-A browser version of **Battle** (*la bataille*), the classic card game, played against the computer. Each player turns over the top card of their pile; the higher card wins both. Equal cards start a battle: each player adds a face-down card and a face-up one. The player who collects all the cards wins.
+A browser collection of card games. The home page lists the games; **Battle** (*la bataille*) is playable, against the computer or between two people on the same device. The other games are shown as coming soon. Each player turns over the top card of their pile; the higher card wins both. Equal cards start a battle: each player adds a face-down card and a face-up one. The player who collects all the cards wins.
 
-Features: deck size choice (12, 16, 32 or 52 cards), English and French, music and sound effects, animated cards, and installable as a PWA that works offline.
+Features: a setup screen per game (player count, human or computer at each seat), deck size choice (12, 16, 32 or 52 cards), English and French, music and sound effects, animated cards, and installable as a PWA that works offline.
 
 ## Stack
 
@@ -34,10 +34,12 @@ pnpm preview      # serve the production build
 src/
   components/
     app/              root component, settings
-      battle/         battle flow: start-screen, game
+      home/           list of games
+      setup/          setup screen shared by every game
+      battle/         battle flow: setup, game
     card/             card views and animation
     fireworks/, tomatoes/  end-of-game effects
-  model/              deck creation and card values
+  model/              deck creation, card values, game registry
   services/           service interfaces (audio, language, scheduler, settings)
   adapters/           browser implementations of those services
   configuration.tsx   wires adapters into the app

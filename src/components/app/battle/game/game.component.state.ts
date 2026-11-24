@@ -17,6 +17,8 @@ export const initialState = {
     player2: initialPlayerState,
     gameEnded: false,
     roundWinner: null as PlayerId | null,
+    // otherwise a second human plays from the other side of the screen
+    isPlayer2Computer: true,
 }
 
 export type State = typeof initialState;

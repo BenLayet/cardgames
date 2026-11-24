@@ -1,16 +1,33 @@
 {
-  "title": "Battle!",
+  "title": "Card Games",
+  "games": {
+    "bataille": "Battle",
+    "batailleCorse": "Egyptian Ratscrew",
+    "spider": "Spider Solitaire",
+    "crapette": "Russian Bank",
+    "pouilleux": "Old Maid"
+  },
+  "playerCount_one": "{{count}} player",
+  "playerCount_other": "{{count}} players",
+  "playerRange": "{{min}} to {{max}} players",
+  "comingSoon": "Coming soon",
+  "players": "Players:",
+  "addPlayer": "Add a player",
+  "removePlayer": "Remove a player",
+  "playerNumber": "Player {{number}}",
+  "human": "Human",
+  "computer": "Computer",
+  "back": "Back",
   "cardCount": "Card Count:",
   "language": "Language",
   "settings": "Settings",
   "music": "Music",
   "sounds": "Sounds",
   "start": "Start",
-  "goHome": "Home",
   "victory": "Victory",
   "defeat": "You Lost...",
+  "playerWins": "Player {{number}} Wins!",
   "battle": "Battle!",
   "tie": "It's a Tie!",
   "playAgain": "Click Anywhere To Play Again"
 }
-

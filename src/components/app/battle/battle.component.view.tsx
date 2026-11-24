@@ -4,8 +4,8 @@ import type {BattleContract} from "./battle.component";
 import {useTranslation} from "react-i18next";
 import {Game} from "./game";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faHome} from "@fortawesome/free-solid-svg-icons";
-import {StartScreen} from "./start-screen";
+import {faArrowLeft} from "@fortawesome/free-solid-svg-icons";
+import {Setup} from "../setup";
 
 export const View = ({path = ""}) => {
     const [v, d, c] = useSofter<BattleContract>(path);
@@ -13,14 +13,14 @@ export const View = ({path = ""}) => {
     return (
         <div className="vstack p-2 justify-content-between position-relative" style={{backgroundColor: '', position: 'relative'}}>
 
-            {v.isStartable && <StartScreen path={c.startScreen}/>}
+            {v.isStartable && <Setup path={c.setup}/>}
             {v.shouldMenuBeVisible && <div className="m-2">
                 <button
                     className="btn btn-primary"
-                    title={t('goHome')}
+                    title={t('back')}
                     onClick={() => d.goHomeRequested()}
                 >
-                    <FontAwesomeIcon icon={faHome}/>
+                    <FontAwesomeIcon icon={faArrowLeft}/>
                 </button>
             </div>}
             {v.isStarted && <Game path={c.game}/>}

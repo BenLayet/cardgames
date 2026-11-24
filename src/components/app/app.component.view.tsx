@@ -4,6 +4,7 @@ import {useEffect} from "react";
 import type {AppContract} from "./app.component";
 import {Battle} from "./battle";
 import {Settings} from "./settings";
+import {Home} from "./home/home.view";
 
 export const View = ({path = ""}) => {
     const [v, d, c] = useSofter<AppContract>(path);
@@ -13,8 +14,8 @@ export const View = ({path = ""}) => {
     return (
         <>
             {v.areSettingsAvailable && <Settings path={c.settings}/>}
-            {/* eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- there is only one page for now */}
-            {v.page === "BATTLE" && <Battle path={c.battle}/>}
+            {v.page === "HOME" && <Home onGameSelected={gameId => d.gameSelected(gameId)}/>}
+            {v.page === "bataille" && <Battle path={c.battle}/>}
         </>
     );
 };

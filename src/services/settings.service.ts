@@ -1,8 +1,13 @@
+import type {GameId, SeatKind} from "../model/games.model.ts";
+
 export type Settings = {
     language: string | null;
     musicEnabled: boolean;
     soundsEnabled: boolean;
+    // deck size of the battle
     cardCount: number;
+    // who sits at each seat, by game
+    seats: Partial<Record<GameId, SeatKind[]>>;
 };
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -10,6 +15,7 @@ export const DEFAULT_SETTINGS: Settings = {
     musicEnabled: true,
     soundsEnabled: true,
     cardCount: 32,
+    seats: {},
 };
 
 export interface SettingsService {
