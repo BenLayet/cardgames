@@ -10,6 +10,9 @@ import {
     createSpiderDeck,
     dealRow,
     dealTable,
+    destinationsOf,
+    findHints,
+    findMoves,
     EMPTY_TABLE,
     hasCompletedSequence,
     isWon,
@@ -159,5 +162,47 @@ describe("completed sequences", () => {
         const t = table(Array.from({length: 8}, (_, i) => fullSequence(i % 2 === 0 ? "S" : "H")));
         expect(isWon(t)).toBe(false);
         expect(isWon(collectCompletedSequences(t))).toBe(true);
+    });
+});
+
+describe("destinations", () => {
+    it("lists every column where the cards can go", () => {
+        const t = table([cards("8S"), cards("9H"), cards("9D"), cards("TS")]);
+        expect(destinationsOf(t, {column: 0, index: 0})).toEqual([1, 2, 4, 5, 6, 7, 8, 9]);
+        expect(destinationsOf(t, {column: 3, index: 0})).toEqual([4, 5, 6, 7, 8, 9]);
+    });
+});
+
+describe("hints", () => {
+    const full = (columns: SpiderCard[][]) => table([...columns, ...Array.from({length: COLUMN_COUNT - columns.length}, () => cards("KD"))]);
+
+    it("prefers building a suit, then turning a card over", () => {
+        const t = full([cards("_2C", "8S"), cards("9H"), cards("9S"), cards("4C", "3H")]);
+        expect(findMoves(t)).toEqual([
+            {from: {column: 0, index: 1}, to: 2},
+            {from: {column: 0, index: 1}, to: 1},
+        ]);
+    });
+
+    it("ignores moves that change nothing", () => {
+        // 8S already lies on a 9 of its suit
+        const t = full([cards("9S", "8S"), cards("9H")]);
+        expect(findMoves(t)).toEqual([]);
+    });
+
+    it("suggests moving cards on a card of their suit away from another suit", () => {
+        const t = full([cards("9H", "8S"), cards("9S")]);
+        expect(findMoves(t)).toEqual([{from: {column: 0, index: 1}, to: 1}]);
+    });
+
+    it("does not suggest moving a whole column to an empty one", () => {
+        const t = table([cards("8S")]);
+        expect(findMoves(t)).toEqual([]);
+    });
+
+    it("suggests dealing a row when no move helps, and says when nothing is left", () => {
+        const stock = cards(...Array.from({length: COLUMN_COUNT}, () => "_5C"));
+        expect(findHints(table(Array.from({length: COLUMN_COUNT}, () => cards("KH")), stock))).toEqual([{kind: "deal"}]);
+        expect(findHints(table(Array.from({length: COLUMN_COUNT}, () => cards("KH"))))).toEqual([{kind: "none"}]);
     });
 });

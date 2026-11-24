@@ -2,7 +2,7 @@ import {useSofter} from "@softer-components/redux-adapter";
 import {useTranslation} from "react-i18next";
 import {type CSSProperties, type PointerEvent, useState} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faRotateLeft} from "@fortawesome/free-solid-svg-icons";
+import {faLightbulb, faRotateLeft} from "@fortawesome/free-solid-svg-icons";
 
 import type {GameContract} from "./game.component.ts";
 import {CardView} from "../../../card/CardView.tsx";
@@ -96,6 +96,10 @@ export const View = ({path = ""}) => {
         press?.isDragging === true && press.position?.column === column && index >= press.position.index;
     const isSelected = (column: number, index: number) =>
         v.selected !== null && v.selected.column === column && index >= v.selected.index;
+    const hintedMove = v.hint?.kind === "move" ? v.hint.move : null;
+    const isHinted = (column: number, index: number) =>
+        hintedMove !== null && hintedMove.from.column === column && index >= hintedMove.from.index;
+    const isHintedTarget = (column: number) => hintedMove?.to === column;
 
     return <div className="spider-table vstack gap-3">
         <div className="d-flex justify-content-between align-items-start gap-2">
@@ -104,14 +108,20 @@ export const View = ({path = ""}) => {
                     {v.completed[i] && <div className="spider-card"><CardView card={`K${v.completed[i]}`}/></div>}
                 </div>)}
             </div>
-            <div className="d-flex align-items-center gap-2">
+            <div className="d-flex align-items-center gap-2 flex-wrap justify-content-end">
+                {v.hint?.kind === "none" && <span className="small fst-italic" role="status">{t("noUsefulMove")}</span>}
                 <span className="text-nowrap">{t("moves", {count: v.moveCount})}</span>
+                <button className="btn btn-outline-primary" disabled={v.hasGameEnded}
+                        title={t("hint")} aria-label={t("hint")}
+                        onClick={() => d.hintRequested()}>
+                    <FontAwesomeIcon icon={faLightbulb}/>
+                </button>
                 <button className="btn btn-outline-primary" disabled={!v.canUndo}
                         title={t("undo")} aria-label={t("undo")}
                         onClick={() => d.undoRequested()}>
                     <FontAwesomeIcon icon={faRotateLeft}/>
                 </button>
-                <button className={`spider-stock ${v.isDealBlocked ? "spider-stock--blocked" : ""}`}
+                <button className={`spider-stock ${v.isDealBlocked ? "spider-stock--blocked" : ""} ${v.hint?.kind === "deal" ? "spider-hint" : ""}`}
                         disabled={!v.canDealRow}
                         title={v.isDealBlocked ? t("dealBlocked") : t("dealRow", {count: v.stockRowCount})}
                         aria-label={v.isDealBlocked ? t("dealBlocked") : t("dealRow", {count: v.stockRowCount})}
@@ -130,7 +140,12 @@ export const View = ({path = ""}) => {
              onPointerCancel={() => setPress(null)}>
             {v.columns.map((column, columnIndex) => {
                 const offsets = cardOffsets(column);
-                return <div key={columnIndex} data-column={columnIndex} className="spider-column"
+                const columnClasses = [
+                    "spider-column",
+                    v.destinations.includes(columnIndex) ? "spider-column--destination" : "",
+                    isHintedTarget(columnIndex) ? "spider-column--hint" : "",
+                ].join(" ");
+                return <div key={columnIndex} data-column={columnIndex} className={columnClasses}
                             style={{"--column-height": offsets[offsets.length - 1] ?? 0} as CSSProperties}>
                     {column.map((card, index) => {
                         const dragged = isDragged(columnIndex, index);
@@ -139,6 +154,7 @@ export const View = ({path = ""}) => {
                             index >= v.movableRunStarts[columnIndex] ? "spider-card--movable" : "",
                             isSelected(columnIndex, index) ? "spider-card--selected" : "",
                             dragged ? "spider-card--dragged" : "",
+                            isHinted(columnIndex, index) ? "spider-card--hint" : "",
                         ].join(" ");
                         return <div key={card.id} data-index={index} className={classes}
                                     style={{

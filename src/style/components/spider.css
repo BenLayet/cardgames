@@ -103,3 +103,43 @@
     pointer-events: none;
     cursor: grabbing;
 }
+
+/* where the selected cards can go: the top card of the column, or the empty column itself */
+.spider-column--destination > .spider-card:last-child .card-image,
+.spider-column--hint > .spider-card:last-child .card-image {
+    filter: drop-shadow(0 0 5px var(--spider-highlight)) drop-shadow(0 0 2px var(--spider-highlight));
+}
+
+.spider-column--destination:empty,
+.spider-column--hint:empty {
+    box-shadow: inset 0 0 0 2px var(--spider-highlight);
+}
+
+.spider-column--destination {
+    --spider-highlight: #4fd1ff;
+    cursor: pointer;
+}
+
+.spider-column--hint,
+.spider-hint {
+    --spider-highlight: #ffe14d;
+}
+
+.spider-card--hint,
+.spider-column--hint > .spider-card:last-child,
+.spider-column--hint:empty,
+.spider-hint {
+    --spider-highlight: #ffe14d;
+    animation: spider-hint-pulse 0.8s ease-in-out 3;
+}
+
+.spider-card--hint .card-image,
+.spider-hint .card-image {
+    filter: drop-shadow(0 0 5px var(--spider-highlight)) drop-shadow(0 0 2px var(--spider-highlight));
+}
+
+@keyframes spider-hint-pulse {
+    50% {
+        opacity: 0.6;
+    }
+}

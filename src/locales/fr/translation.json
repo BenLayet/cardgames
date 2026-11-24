@@ -40,5 +40,7 @@
   "dealRow_other": "Distribuer une rangée ({{count}} restantes)",
   "dealBlocked": "Remplissez chaque colonne avant de distribuer",
   "completedSequences_one": "{{count}} suite terminée",
-  "completedSequences_other": "{{count}} suites terminées"
+  "completedSequences_other": "{{count}} suites terminées",
+  "hint": "Indice",
+  "noUsefulMove": "Plus de coup utile"
 }
