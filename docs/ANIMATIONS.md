@@ -1,247 +1,136 @@
-# How to Trigger CSS Animations with Redux Actions
+# Animations
 
-This guide explains the complete implementation of CSS animations triggered by Redux state changes in your game component.
-
-## Architecture Overview
-
-The animation system uses Redux state to control CSS classes, which trigger CSS animations. Here's how it works:
+The game state never holds animation flags. It only says where each card is (which stack, at which
+position, face up or down). The view turns that into positions on screen, and GSAP moves each card
+from where it is to where it should be.
 
 ```
-Redux Action → State Updater → Animation State → Selector → View → CSS Class → Animation
+action → updater changes the stacks → cardsWithLocation selector → AnimatedCardView → gsap.to(...)
 ```
 
-## Files Involved
+## Card movements (GSAP)
 
-### 1. `game.component.state.ts`
-Defines the animation state:
-```typescript
-animations: {
-    player1CardPlay: false,
-    player2CardPlay: false,
-    cardFlip: false,
-    roundWin: false,
-}
+### 1. Where each card belongs: `cardsWithLocation`
+
+`src/components/app/battle/game/game.component.selectors.ts`
+
+The `cardsWithLocation` selector lists every card on the table with a `CardPlacement`
+(defined in `src/model/deck.model.ts`):
+
+| Field           | Meaning                                                                        |
+|-----------------|--------------------------------------------------------------------------------|
+| `stackLocation` | The stack the card is in, e.g. `player1RemainingCards`, `player2WonCards`      |
+| `index`         | Position of the card in its stack, 0 being the bottom card                     |
+| `stackIndex`    | Order of the stack, used for the z-index (remaining 1, won 2, being played 3)  |
+| `faceUp`        | Whether the card shows its face                                                |
+| `messyLevel`    | How much the cards of the stack are rotated (2 for most stacks, 10 for won cards) |
+
+The stacks and their settings are declared in the `STACKS` array of the same file.
+
+### 2. Where each stack is on screen: `useMeasure`
+
+`src/components/app/battle/game/game.component.view.tsx` and `src/hooks/useMeasure.ts`
+
+The view renders an empty `div.card-stack-container` for each stack, with a ref.
+`useMeasure` reads their `getBoundingClientRect()` once they are laid out, and again when the
+window or the game container is resized. The result is a `LayoutState`:
+
+```ts
+type LayoutState = {
+    table?: Coordinates;                                     // origin, the deck container
+    stackLocations: Record<StackLocation, Coordinates | undefined>;
+};
 ```
 
-### 2. `game.component.updaters.ts`
-Sets animation flags when actions are dispatched:
-```typescript
-player1Played: ({state}) => {
-    // ... existing logic
-    state.animations.player1CardPlay = true;  // ✅ Trigger animation
-},
+All cards are rendered in the deck container (`deckRef`), with `position: absolute`, so the
+coordinates of a stack are relative to that container. The cards are only rendered once the
+first measure is available.
+
+### 3. Moving the card: `AnimatedCardView`
+
+`src/components/card/AnimatedCardView.tsx`
+
+Each card is rendered with `key={card}`, so React keeps the same DOM element when the card
+changes stack. When its placement or the layout changes, a `useLayoutEffect` computes the
+target and tweens the element to it:
+
+```ts
+const {x, y, rotation} = computeFinalPosition({stackLocation, index, messyLevel}, layoutState);
+gsap.to(ref.current, {x, y, rotation, duration: 0.5, ease: "power2.out"});
 ```
 
-### 3. `game.component.selectors.ts`
-Exposes animation state to components:
-```typescript
-shouldAnimatePlayer1CardPlay: (state: State) => state.animations.player1CardPlay,
+`computeFinalPosition`:
+- starts from the stack coordinates minus the table coordinates;
+- offsets each card by `index / 2` to the right and `index` up, so a stack looks thick;
+- adds a rotation from a pseudo-random value seeded by `index`, multiplied by `messyLevel`.
+  The rotation is the same for a given index on every render, so cards do not jitter.
+
+The z-index is `index + stackIndex * 100`, so cards higher in a stack are drawn on top, and
+stacks being played are drawn above the others.
+
+### 4. Turning a card over (CSS transition)
+
+`src/components/card/CardView.tsx` and `src/style/components/card.css`
+
+`CardView` renders the face and the back of the card back to back. When `faceUp` is false,
+the `card-flip--face-down` class rotates `.card-flip-inner` by 180° on the Y axis, with
+`transition: transform 0.45s ease-in-out`. GSAP is not involved in the flip.
+
+## Timing of a round
+
+`src/components/app/battle/game/game.component.timings.ts` and `game.component.effects.ts`
+
+The pauses between the steps of a round are delays in effects, not animation callbacks.
+`DELAYS_MS` holds them:
+
+| Delay               | Value   | Between                                                      |
+|---------------------|---------|--------------------------------------------------------------|
+| `deal`              | 500 ms  | the deal request and the cards being on the table            |
+| `player2Answer`     | 100 ms  | player 1 playing and player 2 playing                         |
+| `suspense`          | 600 ms  | both cards played and the cards being turned over            |
+| `reviewWinner`      | 1000 ms | the cards being turned over and the round being resolved     |
+| `revealedPair`      | 1500 ms | a hidden pair being revealed and it going to the winner      |
+| `pairTransferPause` | 300 ms  | two pairs going to the winner's stack                        |
+
+Effects schedule the next action through `SchedulerService`
+(`src/services/scheduler.service.ts`), for example:
+
+```ts
+suspenseStarted: ({suspenseCompleted}) => after(DELAYS_MS.suspense, suspenseCompleted),
 ```
 
-### 4. `game.component.view.tsx`
-Applies CSS classes based on animation state:
-```tsx
-<div className={v.shouldAnimatePlayer1CardPlay ? 'animate-card-play' : ''}>
-    {/* Card content */}
-</div>
-```
+`dealRequested` calls `schedulerService.cancelAll()` first, so nothing pending from a previous
+game runs in the new one. Tests can replace the scheduler with a fake (`src/test/fakes.ts`).
 
-### 5. `animations.css`
-Defines the CSS animations:
-```css
-.animate-card-play {
-    animation: slideToCenter 0.3s ease-out forwards;
-}
+When a delay is shorter than the GSAP tween (0.5 s), the next movement starts from wherever
+the card is: `gsap.to` always starts from the current position.
 
-@keyframes slideToCenter {
-    from { transform: translateY(0) scale(1); }
-    to { transform: translateY(-50px) scale(1.1); }
-}
-```
+## Other animations (CSS keyframes)
 
-## How It Works
+These do not depend on the card positions. They play when their element is rendered.
 
-### Step-by-Step Flow
+| Animation                  | Files                                                           | Shown when                         |
+|----------------------------|-----------------------------------------------------------------|------------------------------------|
+| Battle message pop / pulse | `src/style/components/battle-message.css`                       | `battleCount > 0`                  |
+| Tomatoes thrown            | `src/components/tomatoes/Tomatoes.tsx`, `src/style/components/tomatoes.css` | player 2 wins the game |
+| Fireworks (SVG `<animate>`) | `src/components/fireworks/Fireworks.tsx`                       | player 1 wins the game             |
+| Settings menu opening      | `src/style/components/settings-menu.css`                        | the settings menu opens            |
 
-1. **User Action**: User clicks to play a card
-2. **Redux Action**: `player1Clicked()` is dispatched
-3. **State Update**: The updater sets `state.animations.player1CardPlay = true`
-4. **React Re-render**: Component re-renders with new state
-5. **CSS Class Applied**: `animate-card-play` class is added to the element
-6. **Animation Plays**: Browser executes the CSS animation
-7. **Cleanup**: Animation flag is reset in the next relevant action (e.g., `player1WonRound`)
+The battle message is rendered with `key={v.battleCount}`, so React creates a new element
+for each new battle and the keyframes play again.
 
-## Animation Lifecycle
+## Adding a movement
 
-### Trigger Animation
-```typescript
-// In updater
-state.animations.player1CardPlay = true;
-```
-
-### Reset Animation
-```typescript
-// In a subsequent updater (e.g., when round ends)
-state.animations.player1CardPlay = false;
-```
-
-### Important: Timing
-- Animation flags should be reset in a subsequent action, not immediately
-- This allows the animation to complete before being removed
-- Use effects or setTimeout for delayed resets if needed
-
-## Available Animations
-
-All animations are defined in `animations.css`:
-
-1. **animate-card-play**: Slides card to center with scale
-2. **animate-flip**: Rotates card 360° (flip effect)
-3. **animate-pulse**: Gentle scale pulse
-4. **animate-shake**: Horizontal shake effect
-5. **animate-fade-in**: Fade in with scale
-6. **animate-bounce-in**: Bouncy entrance animation
-
-## Adding New Animations
-
-### 1. Add animation state:
-```typescript
-// game.component.state.ts
-animations: {
-    // ...existing
-    myNewAnimation: false,
-}
-```
-
-### 2. Add selector:
-```typescript
-// game.component.selectors.ts
-shouldAnimateMyNewThing: (state: State) => state.animations.myNewAnimation,
-```
-
-### 3. Trigger in updater:
-```typescript
-// game.component.updaters.ts
-myAction: ({state}) => {
-    // ... your logic
-    state.animations.myNewAnimation = true;
-},
-```
-
-### 4. Reset in another updater:
-```typescript
-anotherAction: ({state}) => {
-    // ... your logic
-    state.animations.myNewAnimation = false;
-},
-```
-
-### 5. Apply in view:
-```tsx
-// game.component.view.tsx
-<div className={v.shouldAnimateMyNewThing ? 'animate-bounce-in' : ''}>
-    {/* content */}
-</div>
-```
-
-### 6. Define CSS (optional - if using a new animation):
-```css
-/* animations.css */
-@keyframes myAnimation {
-    0% { /* start state */ }
-    100% { /* end state */ }
-}
-
-.animate-my-thing {
-    animation: myAnimation 0.5s ease-in-out;
-}
-```
-
-## Advanced Patterns
-
-### Multiple Animations
-```tsx
-<div className={`
-    ${v.shouldAnimateCardPlay ? 'animate-card-play' : ''}
-    ${v.shouldAnimateFlip ? 'animate-flip' : ''}
-`}>
-```
-
-### Conditional Animation Types
-```tsx
-<div className={
-    v.player1Won ? 'animate-bounce-in' : 
-    v.player2Won ? 'animate-shake' : ''
-}>
-```
-
-### Animation Sequences
-Use effects to chain animations:
-```typescript
-// In effects file
-myEffect: ({myActionCompleted}) => {
-    setTimeout(() => {
-        myActionCompleted();
-    }, 500); // Wait for animation to complete
-}
-```
-
-## Tips & Best Practices
-
-1. **Keep animations short** (0.3s - 0.5s) for responsive feel
-2. **Reset flags** after animations complete to allow re-triggering
-3. **Use `animation-fill-mode: forwards`** to maintain final state
-4. **Test performance** - too many simultaneous animations can cause lag
-5. **Use CSS transforms** (scale, translate, rotate) for better performance than animating position/size
-6. **Consider accessibility** - respect `prefers-reduced-motion` media query
+1. Change the state so the card is in another stack (or at another index) in an updater.
+   `cardsWithLocation` and `AnimatedCardView` move it with no other change.
+2. For a new stack: add it to `StackLocation` (`deck.model.ts`), to `STACKS` (selectors),
+   and add a ref, a `card-stack-container` and an entry in the `useMeasure` callback in the view.
+3. If the next step must wait for the movement, schedule it in an effect with a new entry
+   in `DELAYS_MS`.
 
 ## Debugging
 
-If animations aren't working:
-
-1. ✅ Check Redux DevTools - is the animation flag being set?
-2. ✅ Check React DevTools - is the selector returning the correct value?
-3. ✅ Check browser DevTools - is the CSS class being applied?
-4. ✅ Check CSS - is the animation defined correctly?
-5. ✅ Check timing - is the flag being reset too quickly?
-
-## Example: Complete Animation Implementation
-
-```typescript
-// 1. State
-animations: { cardDeal: false }
-
-// 2. Selector
-shouldAnimateCardDeal: (state) => state.animations.cardDeal
-
-// 3. Updater (trigger)
-dealRequested: ({state}) => {
-    state.animations.cardDeal = true;
-}
-
-// 4. Updater (reset)
-dealCompleted: ({state}) => {
-    state.animations.cardDeal = false;
-}
-
-// 5. View
-<div className={v.shouldAnimateCardDeal ? 'animate-fade-in' : ''}>
-    <CardStack cards={v.cards} />
-</div>
-
-// 6. CSS (already defined in animations.css)
-.animate-fade-in {
-    animation: fadeInScale 0.4s ease-out forwards;
-}
-```
-
-## Summary
-
-CSS animations triggered by Redux actions follow this pattern:
-1. **State**: Boolean flags for each animation
-2. **Selectors**: Expose animation state
-3. **Updaters**: Set flags when actions occur
-4. **View**: Apply CSS classes based on flags
-5. **CSS**: Define the visual animations
-
-This creates a clean separation between state management and visual effects!
-
+1. Redux DevTools: is the card in the expected stack after the action?
+2. `cardsWithLocation`: does the card have the expected `stackLocation` and `index`?
+3. React DevTools: is `layoutState` measured (not null) and are the stack coordinates set?
+4. Browser DevTools: does the card's `transform` change when the placement changes?
