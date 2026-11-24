@@ -19,6 +19,9 @@
   "computer": "Ordinateur",
   "back": "Retour",
   "cardCount": "Nombre de cartes :",
+  "suitCount": "Couleurs :",
+  "suitCountOption_one": "{{count}} couleur",
+  "suitCountOption_other": "{{count}} couleurs",
   "language": "Langue",
   "settings": "Réglages",
   "music": "Musique",
@@ -29,5 +32,13 @@
   "playerWins": "Le joueur {{number}} gagne !",
   "battle": "Bataille !",
   "tie": "Match nul !",
-  "playAgain": "Cliquer n'importe où pour rejouer"
+  "playAgain": "Cliquer n'importe où pour rejouer",
+  "moves_one": "{{count}} coup",
+  "moves_other": "{{count}} coups",
+  "undo": "Annuler",
+  "dealRow_one": "Distribuer une rangée ({{count}} restante)",
+  "dealRow_other": "Distribuer une rangée ({{count}} restantes)",
+  "dealBlocked": "Remplissez chaque colonne avant de distribuer",
+  "completedSequences_one": "{{count}} suite terminée",
+  "completedSequences_other": "{{count}} suites terminées"
 }

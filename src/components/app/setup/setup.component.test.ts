@@ -7,7 +7,7 @@ import {type GameDefinition, gameDefinition} from "../../../model/games.model.ts
 import type {Settings} from "../../../services/settings.service.ts";
 
 const upToFour: GameDefinition = {
-    id: "pouilleux", minPlayers: 2, maxPlayers: 4, computerOpponents: true, available: true, cardCountOptions: [],
+    id: "pouilleux", minPlayers: 2, maxPlayers: 4, computerOpponents: true, available: true, cardCountOptions: [], suitCountOptions: [],
 };
 
 const setup = (settings: Partial<Settings> = {}, game = gameDefinition("bataille")) => {
@@ -32,6 +32,19 @@ describe("setup screen", () => {
         await store.when({name: "setCardCountRequested", payload: 52, statePath: []});
         expect(values().cardCount()).toBe(52);
         expect(settingsService.load().cardCount).toBe(52);
+    });
+
+    it("remembers the chosen number of suits", async () => {
+        const {store, values, settingsService} = setup({}, gameDefinition("spider"));
+        expect(values().suitCount()).toBe(1);
+        await store.when({name: "setSuitCountRequested", payload: 4, statePath: []});
+        expect(values().suitCount()).toBe(4);
+        expect(settingsService.load().suitCount).toBe(4);
+    });
+
+    it("ignores a stored number of suits that is not offered", () => {
+        const {values} = setup({suitCount: 3}, gameDefinition("spider"));
+        expect(values().suitCount()).toBe(1);
     });
 
     it("plays the battle against the computer by default", () => {

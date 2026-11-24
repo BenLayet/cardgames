@@ -1,0 +1,105 @@
+.spider-table {
+    /* ten columns share the width of the screen, and the cards stay small enough to leave room for long columns */
+    --spider-gap: clamp(0.15rem, 0.8vw, 0.6rem);
+    --spider-card-w: min(calc((100vw - 1.5rem) / 10 - var(--spider-gap)), 11dvh, 110px);
+    --spider-card-h: calc(var(--spider-card-w) * 200 / 143);
+    /* how far apart the cards of a column are spread */
+    --spider-spread: 1;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* a phone held upright has narrow cards and plenty of height */
+@media (orientation: portrait) {
+    .spider-table {
+        --spider-spread: 1.7;
+    }
+}
+
+.spider-card .card-image {
+    width: var(--spider-card-w);
+    height: var(--spider-card-h);
+}
+
+.spider-card img {
+    /* the pointer events are handled by the card, a native image drag would cancel them */
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+
+.spider-completed {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.2rem;
+}
+
+.spider-slot {
+    width: calc(var(--spider-card-w) * 0.6);
+    height: calc(var(--spider-card-h) * 0.6);
+    border: #bbb2 1px solid;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.spider-slot .card-image {
+    width: calc(var(--spider-card-w) * 0.6);
+    height: calc(var(--spider-card-h) * 0.6);
+}
+
+.spider-stock {
+    position: relative;
+    width: calc(var(--spider-card-w) + 30px);
+    height: var(--spider-card-h);
+    padding: 0;
+    border: #bbb2 1px solid;
+    border-radius: 5px;
+    background: none;
+}
+
+.spider-stock:disabled {
+    cursor: default;
+}
+
+.spider-stock--blocked {
+    opacity: 0.5;
+}
+
+.spider-stock-card {
+    position: absolute;
+    top: 0;
+}
+
+.spider-columns {
+    display: flex;
+    justify-content: center;
+    gap: var(--spider-gap);
+}
+
+.spider-column {
+    position: relative;
+    width: var(--spider-card-w);
+    min-height: calc(var(--spider-card-h) * (1 + var(--column-height, 0) * var(--spider-spread)));
+    border-radius: 5px;
+    /* the empty column shows where a card can go */
+    background: linear-gradient(#bbb2, #bbb2) top / 100% var(--spider-card-h) no-repeat;
+}
+
+.spider-column .spider-card {
+    position: absolute;
+    left: 0;
+}
+
+.spider-card--movable {
+    cursor: grab;
+    touch-action: none;
+}
+
+.spider-card--selected .card-image {
+    filter: drop-shadow(0 0 4px var(--bs-primary)) brightness(0.9);
+}
+
+.spider-card--dragged {
+    z-index: 1000;
+    pointer-events: none;
+    cursor: grabbing;
+}

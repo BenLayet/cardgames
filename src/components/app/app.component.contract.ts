@@ -2,6 +2,7 @@ import type {EventsContract} from "@softer-components/types";
 
 import type {BattleContract} from "./battle";
 import type {SettingsContract} from "./settings";
+import type {SpiderContract} from "./spider";
 import type {Values} from "./app.component.selectors";
 import type {GameId} from "../../model/games.model.ts";
 
@@ -17,6 +18,7 @@ export type Events = EventsContract<
 export type Children = {
     battle: BattleContract;
     settings: SettingsContract;
+    spider: SpiderContract;
 };
 
 export type Contract = {

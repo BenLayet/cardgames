@@ -6,6 +6,8 @@ export type Settings = {
     soundsEnabled: boolean;
     // deck size of the battle
     cardCount: number;
+    // number of suits of the spider solitaire
+    suitCount: number;
     // who sits at each seat, by game
     seats: Partial<Record<GameId, SeatKind[]>>;
 };
@@ -15,6 +17,7 @@ export const DEFAULT_SETTINGS: Settings = {
     musicEnabled: true,
     soundsEnabled: true,
     cardCount: 32,
+    suitCount: 1,
     seats: {},
 };
 

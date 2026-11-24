@@ -19,6 +19,9 @@
   "computer": "Computer",
   "back": "Back",
   "cardCount": "Card Count:",
+  "suitCount": "Suits:",
+  "suitCountOption_one": "{{count}} suit",
+  "suitCountOption_other": "{{count}} suits",
   "language": "Language",
   "settings": "Settings",
   "music": "Music",
@@ -29,5 +32,13 @@
   "playerWins": "Player {{number}} Wins!",
   "battle": "Battle!",
   "tie": "It's a Tie!",
-  "playAgain": "Click Anywhere To Play Again"
+  "playAgain": "Click Anywhere To Play Again",
+  "moves_one": "{{count}} move",
+  "moves_other": "{{count}} moves",
+  "undo": "Undo",
+  "dealRow_one": "Deal a row ({{count}} left)",
+  "dealRow_other": "Deal a row ({{count}} left)",
+  "dealBlocked": "Fill every column before dealing",
+  "completedSequences_one": "{{count}} completed sequence",
+  "completedSequences_other": "{{count}} completed sequences"
 }

@@ -1,0 +1,145 @@
+import {beforeEach, describe, expect, it} from "vitest";
+import {initTestStore, type TestStore} from "@softer-components/test-utilities";
+import type {ExtractEventNameUnion, ExtractPayload} from "@softer-components/types";
+
+import {gameDef, type GameContract} from "./game.component.ts";
+import type {Card} from "../../../../model/deck.model.ts";
+import {COLUMN_COUNT, type SpiderCard, type Table} from "../../../../model/spider.model.ts";
+import {fakeAudioService} from "../../../../test/fakes.ts";
+
+const event = <N extends ExtractEventNameUnion<GameContract>>(name: N, payload?: ExtractPayload<GameContract, N>) =>
+    ({name, payload, statePath: []});
+
+let audioService: ReturnType<typeof fakeAudioService>;
+let store: TestStore<GameContract>;
+
+beforeEach(() => {
+    audioService = fakeAudioService();
+    store = initTestStore(gameDef({audioService}));
+});
+
+const values = () => store.getValues("");
+const column = (index: number) => values().columns()[index].map(c => (c.faceUp ? "" : "_") + c.card);
+
+let nextId = 0;
+// "5H" is face up, "_5H" face down
+const cards = (...codes: string[]): SpiderCard[] => codes.map(code => ({
+    id: nextId++,
+    card: code.replace("_", "") as Card,
+    faceUp: !code.startsWith("_"),
+}));
+const SEQUENCE_WITHOUT_ACE = "KQJT98765432".split("").map(rank => `${rank}S`);
+// the given columns, the other ones hold a king so that a row can be dealt
+const deal = (columns: SpiderCard[][], {stock = [] as SpiderCard[], completed = [] as Table["completed"]} = {}) =>
+    store.when(event("dealCompleted", {
+        columns: Array.from({length: COLUMN_COUNT}, (_, i) => columns[i] ?? cards("KD")),
+        stock,
+        completed,
+    }));
+
+describe("spider game", () => {
+    it("deals 104 cards of the chosen suits", async () => {
+        await store.when(event("dealRequested", {suitCount: 2}));
+
+        const dealt = [...values().columns().flat(), ...values().table().stock];
+        expect(dealt).toHaveLength(104);
+        expect(new Set(dealt.map(c => c.card.charAt(1)))).toEqual(new Set(["S", "H"]));
+        expect(values().stockRowCount()).toBe(5);
+        expect(audioService.startBackgroundMusic).toHaveBeenCalled();
+    });
+
+    it("moves the cards dropped on a column that accepts them", async () => {
+        await deal([cards("_4D", "8S", "7S"), cards("9H")]);
+
+        await store.when(event("cardsDropped", {from: {column: 0, index: 1}, to: 1}));
+
+        expect(column(0)).toEqual(["4D"]);
+        expect(column(1)).toEqual(["9H", "8S", "7S"]);
+        expect(values().moveCount()).toBe(1);
+        expect(audioService.playCardSlide).toHaveBeenCalled();
+    });
+
+    it("ignores a drop on a column that does not accept the cards", async () => {
+        await deal([cards("7S"), cards("9H")]);
+
+        await store.when(event("cardsDropped", {from: {column: 0, index: 0}, to: 1}));
+
+        expect(column(0)).toEqual(["7S"]);
+        expect(values().moveCount()).toBe(0);
+    });
+
+    it("moves the cards selected by a click to the column clicked next", async () => {
+        await deal([cards("8S"), cards("9H"), []]);
+
+        await store.when(event("cardClicked", {column: 0, index: 0}));
+        expect(values().selected()).toEqual({column: 0, index: 0});
+
+        await store.when(event("cardClicked", {column: 1, index: 0}));
+        expect(column(1)).toEqual(["9H", "8S"]);
+        expect(values().selected()).toBeNull();
+
+        await store.when(event("cardClicked", {column: 1, index: 1}));
+        await store.when(event("columnClicked", 2));
+        expect(column(2)).toEqual(["8S"]);
+    });
+
+    it("does not select cards that cannot be moved, and unselects on a second click", async () => {
+        await deal([cards("_KS", "9H", "8S")]);
+
+        await store.when(event("cardClicked", {column: 0, index: 1}));
+        expect(values().selected()).toBeNull();
+
+        await store.when(event("cardClicked", {column: 0, index: 2}));
+        await store.when(event("cardClicked", {column: 0, index: 2}));
+        expect(values().selected()).toBeNull();
+    });
+
+    it("deals a row from the stock only when no column is empty", async () => {
+        const stock = cards(...Array.from({length: COLUMN_COUNT}, () => "_5C"));
+        await deal([[], cards("KH", "QD")], {stock});
+
+        await store.when(event("stockClicked"));
+        expect(values().stockRowCount()).toBe(1);
+        expect(values().isDealBlocked()).toBe(true);
+
+        await store.when(event("cardsDropped", {from: {column: 1, index: 1}, to: 0}));
+        await store.when(event("stockClicked"));
+        expect(values().stockRowCount()).toBe(0);
+        expect(column(0)).toEqual(["QD", "5C"]);
+    });
+
+    it("removes a completed sequence and wins with the eighth one", async () => {
+        const completed = Array<Table["completed"][number]>(7).fill("S");
+        await deal([cards(...SEQUENCE_WITHOUT_ACE), cards("AS")], {completed});
+
+        await store.when(event("cardsDropped", {from: {column: 1, index: 0}, to: 0}));
+
+        expect(column(0)).toEqual([]);
+        expect(values().completed()).toHaveLength(8);
+        expect(values().hasGameEnded()).toBe(true);
+        expect(audioService.playApplause).toHaveBeenCalled();
+    });
+
+    it("undoes the last move, including the card turned over and the sequence removed", async () => {
+        await deal([cards("_4D", ...SEQUENCE_WITHOUT_ACE), cards("AS")]);
+        await store.when(event("cardsDropped", {from: {column: 1, index: 0}, to: 0}));
+        expect(column(0)).toEqual(["4D"]);
+
+        await store.when(event("undoRequested"));
+
+        expect(column(0)).toEqual(["_4D", ...SEQUENCE_WITHOUT_ACE]);
+        expect(column(1)).toEqual(["AS"]);
+        expect(values().completed()).toEqual([]);
+        expect(values().canUndo()).toBe(false);
+    });
+
+    it("starts over when the player wants to play again", async () => {
+        await deal([cards("8S"), cards("9H")]);
+        await store.when(event("cardsDropped", {from: {column: 0, index: 0}, to: 1}));
+
+        await store.when(event("playAgainRequested"));
+
+        expect(values().moveCount()).toBe(0);
+        expect(values().columns().flat()).toEqual([]);
+    });
+});

@@ -16,6 +16,9 @@ export const effects = ({settingsService}: Dependencies): Effects<Contract> => {
         setCardCountRequested: (_, {payload: cardCount}) => {
             settingsService.save({cardCount});
         },
+        setSuitCountRequested: (_, {payload: suitCount}) => {
+            settingsService.save({suitCount});
+        },
         addPlayerRequested: (_, {values}) => saveSeats(values.gameId(), values.seats()),
         removePlayerRequested: (_, {values}) => saveSeats(values.gameId(), values.seats()),
         toggleSeatRequested: (_, {values}) => saveSeats(values.gameId(), values.seats()),

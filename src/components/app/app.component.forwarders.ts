@@ -9,5 +9,10 @@ export const eventForwarders = {
                 {from: "homeRequested", to: "homeRequested"},
             ]
         },
+        spider: {
+            listeners: [
+                {from: "homeRequested", to: "homeRequested"},
+            ]
+        },
     },
 } satisfies EventForwarders<Contract>;

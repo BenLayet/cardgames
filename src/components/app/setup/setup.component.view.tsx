@@ -5,6 +5,8 @@ import {faArrowLeft, faMinus, faPlus, faRobot, faStar, faUser} from "@fortawesom
 
 import type {SetupContract} from "./setup.component.ts";
 
+const SUIT_SYMBOLS = "♠♥♦♣";
+
 export const View = ({path = ""}) => {
     const [v, d] = useSofter<SetupContract>(path);
     const {t} = useTranslation();
@@ -64,6 +66,21 @@ export const View = ({path = ""}) => {
                                     className={`btn ${v.cardCount === option ? "btn-primary" : "btn-outline-primary"}`}
                                     onClick={() => d.setCardCountRequested(option)}>
                                     {option}
+                                </button>
+                            )}
+                        </div>
+                    </div>}
+                    {v.suitCountOptions.length > 0 && <div>
+                        <label className="fs-3">{t("suitCount")}</label>
+                        <div className="d-flex gap-2 justify-content-center flex-wrap">
+                            {v.suitCountOptions.map((option) => <button
+                                    key={option}
+                                    className={`btn ${v.suitCount === option ? "btn-primary" : "btn-outline-primary"}`}
+                                    aria-pressed={v.suitCount === option}
+                                    aria-label={t("suitCountOption", {count: option})}
+                                    title={t("suitCountOption", {count: option})}
+                                    onClick={() => d.setSuitCountRequested(option)}>
+                                    {SUIT_SYMBOLS.slice(0, option)}
                                 </button>
                             )}
                         </div>

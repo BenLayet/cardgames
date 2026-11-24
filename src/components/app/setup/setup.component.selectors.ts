@@ -8,6 +8,8 @@ export const selectors = {
     seats: (state: State) => state.seats,
     cardCount: (state: State) => state.cardCount,
     cardCountOptions: (state: State) => state.game.cardCountOptions,
+    suitCount: (state: State) => state.suitCount,
+    suitCountOptions: (state: State) => state.game.suitCountOptions,
     playerCount,
     minPlayers: (state: State) => state.game.minPlayers,
     maxPlayers: (state: State) => state.game.maxPlayers,
