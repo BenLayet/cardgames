@@ -1,6 +1,6 @@
 # Cardgames
 
-A browser version of **Battle** (*la bataille*), the classic card game, played against the computer. Each player turns over the top card of their pile; the higher card wins both. Equal cards start a battle. The player who collects all the cards wins.
+A browser version of **Battle** (*la bataille*), the classic card game, played against the computer. Each player turns over the top card of their pile; the higher card wins both. Equal cards start a battle: each player adds a face-down card and a face-up one. The player who collects all the cards wins.
 
 Features: deck size choice (12, 16, 32 or 52 cards), English and French, music and sound effects, animated cards, and installable as a PWA that works offline.
 
@@ -37,7 +37,7 @@ src/
       battle/         battle flow: start-screen, game
     card/             card views and animation
     fireworks/, tomatoes/  end-of-game effects
-  model/              deck creation and shuffling
+  model/              deck creation and card values
   services/           service interfaces (audio, language, scheduler, settings)
   adapters/           browser implementations of those services
   configuration.tsx   wires adapters into the app
