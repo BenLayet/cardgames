@@ -1,8 +1,11 @@
 # Cardgames
 
-A browser collection of card games. The home page lists the games; **Battle** (*la bataille*) is playable, against the computer or between two people on the same device. The other games are shown as coming soon. Each player turns over the top card of their pile; the higher card wins both. Equal cards start a battle: each player adds a face-down card and a face-up one. The player who collects all the cards wins.
+A browser collection of card games. The home page lists the games. Two are playable, the others are shown as coming soon.
 
-Features: a setup screen per game (player count, human or computer at each seat), deck size choice (12, 16, 32 or 52 cards), English and French, music and sound effects, animated cards, and installable as a PWA that works offline.
+- **Battle** (*la bataille*), against the computer or between two people on the same device. Each player turns over the top card of their pile; the higher card wins both. Equal cards start a battle: each player adds a face-down card and a face-up one. The player who collects all the cards wins.
+- **Spider solitaire**, with 1, 2 or 4 suits. Two decks are dealt into ten columns. A card goes on a card one rank higher of any suit, or on an empty column; a run of the same suit in descending order moves as a whole. Each deal from the stock adds one card to every column, and needs every column to hold a card. A run from king to ace of the same suit is removed; removing eight wins. Cards move by drag and drop or by clicking the cards then the target column, and moves can be undone.
+
+Features: a setup screen per game (player count, human or computer at each seat), deck size choice for Battle (12, 16, 32 or 52 cards), number of suits for Spider, English and French, music and sound effects, animated cards, and installable as a PWA that works offline.
 
 ## Stack
 
@@ -37,9 +40,10 @@ src/
       home/           list of games
       setup/          setup screen shared by every game
       battle/         battle flow: setup, game
+      spider/         spider solitaire flow: setup, game
     card/             card views and animation
     fireworks/, tomatoes/  end-of-game effects
-  model/              deck creation, card values, game registry
+  model/              deck creation, card values, game registry, spider rules
   services/           service interfaces (audio, language, scheduler, settings)
   adapters/           browser implementations of those services
   configuration.tsx   wires adapters into the app

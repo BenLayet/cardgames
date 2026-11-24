@@ -7,6 +7,9 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
     setCardCountRequested: ({payload: cardCount, state}) => {
         state.cardCount = cardCount;
     },
+    setSuitCountRequested: ({payload: suitCount, state}) => {
+        state.suitCount = suitCount;
+    },
     addPlayerRequested: ({values, state}) => {
         if (!values.canAddPlayer()) return;
         state.seats.push(state.game.computerOpponents ? "computer" : "human");

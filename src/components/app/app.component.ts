@@ -8,8 +8,9 @@ import {stateUpdaters} from "./app.component.updaters";
 import {eventForwarders} from "./app.component.forwarders";
 import {battleDef, type BattleDependencies} from "./battle";
 import {settingsDef, type SettingsDependencies} from "./settings";
+import {spiderDef, type SpiderDependencies} from "./spider";
 
-export type AppDependencies = BattleDependencies & SettingsDependencies;
+export type AppDependencies = BattleDependencies & SettingsDependencies & SpiderDependencies;
 export const appDef = (dependencies: AppDependencies): ComponentDef<Contract, State> => ({
     initialState,
     selectors,
@@ -20,6 +21,7 @@ export const appDef = (dependencies: AppDependencies): ComponentDef<Contract, St
         childrenDefs: {
             battle: battleDef(dependencies),
             settings: settingsDef(dependencies),
+            spider: spiderDef(dependencies),
         },
     },
 });

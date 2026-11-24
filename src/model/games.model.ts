@@ -14,16 +14,18 @@ export type GameDefinition = {
     available: boolean;
     // deck sizes offered on the setup screen, none when the game always uses the same deck
     cardCountOptions: number[];
+    // numbers of suits offered on the setup screen, none when the game does not let the player choose
+    suitCountOptions: number[];
 };
 
 // The player ranges of the games that are not playable yet are only indicative
 export const GAMES: readonly GameDefinition[] = [
     // the current battle engine has exactly two players
-    {id: "bataille", minPlayers: 2, maxPlayers: 2, computerOpponents: true, available: true, cardCountOptions: [12, 16, 32, 52]},
-    {id: "batailleCorse", minPlayers: 2, maxPlayers: 6, computerOpponents: true, available: false, cardCountOptions: []},
-    {id: "spider", minPlayers: 1, maxPlayers: 1, computerOpponents: false, available: false, cardCountOptions: []},
-    {id: "crapette", minPlayers: 2, maxPlayers: 2, computerOpponents: true, available: false, cardCountOptions: []},
-    {id: "pouilleux", minPlayers: 2, maxPlayers: 6, computerOpponents: true, available: false, cardCountOptions: []},
+    {id: "bataille", minPlayers: 2, maxPlayers: 2, computerOpponents: true, available: true, cardCountOptions: [12, 16, 32, 52], suitCountOptions: []},
+    {id: "batailleCorse", minPlayers: 2, maxPlayers: 6, computerOpponents: true, available: false, cardCountOptions: [], suitCountOptions: []},
+    {id: "spider", minPlayers: 1, maxPlayers: 1, computerOpponents: false, available: true, cardCountOptions: [], suitCountOptions: [1, 2, 4]},
+    {id: "crapette", minPlayers: 2, maxPlayers: 2, computerOpponents: true, available: false, cardCountOptions: [], suitCountOptions: []},
+    {id: "pouilleux", minPlayers: 2, maxPlayers: 6, computerOpponents: true, available: false, cardCountOptions: [], suitCountOptions: []},
 ];
 
 export const gameDefinition = (id: GameId): GameDefinition => {

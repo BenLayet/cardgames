@@ -1,0 +1,160 @@
+import {useSofter} from "@softer-components/redux-adapter";
+import {useTranslation} from "react-i18next";
+import {type CSSProperties, type PointerEvent, useState} from "react";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faRotateLeft} from "@fortawesome/free-solid-svg-icons";
+
+import type {GameContract} from "./game.component.ts";
+import {CardView} from "../../../card/CardView.tsx";
+import {Fireworks} from "../../../fireworks/Fireworks.tsx";
+import {type CardPosition, SEQUENCE_COUNT, type SpiderCard} from "../../../../model/spider.model.ts";
+
+// how much of a covered card is visible, in card heights
+const FACE_DOWN_OFFSET = 0.12;
+const FACE_UP_OFFSET = 0.28;
+// long columns are squeezed so that they fit in about this many card heights
+const MAX_COLUMN_OFFSETS = 3.2;
+// a press that moves less than this is a click, not a drag
+const DRAG_THRESHOLD_PX = 8;
+
+// top of each card, in card heights
+const cardOffsets = (column: SpiderCard[]): number[] => {
+    const offsets: number[] = [];
+    let top = 0;
+    column.forEach(card => {
+        offsets.push(top);
+        top += card.faceUp ? FACE_UP_OFFSET : FACE_DOWN_OFFSET;
+    });
+    const last = offsets[offsets.length - 1] ?? 0;
+    const squeeze = last > MAX_COLUMN_OFFSETS ? MAX_COLUMN_OFFSETS / last : 1;
+    return offsets.map(offset => offset * squeeze);
+};
+
+type Press = {
+    pointerId: number;
+    // the card under the pointer, none for an empty part of a column
+    position: CardPosition | null;
+    column: number;
+    canDrag: boolean;
+    startX: number;
+    startY: number;
+    dx: number;
+    dy: number;
+    isDragging: boolean;
+};
+
+// the column and card under a point of the page, read from the data attributes of the elements
+const targetAt = (element: Element | null): { column: number, index: number | null } | null => {
+    const columnElement = element?.closest<HTMLElement>("[data-column]");
+    if (!columnElement) return null;
+    const cardElement = element?.closest<HTMLElement>("[data-index]");
+    return {
+        column: Number(columnElement.dataset.column),
+        index: cardElement ? Number(cardElement.dataset.index) : null,
+    };
+};
+
+export const View = ({path = ""}) => {
+    const [v, d] = useSofter<GameContract>(path);
+    const {t} = useTranslation();
+    // a drag only moves the cards on screen until they are dropped, so it stays in the view
+    const [press, setPress] = useState<Press | null>(null);
+
+    const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
+        if (!event.isPrimary || press !== null) return;
+        const target = targetAt(event.target as Element);
+        if (target === null) return;
+        const position = target.index === null ? null : {column: target.column, index: target.index};
+        const canDrag = position !== null && position.index >= v.movableRunStarts[position.column];
+        if (canDrag) event.currentTarget.setPointerCapture(event.pointerId);
+        setPress({
+            pointerId: event.pointerId, position, column: target.column, canDrag,
+            startX: event.clientX, startY: event.clientY, dx: 0, dy: 0, isDragging: false,
+        });
+    };
+    const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
+        if (press?.pointerId !== event.pointerId || !press.canDrag) return;
+        const dx = event.clientX - press.startX;
+        const dy = event.clientY - press.startY;
+        setPress({...press, dx, dy, isDragging: press.isDragging || Math.hypot(dx, dy) > DRAG_THRESHOLD_PX});
+    };
+    const onPointerUp = (event: PointerEvent<HTMLDivElement>) => {
+        if (press?.pointerId !== event.pointerId) return;
+        setPress(null);
+        if (press.isDragging && press.position !== null) {
+            // the dragged cards let the pointer through, so the element found is the one below them
+            const drop = targetAt(document.elementFromPoint(event.clientX, event.clientY));
+            if (drop !== null && drop.column !== press.position.column) d.cardsDropped({from: press.position, to: drop.column});
+        } else if (press.position !== null) {
+            d.cardClicked(press.position);
+        } else {
+            d.columnClicked(press.column);
+        }
+    };
+
+    const isDragged = (column: number, index: number) =>
+        press?.isDragging === true && press.position?.column === column && index >= press.position.index;
+    const isSelected = (column: number, index: number) =>
+        v.selected !== null && v.selected.column === column && index >= v.selected.index;
+
+    return <div className="spider-table vstack gap-3">
+        <div className="d-flex justify-content-between align-items-start gap-2">
+            <div className="spider-completed" aria-label={t("completedSequences", {count: v.completed.length})}>
+                {Array.from({length: SEQUENCE_COUNT}, (_, i) => <div key={i} className="spider-slot">
+                    {v.completed[i] && <div className="spider-card"><CardView card={`K${v.completed[i]}`}/></div>}
+                </div>)}
+            </div>
+            <div className="d-flex align-items-center gap-2">
+                <span className="text-nowrap">{t("moves", {count: v.moveCount})}</span>
+                <button className="btn btn-outline-primary" disabled={!v.canUndo}
+                        title={t("undo")} aria-label={t("undo")}
+                        onClick={() => d.undoRequested()}>
+                    <FontAwesomeIcon icon={faRotateLeft}/>
+                </button>
+                <button className={`spider-stock ${v.isDealBlocked ? "spider-stock--blocked" : ""}`}
+                        disabled={!v.canDealRow}
+                        title={v.isDealBlocked ? t("dealBlocked") : t("dealRow", {count: v.stockRowCount})}
+                        aria-label={v.isDealBlocked ? t("dealBlocked") : t("dealRow", {count: v.stockRowCount})}
+                        onClick={() => d.stockClicked()}>
+                    {Array.from({length: v.stockRowCount}, (_, i) =>
+                        <div key={i} className="spider-card spider-stock-card" style={{left: `${i * 6}px`}}>
+                            <CardView faceUp={false}/>
+                        </div>)}
+                </button>
+            </div>
+        </div>
+        <div className="spider-columns"
+             onPointerDown={onPointerDown}
+             onPointerMove={onPointerMove}
+             onPointerUp={onPointerUp}
+             onPointerCancel={() => setPress(null)}>
+            {v.columns.map((column, columnIndex) => {
+                const offsets = cardOffsets(column);
+                return <div key={columnIndex} data-column={columnIndex} className="spider-column"
+                            style={{"--column-height": offsets[offsets.length - 1] ?? 0} as CSSProperties}>
+                    {column.map((card, index) => {
+                        const dragged = isDragged(columnIndex, index);
+                        const classes = [
+                            "spider-card",
+                            index >= v.movableRunStarts[columnIndex] ? "spider-card--movable" : "",
+                            isSelected(columnIndex, index) ? "spider-card--selected" : "",
+                            dragged ? "spider-card--dragged" : "",
+                        ].join(" ");
+                        return <div key={card.id} data-index={index} className={classes}
+                                    style={{
+                                        top: `calc(var(--spider-card-h) * var(--spider-spread) * ${offsets[index]})`,
+                                        transform: dragged ? `translate(${press?.dx ?? 0}px, ${press?.dy ?? 0}px)` : undefined,
+                                    }}>
+                            <CardView card={card.card} faceUp={card.faceUp}/>
+                        </div>;
+                    })}
+                </div>;
+            })}
+        </div>
+        {v.hasGameEnded && <div className="end-message-overlay" onClick={() => d.playAgainRequested()}>
+            <Fireworks/>
+            <h1>{t("victory")}</h1>
+            <p className="fs-4">{t("moves", {count: v.moveCount})}</p>
+        </div>}
+    </div>;
+};
