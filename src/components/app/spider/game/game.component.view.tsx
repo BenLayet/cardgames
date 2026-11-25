@@ -9,6 +9,7 @@ import {CardView} from "../../../card/CardView.tsx";
 import {CompactCardView} from "../../../card/CompactCardView.tsx";
 import {useMeasure} from "../../../../hooks/useMeasure.ts";
 import {cardOffsets} from "./game.component.layout.ts";
+import {GameBar} from "../../../game-bar/GameBar.tsx";
 import {Fireworks} from "../../../fireworks/Fireworks.tsx";
 import {type CardPosition, SEQUENCE_COUNT} from "../../../../model/spider.model.ts";
 
@@ -45,7 +46,7 @@ const targetAt = (element: Element | null): { column: number, index: number | nu
     };
 };
 
-export const View = ({path = ""}) => {
+export const View = ({path = "", onBack}: { path?: string, onBack: () => void }) => {
     const [v, d] = useSofter<GameContract>(path);
     const {t} = useTranslation();
     // a drag only moves the cards on screen until they are dropped, so it stays in the view
@@ -114,10 +115,12 @@ export const View = ({path = ""}) => {
                     {v.completed[i] && <div className="spider-card"><Face card={`K${v.completed[i]}`}/></div>}
                 </div>)}
             </div>
-            <div className="d-flex align-items-center gap-2 flex-wrap justify-content-end">
-                {v.hint?.kind === "none" && <span className="small fst-italic" role="status">{t("noUsefulMove")}</span>}
-                {v.hint?.kind === "emptyColumn" && <span className="small fst-italic" role="status">{t("useEmptyColumn")}</span>}
-                <span className="text-nowrap">{t("moves", {count: v.moveCount})}</span>
+            <GameBar onBack={onBack} status={<>
+                {v.hint?.kind === "none" && <span className="fst-italic">{t("noUsefulMove")}</span>}
+                {v.hint?.kind === "emptyColumn" && <span className="fst-italic">{t("useEmptyColumn")}</span>}
+                {v.hint?.kind !== "none" && v.hint?.kind !== "emptyColumn" &&
+                    <span className="text-nowrap">{t("moves", {count: v.moveCount})}</span>}
+            </>}>
                 <button className="btn btn-outline-primary" disabled={v.hasGameEnded}
                         title={t("hint")} aria-label={t("hint")}
                         onClick={() => d.hintRequested()}>
@@ -128,6 +131,7 @@ export const View = ({path = ""}) => {
                         onClick={() => d.undoRequested()}>
                     <FontAwesomeIcon icon={faRotateLeft}/>
                 </button>
+            </GameBar>
                 <button className={`spider-stock ${v.isDealBlocked ? "spider-stock--blocked" : ""} ${v.hint?.kind === "deal" ? "spider-hint" : ""}`}
                         disabled={!v.canDealRow}
                         title={v.isDealBlocked ? t("dealBlocked") : t("dealRow", {count: v.stockRowCount})}
@@ -138,7 +142,6 @@ export const View = ({path = ""}) => {
                             <Face faceUp={false}/>
                         </div>)}
                 </button>
-            </div>
         </div>
         <div ref={columnsRef} className="spider-columns"
              onPointerDown={onPointerDown}

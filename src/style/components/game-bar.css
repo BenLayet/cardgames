@@ -1,0 +1,80 @@
+/* the bar shared by every game, see GameBar.tsx */
+:root {
+    --game-bar-size: 3.75rem;
+    /* the room the bar takes beside the game, on each side of the screen */
+    --game-bar-bottom: 0px;
+    --game-bar-right: 0px;
+}
+
+body:has(.game-bar) {
+    --game-bar-bottom: var(--game-bar-size);
+}
+
+.game-bar {
+    position: fixed;
+    z-index: 1000;
+    left: var(--app-frame);
+    right: var(--app-frame);
+    bottom: var(--app-frame);
+    min-height: var(--game-bar-size);
+    display: flex;
+    align-items: center;
+    gap: var(--app-space-2);
+    padding: var(--app-space-2) max(var(--app-space-3), env(safe-area-inset-right, 0px)) calc(var(--app-space-2) + env(safe-area-inset-bottom, 0px)) max(var(--app-space-3), env(safe-area-inset-left, 0px));
+    background: var(--app-panel);
+    border-top: 1px solid var(--app-line);
+}
+
+.game-bar .btn {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+}
+
+.game-bar-status {
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: center;
+    color: var(--app-muted);
+    font-size: .875rem;
+    line-height: 1.25;
+}
+
+.game-bar-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--app-space-2);
+}
+
+/* a screen held sideways: the bar stands on the right side, back on top and the actions at the bottom */
+@media (orientation: landscape) {
+    body:has(.game-bar) {
+        --game-bar-bottom: 0px;
+        --game-bar-right: var(--game-bar-size);
+    }
+
+    .game-bar {
+        left: auto;
+        top: var(--app-frame);
+        width: var(--game-bar-size);
+        flex-direction: column;
+        padding: max(var(--app-space-2), env(safe-area-inset-top, 0px)) max(var(--app-space-2), env(safe-area-inset-right, 0px)) max(var(--app-space-2), env(safe-area-inset-bottom, 0px)) var(--app-space-2);
+        border-top: 0;
+        border-left: 1px solid var(--app-line);
+    }
+
+    .game-bar-status {
+        display: flex;
+        align-items: center;
+        font-size: .75rem;
+    }
+
+    .game-bar-actions {
+        flex-direction: column;
+    }
+}
+
+/* the game leaves room for the bar */
+body:has(.game-bar) #root {
+    padding-bottom: var(--game-bar-bottom);
+    padding-right: var(--game-bar-right);
+}
