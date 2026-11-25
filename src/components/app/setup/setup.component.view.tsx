@@ -1,13 +1,14 @@
 import {useSofter} from "@softer-components/redux-adapter";
 import {useTranslation} from "react-i18next";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowLeft, faMinus, faPlus, faRobot, faStar, faUser} from "@fortawesome/free-solid-svg-icons";
+import {faArrowLeft, faMinus, faPlay, faPlus, faRobot, faStar, faUser} from "@fortawesome/free-solid-svg-icons";
 
 import type {SetupContract} from "./setup.component.ts";
 
 const SUIT_SYMBOLS = "♠♥♦♣";
 
-export const View = ({path = ""}) => {
+// When a game in progress can be resumed, resuming it is the main action and starting a new game the second one
+export const View = ({path = "", onResume}: { path?: string, onResume?: () => void }) => {
     const [v, d] = useSofter<SetupContract>(path);
     const {t} = useTranslation();
     return (<div className="vstack position-relative">
@@ -86,10 +87,19 @@ export const View = ({path = ""}) => {
                         </div>
                     </div>}
                 </div>
-                <button onClick={() => d.startGameRequested()}
-                        className="btn btn-lg btn-primary px-2 mt-1 fs-1">
-                    <FontAwesomeIcon icon={faStar}/> {t("start")} <FontAwesomeIcon icon={faStar}/>
-                </button>
+                {onResume
+                    ? <div className="vstack align-items-center gap-2 mt-1">
+                        <button onClick={onResume} className="btn btn-lg btn-primary px-3 fs-4 text-nowrap">
+                            <FontAwesomeIcon icon={faPlay}/> {t("resumeGame")}
+                        </button>
+                        <button onClick={() => d.startGameRequested()} className="btn btn-outline-primary px-3">
+                            {t("newGame")}
+                        </button>
+                    </div>
+                    : <button onClick={() => d.startGameRequested()}
+                              className="btn btn-lg btn-primary px-2 mt-1 fs-1">
+                        <FontAwesomeIcon icon={faStar}/> {t("start")} <FontAwesomeIcon icon={faStar}/>
+                    </button>}
             </div>
         </div>
     );
