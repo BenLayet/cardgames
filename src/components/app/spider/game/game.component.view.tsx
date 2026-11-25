@@ -115,7 +115,7 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
                     {v.completed[i] && <div className="spider-card"><Face card={`K${v.completed[i]}`}/></div>}
                 </div>)}
             </div>
-            <GameBar onBack={onBack} status={<>
+            <GameBar onBack={onBack} rules="spider" status={<>
                 {v.hint?.kind === "none" && <span className="fst-italic">{t("noUsefulMove")}</span>}
                 {v.hint?.kind === "emptyColumn" && <span className="fst-italic">{t("useEmptyColumn")}</span>}
                 {v.hint?.kind !== "none" && v.hint?.kind !== "emptyColumn" &&
