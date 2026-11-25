@@ -37,20 +37,16 @@ export const View = ({path = "", onResume}: { path?: string, onResume?: () => vo
                         </div>}
                         <div className="d-flex flex-column gap-2">
                             {v.seats.map((seat, index) => <div key={index}
-                                    className="d-flex gap-2 justify-content-between align-items-center">
-                                {/* a human can be named; a computer seat is named after its number */}
-                                {seat === "human"
-                                    ? <input className="form-control seat-name" type="text"
-                                             value={v.playerNames[index]} maxLength={MAX_NAME_LENGTH}
-                                             placeholder={t("playerNumber", {number: index + 1})}
-                                             aria-label={t("playerName", {number: index + 1})}
-                                             autoComplete="off" enterKeyHint="done"
-                                             onChange={event => d.renamePlayerRequested({index, name: event.target.value})}/>
-                                    : <span className="text-nowrap fw-bold">{t("playerNumber", {number: index + 1})}</span>}
-                                {/* a seat that cannot change shows its kind, rather than a choice with a disabled option */}
-                                {!v.changeableSeats[index] ? <span className="seat-fixed">
-                                    <FontAwesomeIcon icon={seat === "human" ? faUser : faRobot}/> {t(seat)}
-                                </span> : <span className="choice-group">
+                                    className="d-flex gap-2 align-items-center">
+                                {/* every seat can be named, the computer's too */}
+                                <input className="form-control seat-name" type="text"
+                                       value={v.playerNames[index]} maxLength={MAX_NAME_LENGTH}
+                                       placeholder={t("playerNumber", {number: index + 1})}
+                                       aria-label={t("playerName", {number: index + 1})}
+                                       autoComplete="off" enterKeyHint="done"
+                                       onChange={event => d.renamePlayerRequested({index, name: event.target.value})}/>
+                                {/* a seat that cannot change, like the first one, shows nothing about its kind */}
+                                {v.changeableSeats[index] && <span className="choice-group seat-kind">
                                     {(["human", "computer"] as const).map(kind => <button
                                         key={kind}
                                         className="btn btn-sm btn-choice text-nowrap"
