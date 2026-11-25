@@ -44,6 +44,7 @@ const deal = (columns: SpiderCard[][], {stock = [] as SpiderCard[], completed = 
         columns: Array.from({length: COLUMN_COUNT}, (_, i) => columns[i] ?? cards("KD")),
         stock,
         completed,
+        cardCount: 104,
     }));
 
 describe("spider game", () => {

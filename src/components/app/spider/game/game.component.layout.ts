@@ -1,3 +1,4 @@
+import type {Rank} from "../../../../model/deck.model.ts";
 import {followsInSequence, type SpiderCard} from "../../../../model/spider.model.ts";
 
 // How much of a covered card is visible, in card heights.
@@ -9,10 +10,10 @@ const MIN_FACE_DOWN = 0.04;
 const MIN_INSIDE_SEQUENCE = 0.07;
 
 // a card between two cards of its sequence: its value can be told from the cards around it
-const isInsideSequence = (column: SpiderCard[], index: number) =>
+const isInsideSequence = (column: SpiderCard[], index: number, ranks: readonly Rank[]) =>
     index > 0 && index < column.length - 1
-    && followsInSequence(column[index - 1], column[index])
-    && followsInSequence(column[index], column[index + 1]);
+    && followsInSequence(column[index - 1], column[index], ranks)
+    && followsInSequence(column[index], column[index + 1], ranks);
 
 // Shrinks the given gaps, at most down to their minimum, by the given total amount; returns what could not be taken
 const shrink = (gaps: number[], minimums: number[], indexes: number[], excess: number): number => {
@@ -27,14 +28,14 @@ const shrink = (gaps: number[], minimums: number[], indexes: number[], excess: n
 
 // Top of each card, in card heights. When the column is taller than the given room (in card heights,
 // below the top of the first card), the face down cards are squeezed first, then the cards inside a sequence,
-// then every card alike.
-export const cardOffsets = (column: SpiderCard[], room: number, compact: boolean): number[] => {
+// then every card alike. The ranks are those of a sequence, from the lowest.
+export const cardOffsets = (column: SpiderCard[], room: number, compact: boolean, ranks: readonly Rank[]): number[] => {
     if (column.length === 0) return [];
     // the gap after each card but the last one
     const gaps = column.slice(0, -1).map(card => card.faceUp ? FACE_UP[compact ? "compact" : "regular"] : FACE_DOWN);
     const minimums = gaps.map((gap, i) => {
         if (!column[i].faceUp) return MIN_FACE_DOWN;
-        return isInsideSequence(column, i) ? MIN_INSIDE_SEQUENCE : gap;
+        return isInsideSequence(column, i, ranks) ? MIN_INSIDE_SEQUENCE : gap;
     });
     const all = gaps.map((_, i) => i);
     let excess = gaps.reduce((sum, gap) => sum + gap, 0) - room;

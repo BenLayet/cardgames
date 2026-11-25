@@ -21,13 +21,15 @@ import {
     moveCards,
     type SpiderCard,
     sequenceCountOf,
+    spiderLayout,
     stockRowCount,
     type Table,
     variantOf,
 } from "./spider.model.ts";
 
-// the columns of the game with 104 cards
+// the columns and ranks of the game with 104 cards
 const COLUMN_COUNT = 10;
+const RANKS = spiderLayout(104).ranks;
 let nextId = 0;
 // "5H" is face up, "_5H" face down
 const cards = (...codes: string[]): SpiderCard[] => codes.map(code => ({
@@ -69,7 +71,13 @@ describe("createSpiderDeck", () => {
     });
 
     it("rejects other card counts", () => {
-        expect(() => createSpiderDeck(1, 32)).toThrow();
+        expect(() => createSpiderDeck(1, 40)).toThrow();
+    });
+
+    it("uses 32 cards without the 2 to 6", () => {
+        const deck = createSpiderDeck(4, 32);
+        expect(deck).toHaveLength(32);
+        expect(deck.filter(card => card.endsWith("C")).sort()).toEqual(["7C", "8C", "9C", "AC", "JC", "KC", "QC", "TC"]);
     });
 });
 
@@ -94,19 +102,26 @@ describe("dealTable", () => {
         expect(sequenceCountOf(dealt)).toBe(4);
         expect(variantOf(dealt)).toEqual({suitCount: 4, cardCount: 52});
     });
+
+    it("deals 20 of 32 cards into six columns, and keeps 2 rows of 6 in the stock", () => {
+        const dealt = dealTable(createSpiderDeck(1, 32));
+        expect(dealt.columns.map(column => column.length)).toEqual([4, 4, 3, 3, 3, 3]);
+        expect(stockRowCount(dealt)).toBe(2);
+        expect(sequenceCountOf(dealt)).toBe(4);
+    });
 });
 
 describe("moving cards", () => {
     it("can move the run of face up cards of the same suit in descending order", () => {
         const column = cards("_KS", "9H", "8S", "7S", "6S");
-        expect(movableRunStart(column)).toBe(2);
+        expect(movableRunStart(column, RANKS)).toBe(2);
         const t = table([column]);
         expect(canPickCards(t, {column: 0, index: 2})).toBe(true);
         expect(canPickCards(t, {column: 0, index: 1})).toBe(false);
     });
 
     it("cannot move a face down card", () => {
-        expect(movableRunStart(cards("_6S", "5S"))).toBe(1);
+        expect(movableRunStart(cards("_6S", "5S"), RANKS)).toBe(1);
     });
 
     it("puts a run on a card one rank higher of any suit, and turns over the card left behind", () => {
@@ -183,8 +198,21 @@ describe("completed sequences", () => {
         expect(hasCompletedSequence(table([mixed]))).toBe(false);
     });
 
+    it("puts the ace on the 7 with 32 cards, and completes a sequence of eight cards", () => {
+        const short: Table = {columns: [cards("KS", "QS", "JS", "TS", "9S", "8S", "7S"), cards("AS"), [], [], [], []], stock: [], completed: ["S", "S", "S"], cardCount: 32};
+        expect(canMoveCards(short, {column: 1, index: 0}, 0)).toBe(true);
+        const moved = moveCards(short, {column: 1, index: 0}, 0);
+        expect(hasCompletedSequence(moved)).toBe(true);
+        expect(isWon(collectCompletedSequences(moved))).toBe(true);
+    });
+
+    it("does not put the ace on the 7 with 104 cards", () => {
+        expect(canMoveCards(table([cards("7S"), cards("AS")]), {column: 1, index: 0}, 0)).toBe(false);
+        expect(movableRunStart(cards("7S", "AS"), RANKS)).toBe(1);
+    });
+
     it("wins with 52 cards once the four sequences are completed", () => {
-        const t: Table = {columns: [fullSequence("S"), [], [], [], [], [], [], []], stock: [], completed: ["S", "S", "S"]};
+        const t: Table = {columns: [fullSequence("S"), [], [], [], [], [], [], []], stock: [], completed: ["S", "S", "S"], cardCount: 52};
         expect(isWon(t)).toBe(false);
         expect(isWon(collectCompletedSequences(t))).toBe(true);
     });
