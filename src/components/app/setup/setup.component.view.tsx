@@ -1,9 +1,10 @@
 import {useSofter} from "@softer-components/redux-adapter";
 import {useTranslation} from "react-i18next";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowLeft, faMinus, faPlay, faPlus, faRobot, faUser} from "@fortawesome/free-solid-svg-icons";
+import {faMinus, faPlay, faPlus, faRobot, faUser} from "@fortawesome/free-solid-svg-icons";
 
 import type {SetupContract} from "./setup.component.ts";
+import {GameBar} from "../../game-bar/GameBar.tsx";
 import {MAX_NAME_LENGTH} from "./setup.component.state.ts";
 
 const SUIT_SYMBOLS = "♠♥♦♣";
@@ -13,12 +14,7 @@ export const View = ({path = "", onResume}: { path?: string, onResume?: () => vo
     const [v, d] = useSofter<SetupContract>(path);
     const {t} = useTranslation();
     return (<div className="setup vstack position-relative">
-            <div className="position-absolute top-0 start-0">
-                <button className="btn btn-outline-primary" title={t("back")} aria-label={t("back")}
-                        onClick={() => d.backRequested()}>
-                    <FontAwesomeIcon icon={faArrowLeft}/>
-                </button>
-            </div>
+            <GameBar onBack={() => d.backRequested()}/>
             <div className="setup-body vstack align-items-center">
                 <h1 className="game-title">{t(`games.${v.gameId}`)}</h1>
                 <div className="setup-options d-flex flex-column text-center">

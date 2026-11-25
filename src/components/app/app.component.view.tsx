@@ -6,6 +6,7 @@ import {Battle} from "./battle";
 import {Settings} from "./settings";
 import {Spider} from "./spider";
 import {Home} from "./home/home.view";
+import {SettingsSlot} from "../game-bar/settings-slot.ts";
 
 export const View = ({path = ""}) => {
     const [v, d, c] = useSofter<AppContract>(path);
@@ -14,10 +15,15 @@ export const View = ({path = ""}) => {
     }, [d]);
     return (
         <>
-            {v.areSettingsAvailable && <Settings path={c.settings}/>}
-            {v.page === "HOME" && <Home onGameSelected={gameId => d.gameSelected(gameId)}/>}
-            {v.page === "bataille" && <Battle path={c.battle}/>}
-            {v.page === "spider" && <Spider path={c.spider}/>}
+            {/* the home page shows the settings in its corner, the other pages in their bar */}
+            {v.page === "HOME" && <>
+                <Settings path={c.settings}/>
+                <Home onGameSelected={gameId => d.gameSelected(gameId)}/>
+            </>}
+            <SettingsSlot.Provider value={<Settings path={c.settings}/>}>
+                {v.page === "bataille" && <Battle path={c.battle}/>}
+                {v.page === "spider" && <Spider path={c.spider}/>}
+            </SettingsSlot.Provider>
         </>
     );
 };
