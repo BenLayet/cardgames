@@ -30,7 +30,7 @@ export default defineConfig({
     // makes the game installable on phones and playable offline
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
+      includeAssets: ['favicon.ico', 'favicon.svg', 'favicon-32x32.png', 'apple-touch-icon.png'],
       manifest: {
         // English by default, French for a device in French (browsers without localized manifests use the default)
         name: 'Card Games',
