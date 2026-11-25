@@ -47,11 +47,23 @@ export const isFirstCardHigherValue = (card1: Card | undefined, card2: Card | un
     !!card2 &&
     cardValue(card1) > cardValue(card2);
 
-export function shuffleDeck(deck: Card[]): Card[] {
+// random() returns a number from 0 included to 1 excluded, like Math.random
+export function shuffleDeck(deck: Card[], random: () => number = Math.random): Card[] {
     const shuffledDeck = [...deck];
     for (let i = shuffledDeck.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
+        const j = Math.floor(random() * (i + 1));
         [shuffledDeck[i], shuffledDeck[j]] = [shuffledDeck[j], shuffledDeck[i]];
     }
     return shuffledDeck;
 }
+
+// The same seed always gives the same numbers, so that a shuffle can be replayed from its seed (mulberry32)
+export const seededRandom = (seed: number): () => number => {
+    let state = seed | 0;
+    return () => {
+        state = (state + 0x6D2B79F5) | 0;
+        let t = Math.imul(state ^ (state >>> 15), 1 | state);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+};

@@ -1,4 +1,5 @@
-import {type Card, type Rank, type Suit, SUITS} from "./deck.model.ts";
+import {type Card, type Rank, seededRandom, shuffleDeck, type Suit, SUITS} from "./deck.model.ts";
+import {SOLVABLE_DEAL_SEEDS} from "./spider-deals.ts";
 
 // Spider solitaire: two decks dealt into ten columns, or one deck into eight columns.
 // A completed sequence is a run from the king down to the ace of the same suit; the game is won when every card is in one.
@@ -81,6 +82,17 @@ export const dealTable = (deck: Card[]): Table => {
     const columns = Array.from({length: columnCount}, (_, column) =>
         revealTop(cards.slice(0, initialTableauSize).filter((_, i) => i % columnCount === column)));
     return {columns, stock: cards.slice(initialTableauSize), completed: []};
+};
+
+// The deal of the deck shuffled from this seed: the same seed always gives the same deal
+export const dealSeededTable = ({suitCount, cardCount}: SpiderVariant, seed: number): Table =>
+    dealTable(shuffleDeck(createSpiderDeck(suitCount, cardCount), seededRandom(seed)));
+
+// A seed among the deals that the solver won, so that every game can be won
+export const pickSolvableSeed = ({suitCount, cardCount}: SpiderVariant, random: () => number = Math.random): number => {
+    const seeds = SOLVABLE_DEAL_SEEDS[cardCount]?.[suitCount] ?? [];
+    if (seeds.length === 0) throw new Error(`No solvable deal is known with ${cardCount} cards and ${suitCount} suits`);
+    return seeds[Math.floor(random() * seeds.length)];
 };
 
 export const followsInSequence = (upper: SpiderCard, lower: SpiderCard) =>

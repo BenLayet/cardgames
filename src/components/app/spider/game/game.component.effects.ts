@@ -3,8 +3,7 @@ import type {Effects} from "@softer-components/types";
 import type {Contract} from "./game.component.contract.ts";
 import type {AudioService} from "../../../../services/audio.service.ts";
 import type {SpiderSaveService} from "../../../../services/spider-save.service.ts";
-import {createSpiderDeck, dealTable, type SavedSpiderGame, type SpiderVariant} from "../../../../model/spider.model.ts";
-import {shuffleDeck} from "../../../../model/deck.model.ts";
+import {dealSeededTable, pickSolvableSeed, type SavedSpiderGame, type SpiderVariant} from "../../../../model/spider.model.ts";
 
 export type Dependencies = {
     audioService: AudioService,
@@ -23,10 +22,10 @@ export const effects = ({audioService, spiderSaveService}: Dependencies): Effect
         else spiderSaveService.save(values.variant(), values.savedGame());
     };
     return {
-        // shuffling is random, so it happens here and not in the updaters
+        // picking the deal is random, so it happens here and not in the updaters
         dealRequested: ({dealCompleted}, {payload: {suitCount, cardCount}}) => {
             audioService.startBackgroundMusic();
-            dealCompleted(dealTable(shuffleDeck(createSpiderDeck(suitCount, cardCount))));
+            dealCompleted(dealSeededTable({suitCount, cardCount}, pickSolvableSeed({suitCount, cardCount})));
         },
         dealCompleted: (_, {values}) => save(values),
         restoreRequested: ({gameRestored}, {payload: variant}) => {

@@ -22,7 +22,7 @@ export default defineConfig([
             parserOptions: {
                 // the type-checked rules need the TypeScript project
                 projectService: {
-                    // vite.config.ts is outside the src folder covered by tsconfig.json
+                    // vite.config.ts is outside the src folder covered by tsconfig.json, the scripts have their own
                     allowDefaultProject: ['vite.config.ts'],
                 },
                 tsconfigRootDir: import.meta.dirname,
@@ -36,5 +36,10 @@ export default defineConfig([
             // softer-components contracts must be type aliases: an interface has no implicit index signature
             '@typescript-eslint/consistent-type-definitions': 'off',
         },
+    },
+    {
+        // the scripts run with Node.js
+        files: ['scripts/**/*.ts'],
+        languageOptions: {globals: globals.node},
     },
 ])
