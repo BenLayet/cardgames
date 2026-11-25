@@ -18,12 +18,12 @@ const setup = (settings: Partial<Settings> = {}, game = gameDefinition("bataille
 
 describe("setup screen", () => {
     it("starts with the stored card count", () => {
-        const {values} = setup({cardCount: 16});
+        const {values} = setup({cardCounts: {bataille: 16}});
         expect(values().cardCount()).toBe(16);
     });
 
     it("ignores a stored card count that is no longer offered", () => {
-        const {values} = setup({cardCount: 20});
+        const {values} = setup({cardCounts: {bataille: 20}});
         expect(values().cardCount()).toBe(32);
     });
 
@@ -31,7 +31,15 @@ describe("setup screen", () => {
         const {store, values, settingsService} = setup();
         await store.when({name: "setCardCountRequested", payload: 52, statePath: []});
         expect(values().cardCount()).toBe(52);
-        expect(settingsService.load().cardCount).toBe(52);
+        expect(settingsService.load().cardCounts).toEqual({bataille: 52, spider: 104});
+    });
+
+    it("keeps a card count for each game", async () => {
+        const {store, values, settingsService} = setup({cardCounts: {bataille: 52}}, gameDefinition("spider"));
+        expect(values().cardCount()).toBe(104);
+        await store.when({name: "setCardCountRequested", payload: 52, statePath: []});
+        await store.when({name: "setCardCountRequested", payload: 104, statePath: []});
+        expect(settingsService.load().cardCounts).toEqual({bataille: 52, spider: 104});
     });
 
     it("remembers the chosen number of suits", async () => {

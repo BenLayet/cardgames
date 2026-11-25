@@ -7,7 +7,6 @@ import {
     canPickCards,
     clickDestinationsOf,
     collectCompletedSequences,
-    COLUMN_COUNT,
     createSpiderDeck,
     dealRow,
     dealTable,
@@ -21,10 +20,14 @@ import {
     movableRunStart,
     moveCards,
     type SpiderCard,
+    sequenceCountOf,
     stockRowCount,
     type Table,
+    variantOf,
 } from "./spider.model.ts";
 
+// the columns of the game with 104 cards
+const COLUMN_COUNT = 10;
 let nextId = 0;
 // "5H" is face up, "_5H" face down
 const cards = (...codes: string[]): SpiderCard[] => codes.map(code => ({
@@ -46,7 +49,7 @@ describe("createSpiderDeck", () => {
         [2, {S: 52, H: 52}],
         [4, {S: 26, H: 26, D: 26, C: 26}],
     ])("uses 104 cards of %i suit(s)", (suitCount, expectedSuits) => {
-        const deck = createSpiderDeck(suitCount);
+        const deck = createSpiderDeck(suitCount, 104);
         expect(deck).toHaveLength(104);
         const suits: Record<string, number> = {};
         deck.forEach(card => {
@@ -56,13 +59,23 @@ describe("createSpiderDeck", () => {
     });
 
     it("rejects other suit counts", () => {
-        expect(() => createSpiderDeck(3)).toThrow();
+        expect(() => createSpiderDeck(3, 104)).toThrow();
+    });
+
+    it("uses one deck of 52 cards, with fewer suits repeated more often", () => {
+        const deck = createSpiderDeck(2, 52);
+        expect(deck.filter(card => card.endsWith("S"))).toHaveLength(26);
+        expect(deck.filter(card => card.endsWith("H"))).toHaveLength(26);
+    });
+
+    it("rejects other card counts", () => {
+        expect(() => createSpiderDeck(1, 32)).toThrow();
     });
 });
 
 describe("dealTable", () => {
     it("deals 54 cards into ten columns with only the top card face up, and keeps 50 in the stock", () => {
-        const dealt = dealTable(createSpiderDeck(4));
+        const dealt = dealTable(createSpiderDeck(4, 104));
         expect(dealt.columns.map(column => column.length)).toEqual([6, 6, 6, 6, 5, 5, 5, 5, 5, 5]);
         dealt.columns.forEach(column => {
             expect(column.map(c => c.faceUp)).toEqual([...Array<boolean>(column.length - 1).fill(false), true]);
@@ -70,6 +83,16 @@ describe("dealTable", () => {
         expect(dealt.stock).toHaveLength(50);
         expect(stockRowCount(dealt)).toBe(5);
         expect(new Set([...dealt.columns.flat(), ...dealt.stock].map(c => c.id)).size).toBe(104);
+    });
+
+    it("deals 28 of 52 cards into eight columns, and keeps 3 rows of 8 in the stock", () => {
+        const dealt = dealTable(createSpiderDeck(4, 52));
+        expect(dealt.columns.map(column => column.length)).toEqual([4, 4, 4, 4, 3, 3, 3, 3]);
+        expect(dealt.stock).toHaveLength(24);
+        expect(stockRowCount(dealt)).toBe(3);
+        expect(dealRow(dealt).columns.map(column => column.length)).toEqual([5, 5, 5, 5, 4, 4, 4, 4]);
+        expect(sequenceCountOf(dealt)).toBe(4);
+        expect(variantOf(dealt)).toEqual({suitCount: 4, cardCount: 52});
     });
 });
 
@@ -160,6 +183,12 @@ describe("completed sequences", () => {
         expect(hasCompletedSequence(table([mixed]))).toBe(false);
     });
 
+    it("wins with 52 cards once the four sequences are completed", () => {
+        const t: Table = {columns: [fullSequence("S"), [], [], [], [], [], [], []], stock: [], completed: ["S", "S", "S"]};
+        expect(isWon(t)).toBe(false);
+        expect(isWon(collectCompletedSequences(t))).toBe(true);
+    });
+
     it("wins once the eight sequences are completed", () => {
         const t = table(Array.from({length: 8}, (_, i) => fullSequence(i % 2 === 0 ? "S" : "H")));
         expect(isWon(t)).toBe(false);
@@ -236,15 +265,21 @@ describe("hints", () => {
 
 describe("saved game", () => {
     it("accepts a game that was saved", () => {
-        const dealt = dealTable(createSpiderDeck(2));
+        const dealt = dealTable(createSpiderDeck(2, 104));
         const saved = JSON.parse(JSON.stringify({table: dealt, history: [dealt], moveCount: 3})) as unknown;
         expect(isSavedSpiderGame(saved)).toBe(true);
+    });
+
+    it("accepts a game of 52 cards that was saved", () => {
+        const dealt = dealTable(createSpiderDeck(1, 52));
+        expect(isSavedSpiderGame({table: dealt, history: [], moveCount: 0})).toBe(true);
     });
 
     it.each([
         ["nothing", null],
         ["another shape", {columns: []}],
-        ["missing cards", {table: {...dealTable(createSpiderDeck(1)), stock: []}, history: [], moveCount: 0}],
+        ["52 cards in ten columns", {table: {...dealTable(createSpiderDeck(1, 52)), columns: [...dealTable(createSpiderDeck(1, 52)).columns, [], []]}, history: [], moveCount: 0}],
+        ["missing cards", {table: {...dealTable(createSpiderDeck(1, 104)), stock: []}, history: [], moveCount: 0}],
         ["an unknown card", {table: {...EMPTY_TABLE, stock: cards("ZZ")}, history: [], moveCount: 0}],
     ])("rejects %s", (_, value) => {
         expect(isSavedSpiderGame(value)).toBe(false);

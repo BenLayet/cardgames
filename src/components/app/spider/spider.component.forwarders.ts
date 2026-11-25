@@ -9,12 +9,12 @@ export const eventForwarders = {
                 {
                     from: "startGameRequested",
                     to: "dealRequested",
-                    withPayload: ({values}) => ({suitCount: values.suitCount()}),
+                    withPayload: ({values}) => values.variant(),
                 },
                 {
                     from: "resumeRequested",
                     to: "restoreRequested",
-                    withPayload: ({values}) => ({suitCount: values.suitCount()}),
+                    withPayload: ({values}) => values.variant(),
                 },
             ],
             listeners: [

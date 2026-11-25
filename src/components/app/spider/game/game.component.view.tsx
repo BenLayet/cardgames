@@ -11,7 +11,7 @@ import {useMeasure} from "../../../../hooks/useMeasure.ts";
 import {cardOffsets} from "./game.component.layout.ts";
 import {GameBar} from "../../../game-bar/GameBar.tsx";
 import {Fireworks} from "../../../fireworks/Fireworks.tsx";
-import {type CardPosition, SEQUENCE_COUNT} from "../../../../model/spider.model.ts";
+import type {CardPosition} from "../../../../model/spider.model.ts";
 
 // a press that moves less than this is a click, not a drag
 const DRAG_THRESHOLD_PX = 8;
@@ -108,10 +108,10 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
         hintedMove !== null && hintedMove.from.column === column && index >= hintedMove.from.index;
     const isHintedTarget = (column: number) => hintedMove?.to === column;
 
-    return <div className="spider-table vstack gap-3">
+    return <div className="spider-table vstack gap-3" style={{"--spider-columns": v.columns.length} as CSSProperties}>
         <div className="spider-top-bar d-flex justify-content-between align-items-start gap-2">
             <div className="spider-completed" aria-label={t("completedSequences", {count: v.completed.length})}>
-                {Array.from({length: SEQUENCE_COUNT}, (_, i) => <div key={i} className="spider-slot">
+                {Array.from({length: v.sequenceCount}, (_, i) => <div key={i} className="spider-slot">
                     {v.completed[i] && <div className="spider-card"><Face card={`K${v.completed[i]}`}/></div>}
                 </div>)}
             </div>

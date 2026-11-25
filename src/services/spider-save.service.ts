@@ -1,12 +1,12 @@
-import type {SavedSpiderGame} from "../model/spider.model.ts";
+import type {SavedSpiderGame, SpiderVariant} from "../model/spider.model.ts";
 
 // Keeps the spider games in progress so that they can be resumed after the application is closed:
-// one game for each number of suits
+// one game for each number of suits and of cards
 export interface SpiderSaveService {
-    // null when there is no game to resume with this number of suits
-    load(suitCount: number): SavedSpiderGame | null;
-    save(suitCount: number, game: SavedSpiderGame): void;
-    clear(suitCount: number): void;
-    // the numbers of suits that have a game to resume
-    savedSuitCounts(): number[];
+    // null when there is no game to resume with these choices
+    load(variant: SpiderVariant): SavedSpiderGame | null;
+    save(variant: SpiderVariant, game: SavedSpiderGame): void;
+    clear(variant: SpiderVariant): void;
+    // the choices that have a game to resume
+    savedVariants(): SpiderVariant[];
 }

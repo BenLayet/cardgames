@@ -83,11 +83,28 @@ describe("spider", () => {
 
         await spider.when({name: "setSuitCountRequested", payload: 1, statePath: setupPath});
         expect(spider.getValues("").canResume()).toBe(true);
-        expect(spiderSaveService.savedSuitCounts()).toEqual([1, 4]);
+        expect(spiderSaveService.savedVariants()).toEqual([{suitCount: 1, cardCount: 104}, {suitCount: 4, cardCount: 104}]);
 
         await spider.when({name: "setSuitCountRequested", payload: 4, statePath: setupPath});
         await spider.when({name: "resumeRequested", statePath: []});
         expect(spider.getValues("/game").columns()).toEqual(fourSuits);
+    });
+
+    it("keeps one game for each number of cards, and deals the chosen number", async () => {
+        const spiderSaveService = fakeSpiderSaveService();
+        const spider = initTestStore(spiderDef({audioService, settingsService: fakeSettingsService({suitCount: 1}), spiderSaveService}));
+        await spider.when({name: "startGameRequested", statePath: setupPath});
+        await spider.when({name: "goHomeRequested", statePath: []});
+        await spider.when({name: "setCardCountRequested", payload: 52, statePath: setupPath});
+        expect(spider.getValues("").canResume()).toBe(false);
+
+        await spider.when({name: "startGameRequested", statePath: setupPath});
+        expect(spider.getValues("/game").columns()).toHaveLength(8);
+        await spider.when({name: "goHomeRequested", statePath: []});
+
+        expect(spiderSaveService.savedVariants()).toEqual([{suitCount: 1, cardCount: 104}, {suitCount: 1, cardCount: 52}]);
+        await spider.when({name: "resumeRequested", statePath: []});
+        expect(spider.getValues("/game").columns()).toHaveLength(8);
     });
 
     it("forgets only the won game of its number of suits", async () => {

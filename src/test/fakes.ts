@@ -2,7 +2,7 @@ import {vi} from "vitest";
 import type {AudioService} from "../services/audio.service.ts";
 import {DEFAULT_SETTINGS, type Settings, type SettingsService} from "../services/settings.service.ts";
 import type {SpiderSaveService} from "../services/spider-save.service.ts";
-import type {SavedSpiderGame} from "../model/spider.model.ts";
+import type {SavedSpiderGame, SpiderVariant} from "../model/spider.model.ts";
 
 export const fakeAudioService = () => ({
     stopAll: vi.fn(),
@@ -26,17 +26,18 @@ export const fakeSettingsService = (initial: Partial<Settings> = {}) => {
     } satisfies SettingsService;
 };
 
-// Keeps the saved game in memory so tests can check what was saved
-export const fakeSpiderSaveService = (initial: Record<number, SavedSpiderGame> = {}) => {
-    const saved = new Map(Object.entries(initial).map(([suitCount, game]) => [Number(suitCount), game]));
+// Keeps the saved games in memory so tests can check what was saved
+export const fakeSpiderSaveService = () => {
+    const key = ({cardCount, suitCount}: SpiderVariant) => `${cardCount}.${suitCount}`;
+    const saved = new Map<string, { variant: SpiderVariant, game: SavedSpiderGame }>();
     return {
-        load: (suitCount: number) => saved.get(suitCount) ?? null,
-        save: vi.fn((suitCount: number, game: SavedSpiderGame) => {
-            saved.set(suitCount, game);
+        load: (variant: SpiderVariant) => saved.get(key(variant))?.game ?? null,
+        save: vi.fn((variant: SpiderVariant, game: SavedSpiderGame) => {
+            saved.set(key(variant), {variant, game});
         }),
-        clear: vi.fn((suitCount: number) => {
-            saved.delete(suitCount);
+        clear: vi.fn((variant: SpiderVariant) => {
+            saved.delete(key(variant));
         }),
-        savedSuitCounts: () => [...saved.keys()].sort(),
+        savedVariants: () => [...saved.values()].map(({variant}) => variant),
     } satisfies SpiderSaveService;
 };

@@ -1,17 +1,29 @@
 import {type Card, type Rank, type Suit, SUITS} from "./deck.model.ts";
 
-// Spider solitaire: two decks dealt into ten columns.
-// A completed sequence is a run from the king down to the ace of the same suit; eight of them win the game.
+// Spider solitaire: two decks dealt into ten columns, or one deck into eight columns.
+// A completed sequence is a run from the king down to the ace of the same suit; the game is won when every card is in one.
 // The functions below never change the given table, they return a new one.
 
-export const COLUMN_COUNT = 10;
-export const SEQUENCE_COUNT = 8;
 export const SUIT_COUNT_OPTIONS = [1, 2, 4];
-const DECK_SIZE = 104;
-// cards dealt into the columns at the start, the others stay in the stock
-const INITIAL_TABLEAU_SIZE = 54;
+// the first one is the usual game
+export const CARD_COUNT_OPTIONS = [104, 52];
 // in Spider the ace is the lowest card
 const SPIDER_RANKS: readonly Rank[] = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K"];
+const SEQUENCE_LENGTH = SPIDER_RANKS.length;
+
+export type SpiderLayout = {
+    columnCount: number;
+    // cards dealt into the columns at the start, the others stay in the stock and are dealt one per column
+    initialTableauSize: number;
+};
+const LAYOUTS: Readonly<Record<number, SpiderLayout>> = {
+    104: {columnCount: 10, initialTableauSize: 54},
+    52: {columnCount: 8, initialTableauSize: 28},
+};
+export const spiderLayout = (cardCount: number): SpiderLayout => {
+    if (!CARD_COUNT_OPTIONS.includes(cardCount)) throw new Error(`Spider is played with ${CARD_COUNT_OPTIONS.join(" or ")} cards, not ${cardCount}`);
+    return LAYOUTS[cardCount];
+};
 
 export type SpiderCard = {
     // two decks hold the same cards twice, the id tells them apart
@@ -27,18 +39,32 @@ export type Table = {
     // the suit of each completed sequence
     completed: Suit[];
 };
+// The choices made on the setup screen; each combination has its own saved game
+export type SpiderVariant = { suitCount: number; cardCount: number };
+export const sameVariant = (a: SpiderVariant, b: SpiderVariant) => a.suitCount === b.suitCount && a.cardCount === b.cardCount;
+// the number of suits and of cards of a game
+export const variantOf = (table: Table): SpiderVariant => ({
+    suitCount: new Set([...table.columns.flat(), ...table.stock].map(c => suitOf(c.card)).concat(table.completed)).size,
+    cardCount: cardCountOf(table),
+});
 export type CardPosition = { column: number; index: number };
 
-export const EMPTY_TABLE: Table = {columns: Array.from({length: COLUMN_COUNT}, () => []), stock: [], completed: []};
+export const EMPTY_TABLE: Table = {columns: [], stock: [], completed: []};
+
+// every card is in a column, in the stock or in a completed sequence
+export const cardCountOf = (table: Table): number =>
+    table.columns.reduce((count, column) => count + column.length, 0) + table.stock.length + table.completed.length * SEQUENCE_LENGTH;
+export const sequenceCountOf = (table: Table): number => cardCountOf(table) / SEQUENCE_LENGTH;
 
 export const spiderRank = (card: Card) => SPIDER_RANKS.indexOf(card.charAt(0) as Rank);
 export const suitOf = (card: Card) => card.charAt(1) as Suit;
 
-// The 104 cards with fewer suits repeated more often: 8 times spades, 4 times spades and hearts, or twice each suit
-export const createSpiderDeck = (suitCount: number): Card[] => {
+// The cards with fewer suits repeated more often: with 104 cards, 8 times spades, 4 times spades and hearts, or twice each suit
+export const createSpiderDeck = (suitCount: number, cardCount: number): Card[] => {
     if (!SUIT_COUNT_OPTIONS.includes(suitCount)) throw new Error(`Spider is played with 1, 2 or 4 suits, not ${suitCount}`);
+    spiderLayout(cardCount);
     const suits = SUITS.slice(0, suitCount);
-    const copies = DECK_SIZE / (suits.length * SPIDER_RANKS.length);
+    const copies = cardCount / (suits.length * SPIDER_RANKS.length);
     return Array.from({length: copies}).flatMap(() =>
         suits.flatMap(suit => SPIDER_RANKS.map((rank): Card => `${rank}${suit}`)));
 };
@@ -48,13 +74,13 @@ const revealTop = (column: SpiderCard[]): SpiderCard[] => {
     return top === undefined || top.faceUp ? column : [...column.slice(0, -1), {...top, faceUp: true}];
 };
 
-// Deals the cards one by one around the columns: the first four columns get six cards, the others five
+// Deals the cards one by one around the columns: with 104 cards, the first four columns get six cards, the others five
 export const dealTable = (deck: Card[]): Table => {
-    if (deck.length !== DECK_SIZE) throw new Error(`Spider needs ${DECK_SIZE} cards, not ${deck.length}`);
+    const {columnCount, initialTableauSize} = spiderLayout(deck.length);
     const cards = deck.map((card, id): SpiderCard => ({id, card, faceUp: false}));
-    const columns = Array.from({length: COLUMN_COUNT}, (_, column) =>
-        revealTop(cards.slice(0, INITIAL_TABLEAU_SIZE).filter((_, i) => i % COLUMN_COUNT === column)));
-    return {columns, stock: cards.slice(INITIAL_TABLEAU_SIZE), completed: []};
+    const columns = Array.from({length: columnCount}, (_, column) =>
+        revealTop(cards.slice(0, initialTableauSize).filter((_, i) => i % columnCount === column)));
+    return {columns, stock: cards.slice(initialTableauSize), completed: []};
 };
 
 export const followsInSequence = (upper: SpiderCard, lower: SpiderCard) =>
@@ -103,20 +129,19 @@ export const moveCards = (table: Table, from: CardPosition, to: number): Table =
 export const canDealRow = (table: Table): boolean =>
     table.stock.length > 0 && table.columns.every(column => column.length > 0);
 
-export const stockRowCount = (table: Table): number => Math.ceil(table.stock.length / COLUMN_COUNT);
+export const stockRowCount = (table: Table): number => Math.ceil(table.stock.length / table.columns.length);
 
 // One face up card on each column
 export const dealRow = (table: Table): Table => {
     if (!canDealRow(table)) throw new Error("A row cannot be dealt now");
-    const row = table.stock.slice(-COLUMN_COUNT).reverse();
+    const row = table.stock.slice(-table.columns.length).reverse();
     return {
         ...table,
-        stock: table.stock.slice(0, -COLUMN_COUNT),
+        stock: table.stock.slice(0, -row.length),
         columns: table.columns.map((column, i) => i < row.length ? [...column, {...row[i], faceUp: true}] : column),
     };
 };
 
-const SEQUENCE_LENGTH = SPIDER_RANKS.length;
 const endsWithCompletedSequence = (column: SpiderCard[]) =>
     column.length >= SEQUENCE_LENGTH && movableRunStart(column) <= column.length - SEQUENCE_LENGTH;
 
@@ -133,7 +158,8 @@ export const collectCompletedSequences = (table: Table): Table => {
     return {...table, columns, completed};
 };
 
-export const isWon = (table: Table): boolean => table.completed.length === SEQUENCE_COUNT;
+export const isWon = (table: Table): boolean =>
+    table.completed.length > 0 && table.stock.length === 0 && table.columns.every(column => column.length === 0);
 
 // The columns where the cards from this position can go
 export const destinationsOf = (table: Table, from: CardPosition): number[] =>
@@ -219,10 +245,11 @@ const isCardList = (value: unknown): value is SpiderCard[] => Array.isArray(valu
 const isTable = (value: unknown): value is Table => {
     const table = value as Partial<Table> | null;
     return typeof table === "object" && table !== null
-        && Array.isArray(table.columns) && table.columns.length === COLUMN_COUNT && table.columns.every(isCardList)
+        && Array.isArray(table.columns) && table.columns.every(isCardList)
         && isCardList(table.stock)
         && Array.isArray(table.completed) && table.completed.every(suit => SUITS.includes(suit))
-        && table.columns.flat().length + table.stock.length + table.completed.length * SPIDER_RANKS.length === DECK_SIZE;
+        && CARD_COUNT_OPTIONS.includes(cardCountOf(table as Table))
+        && table.columns.length === spiderLayout(cardCountOf(table as Table)).columnCount;
 };
 
 // Data read back from the storage may have been written by another version of the game, or changed by hand

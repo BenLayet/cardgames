@@ -4,8 +4,13 @@ import type {ExtractEventNameUnion, ExtractPayload} from "@softer-components/typ
 
 import {gameDef, type GameContract} from "./game.component.ts";
 import type {Card} from "../../../../model/deck.model.ts";
-import {COLUMN_COUNT, type SpiderCard, type Table} from "../../../../model/spider.model.ts";
+import type {SpiderCard, Table} from "../../../../model/spider.model.ts";
 import {fakeAudioService, fakeSpiderSaveService} from "../../../../test/fakes.ts";
+
+// the columns of the game with 104 cards
+const COLUMN_COUNT = 10;
+// the choices of the games dealt by the tests
+const ONE_SUIT = {suitCount: 1, cardCount: 104};
 
 const event = <N extends ExtractEventNameUnion<GameContract>>(name: N, payload?: ExtractPayload<GameContract, N>) =>
     ({name, payload, statePath: []});
@@ -30,6 +35,8 @@ const cards = (...codes: string[]): SpiderCard[] => codes.map(code => ({
     card: code.replace("_", "") as Card,
     faceUp: !code.startsWith("_"),
 }));
+// the columns left empty, after the two first ones
+const NO_OTHER_CARDS: SpiderCard[][] = Array.from({length: COLUMN_COUNT - 2}, () => []);
 const SEQUENCE_WITHOUT_ACE = "KQJT98765432".split("").map(rank => `${rank}S`);
 // the given columns, the other ones hold a king so that a row can be dealt
 const deal = (columns: SpiderCard[][], {stock = [] as SpiderCard[], completed = [] as Table["completed"]} = {}) =>
@@ -41,7 +48,7 @@ const deal = (columns: SpiderCard[][], {stock = [] as SpiderCard[], completed = 
 
 describe("spider game", () => {
     it("deals 104 cards of the chosen suits", async () => {
-        await store.when(event("dealRequested", {suitCount: 2}));
+        await store.when(event("dealRequested", {suitCount: 2, cardCount: 104}));
 
         const dealt = [...values().columns().flat(), ...values().table().stock];
         expect(dealt).toHaveLength(104);
@@ -178,7 +185,7 @@ describe("spider game", () => {
 
     it("removes a completed sequence and wins with the eighth one", async () => {
         const completed = Array<Table["completed"][number]>(7).fill("S");
-        await deal([cards(...SEQUENCE_WITHOUT_ACE), cards("AS")], {completed});
+        await deal([cards(...SEQUENCE_WITHOUT_ACE), cards("AS"), ...NO_OTHER_CARDS], {completed});
 
         await store.when(event("cardsDropped", {from: {column: 1, index: 0}, to: 0}));
 
@@ -213,11 +220,11 @@ describe("spider game", () => {
 
     it("saves the game after each move, with what the undo needs", async () => {
         await deal([cards("_4D", "8S"), cards("9H")]);
-        expect(spiderSaveService.load(1)?.moveCount).toBe(0);
+        expect(spiderSaveService.load(ONE_SUIT)?.moveCount).toBe(0);
 
         await store.when(event("cardsDropped", {from: {column: 0, index: 1}, to: 1}));
 
-        const saved = spiderSaveService.load(1);
+        const saved = spiderSaveService.load(ONE_SUIT);
         expect(saved?.moveCount).toBe(1);
         expect(saved?.table.columns[1].map(c => c.card)).toEqual(["9H", "8S"]);
         expect(saved?.history).toHaveLength(1);
@@ -232,7 +239,7 @@ describe("spider game", () => {
             await store.when(event("cardsDropped", {from: {column: from, index: 1}, to: 3 - from}));
         }
         expect(values().moveCount()).toBe(150);
-        expect(spiderSaveService.load(1)?.history).toHaveLength(150);
+        expect(spiderSaveService.load(ONE_SUIT)?.history).toHaveLength(150);
     });
 
     it("resumes the saved game, undo included", async () => {
@@ -240,7 +247,7 @@ describe("spider game", () => {
         await store.when(event("cardsDropped", {from: {column: 0, index: 1}, to: 1}));
         const resumed = initTestStore(gameDef({audioService, spiderSaveService}));
 
-        await resumed.when(event("restoreRequested", {suitCount: 1}));
+        await resumed.when(event("restoreRequested", {suitCount: 1, cardCount: 104}));
 
         const resumedValues = resumed.getValues("");
         expect(resumedValues.moveCount()).toBe(1);
@@ -251,10 +258,10 @@ describe("spider game", () => {
 
     it("forgets the saved game once it is won", async () => {
         const completed = Array<Table["completed"][number]>(7).fill("S");
-        await deal([cards(...SEQUENCE_WITHOUT_ACE), cards("AS")], {completed});
+        await deal([cards(...SEQUENCE_WITHOUT_ACE), cards("AS"), ...NO_OTHER_CARDS], {completed});
 
         await store.when(event("cardsDropped", {from: {column: 1, index: 0}, to: 0}));
 
-        expect(spiderSaveService.load(1)).toBeNull();
+        expect(spiderSaveService.load(ONE_SUIT)).toBeNull();
     });
 });

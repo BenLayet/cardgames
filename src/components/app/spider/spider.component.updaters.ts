@@ -2,12 +2,13 @@ import type {StateUpdaters} from "@softer-components/types";
 
 import type {Contract} from "./spider.component.contract";
 import type {State} from "./spider.component.state";
+import {sameVariant} from "../../../model/spider.model.ts";
 
 export const stateUpdaters: StateUpdaters<Contract, State> = {
-    // the new game is saved as soon as it is dealt, in place of the one with the same number of suits
+    // the new game is saved as soon as it is dealt, in place of the one with the same numbers of suits and cards
     startGameRequested: ({state, values}) => {
         state.isStarted = true;
-        if (!state.savedSuitCounts.includes(values.suitCount())) state.savedSuitCounts.push(values.suitCount());
+        if (!state.savedVariants.some(saved => sameVariant(saved, values.variant()))) state.savedVariants.push(values.variant());
     },
     resumeRequested: ({state}) => {
         state.isStarted = true;
@@ -17,6 +18,6 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
     },
     // a won game is not kept
     gameFinished: ({state, values}) => {
-        state.savedSuitCounts = state.savedSuitCounts.filter(suitCount => suitCount !== values.suitCount());
+        state.savedVariants = state.savedVariants.filter(saved => !sameVariant(saved, values.variant()));
     },
 };
