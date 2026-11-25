@@ -4,8 +4,8 @@
 <pattern id="weave" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="12" height="12" fill="#8e2232"/><rect width="6" height="12" fill="#a52a3c"/><rect y="9" width="12" height="2" fill="#fff" fill-opacity=".16"/></pattern>
 <filter id="sh" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000" flood-opacity=".45"/></filter>
 </defs>
-<rect width="512" height="512" rx="96" fill="url(#felt)"/>
-
+<rect width="512" height="512" rx="0" fill="url(#felt)"/>
+<rect x="22" y="22" width="468" height="468" rx="18" fill="none" stroke="#c9a26b" stroke-opacity=".55" stroke-width="3"/>
 <g transform="translate(256 262) scale(1)">
   <g transform="rotate(-14) translate(-52 -6)" filter="url(#sh)">
     <rect x="-100" y="-142" width="200" height="284" rx="16" fill="#fffdf8"/>
