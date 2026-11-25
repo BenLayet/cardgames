@@ -11,9 +11,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Jeu de bataille',
-        short_name: 'Bataille',
-        description: 'Le jeu de cartes de la bataille',
+        name: 'Jeux de cartes',
+        short_name: 'Jeux de cartes',
+        description: 'Des jeux de cartes : bataille, Spider',
         lang: 'fr',
         start_url: '/',
         scope: '/',
