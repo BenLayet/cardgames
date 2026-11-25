@@ -14,9 +14,22 @@ describe("saved game codec", () => {
     it("reads back completed sequences and empty columns", () => {
         const oneSuit = dealTable(createSpiderDeck(1, 104));
         // column 0 emptied and 13 cards gone with the completed sequence
-        const table = {columns: [[], ...oneSuit.columns.slice(1)], stock: oneSuit.stock.slice(7), completed: ["S" as const]};
+        const table = {columns: [[], ...oneSuit.columns.slice(1)], stock: oneSuit.stock.slice(7), completed: ["S" as const], cardCount: 104};
         const saved = {table, history: [oneSuit], moveCount: 42};
         expect(decodeSavedGame(encodeSavedGame(saved))).toEqual(saved);
+    });
+
+    it("reads back a game of 32 cards", () => {
+        const short = dealTable(createSpiderDeck(2, 32));
+        const saved = {table: short, history: [], moveCount: 0};
+        expect(decodeSavedGame(encodeSavedGame(saved))).toEqual(saved);
+    });
+
+    it("reads a game saved without its number of cards", () => {
+        const fiftyTwo = dealTable(createSpiderDeck(1, 52));
+        const withoutCardCount = encodeSavedGame({table: fiftyTwo, history: [], moveCount: 0}).replace(/;52"/, '"');
+        expect(withoutCardCount).not.toContain(";52");
+        expect(decodeSavedGame(withoutCardCount)?.table).toEqual(fiftyTwo);
     });
 
     it("keeps a long game small", () => {
