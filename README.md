@@ -39,7 +39,7 @@ Every Spider game can be won: the deal is not shuffled at random, it is picked f
 node scripts/find-solvable-spider-deals.ts 104 4 1000   # card count, suit count, number of deals
 ```
 
-The solver does not win every deal that can be won. When the lists were made, it won 1000 deals out of 1000 tried with 104 cards and 1 suit, 1000 of 1013 with 2 suits, 1000 of 1414 with 4 suits (about 50 minutes on 4 processors), and with 52 cards 1000 of 1001, 1009 and 1059. With 104 cards and 4 suits, the list therefore leaves out the deals the solver found too hard. A change to the shuffle or to the order of `createSpiderDeck` changes the deal of every seed, so the lists must then be made again.
+The solver does not win every deal that can be won. When the lists were made, it won 1000 deals out of 1000 tried with 104 cards and 1 suit, 1000 of 1013 with 2 suits, 1000 of 1414 with 4 suits (about 50 minutes on 4 processors), with 52 cards 1000 of 1001, 1009 and 1059, and with 26 cards (1 or 2 suits only) 1000 of 1046 and 1069. With 104 cards and 4 suits, the list therefore leaves out the deals the solver found too hard. A change to the shuffle or to the order of `createSpiderDeck` changes the deal of every seed, so the lists must then be made again.
 
 ## Structure
 

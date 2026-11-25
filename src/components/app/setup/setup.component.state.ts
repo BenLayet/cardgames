@@ -1,4 +1,4 @@
-import {areValidSeats, defaultSeats, type GameDefinition} from "../../../model/games.model.ts";
+import {areValidSeats, defaultSeats, type GameDefinition, isSuitCountAvailable} from "../../../model/games.model.ts";
 import {DEFAULT_SETTINGS, type Settings} from "../../../services/settings.service.ts";
 
 export const MAX_NAME_LENGTH = 16;
@@ -15,14 +15,21 @@ const validCardCount = (game: GameDefinition, cardCounts: unknown): number => {
         : DEFAULT_SETTINGS.cardCounts[game.id] ?? game.cardCountOptions.at(0) ?? 0;
 };
 
+// the given number of suits, or the largest one that can be played with this number of cards
+export const availableSuitCount = (game: GameDefinition, cardCount: number, suitCount: number): number =>
+    isSuitCountAvailable(game, cardCount, suitCount)
+        ? suitCount
+        : [...game.suitCountOptions].reverse().find(option => isSuitCountAvailable(game, cardCount, option)) ?? suitCount;
+
 export const createInitialState = (game: GameDefinition, {cardCounts, suitCount, seats, playerNames}: Settings) => {
     const storedSeats: unknown = (seats as Partial<Record<string, unknown>> | null | undefined)?.[game.id];
+    const cardCount = validCardCount(game, cardCounts);
     return {
         game,
         // ignore stored seats that the game no longer allows
         seats: areValidSeats(game, storedSeats) ? storedSeats : defaultSeats(game),
-        cardCount: validCardCount(game, cardCounts),
-        suitCount: game.suitCountOptions.includes(suitCount) ? suitCount : DEFAULT_SETTINGS.suitCount,
+        cardCount,
+        suitCount: availableSuitCount(game, cardCount, game.suitCountOptions.includes(suitCount) ? suitCount : DEFAULT_SETTINGS.suitCount),
         playerNames: validNames(playerNames),
     };
 };

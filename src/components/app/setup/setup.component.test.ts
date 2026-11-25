@@ -50,6 +50,21 @@ describe("setup screen", () => {
         expect(settingsService.load().suitCount).toBe(4);
     });
 
+    it("plays 26 cards with one or two suits only", async () => {
+        const {store, values} = setup({suitCount: 4}, gameDefinition("spider"));
+        expect(values().availableSuitCounts()).toEqual([true, true, true]);
+        await store.when({name: "setCardCountRequested", payload: 26, statePath: []});
+        expect(values().suitCount()).toBe(2);
+        expect(values().availableSuitCounts()).toEqual([true, true, false]);
+        await store.when({name: "setSuitCountRequested", payload: 4, statePath: []});
+        expect(values().suitCount()).toBe(2);
+    });
+
+    it("starts 26 cards stored with four suits with two suits", () => {
+        const {values} = setup({suitCount: 4, cardCounts: {spider: 26}}, gameDefinition("spider"));
+        expect(values().suitCount()).toBe(2);
+    });
+
     it("ignores a stored number of suits that is not offered", () => {
         const {values} = setup({suitCount: 3}, gameDefinition("spider"));
         expect(values().suitCount()).toBe(1);

@@ -11,6 +11,11 @@ describe("saved game codec", () => {
         expect(decodeSavedGame(encodeSavedGame(game))).toEqual(game);
     });
 
+    it("reads back a game of half a deck", () => {
+        const saved = {table: dealTable(createSpiderDeck(2, 26)), history: [], moveCount: 0};
+        expect(decodeSavedGame(encodeSavedGame(saved))).toEqual(saved);
+    });
+
     it("reads back completed sequences and empty columns", () => {
         const oneSuit = dealTable(createSpiderDeck(1, 104));
         // column 0 emptied and 13 cards gone with the completed sequence

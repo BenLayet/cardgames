@@ -1,13 +1,16 @@
 import type {StateUpdaters} from "@softer-components/types";
 
+import {isSuitCountAvailable} from "../../../model/games.model.ts";
 import type {Contract} from "./setup.component.contract.ts";
-import {MAX_NAME_LENGTH, type State} from "./setup.component.state.ts";
+import {availableSuitCount, MAX_NAME_LENGTH, type State} from "./setup.component.state.ts";
 
 export const stateUpdaters: StateUpdaters<Contract, State> = {
     setCardCountRequested: ({payload: cardCount, state}) => {
         state.cardCount = cardCount;
+        state.suitCount = availableSuitCount(state.game, cardCount, state.suitCount);
     },
     setSuitCountRequested: ({payload: suitCount, state}) => {
+        if (!isSuitCountAvailable(state.game, state.cardCount, suitCount)) return;
         state.suitCount = suitCount;
     },
     addPlayerRequested: ({values, state}) => {

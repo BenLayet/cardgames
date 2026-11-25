@@ -1,5 +1,6 @@
 import type {ExtractComponentValuesContract, Selectors} from "@softer-components/types";
 
+import {isSuitCountAvailable} from "../../../model/games.model.ts";
 import type {State} from "./setup.component.state.ts";
 
 const playerCount = (state: State) => state.seats.length;
@@ -10,6 +11,8 @@ export const selectors = {
     cardCountOptions: (state: State) => state.game.cardCountOptions,
     suitCount: (state: State) => state.suitCount,
     suitCountOptions: (state: State) => state.game.suitCountOptions,
+    // whether each number of suits can be played with the chosen number of cards
+    availableSuitCounts: (state: State) => state.game.suitCountOptions.map(option => isSuitCountAvailable(state.game, state.cardCount, option)),
     playerCount,
     // the name typed for each seat, "" when none was typed
     playerNames: (state: State) => state.seats.map((_, index) => state.playerNames[index] ?? ""),

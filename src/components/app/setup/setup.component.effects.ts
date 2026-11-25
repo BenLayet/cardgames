@@ -18,8 +18,9 @@ export const effects = ({settingsService}: Dependencies): Effects<Contract> => {
         setCardCountRequested: (_, {payload: cardCount, values}) => {
             settingsService.save({cardCounts: {...settingsService.load().cardCounts, [values.gameId()]: cardCount}});
         },
-        setSuitCountRequested: (_, {payload: suitCount}) => {
-            settingsService.save({suitCount});
+        // a number of suits that the number of cards does not allow is not kept
+        setSuitCountRequested: (_, {values}) => {
+            settingsService.save({suitCount: values.suitCount()});
         },
         addPlayerRequested: (_, {values}) => saveSeats(values.gameId(), values.seats()),
         removePlayerRequested: (_, {values}) => saveSeats(values.gameId(), values.seats()),

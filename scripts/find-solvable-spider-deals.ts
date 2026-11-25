@@ -8,7 +8,7 @@ import {writeFileSync} from "node:fs";
 import {isMainThread, parentPort, Worker, workerData} from "node:worker_threads";
 
 import {seededRandom} from "../src/model/deck.model.ts";
-import {CARD_COUNT_OPTIONS, dealSeededTable, SUIT_COUNT_OPTIONS, type SpiderVariant} from "../src/model/spider.model.ts";
+import {CARD_COUNT_OPTIONS, dealSeededTable, SPIDER_VARIANTS, suitCountOptionsFor, type SpiderVariant} from "../src/model/spider.model.ts";
 import {findSolution} from "../src/model/spider-solver.ts";
 import {SOLVABLE_DEAL_SEEDS} from "../src/model/spider-deals.ts";
 
@@ -28,8 +28,9 @@ if (!isMainThread) {
     const cardCount = Number(process.argv[2]);
     const suitCount = Number(process.argv[3]);
     const wanted = Number(process.argv[4]);
-    if (!CARD_COUNT_OPTIONS.includes(cardCount) || !SUIT_COUNT_OPTIONS.includes(suitCount) || !(wanted > 0)) {
-        console.error(`usage: node scripts/find-solvable-spider-deals.ts <${CARD_COUNT_OPTIONS.join("|")}> <${SUIT_COUNT_OPTIONS.join("|")}> <deal count>`);
+    if (!SPIDER_VARIANTS.some(v => v.cardCount === cardCount && v.suitCount === suitCount) || !(wanted > 0)) {
+        console.error(`usage: node scripts/find-solvable-spider-deals.ts <card count> <suit count> <deal count>, with ${
+            CARD_COUNT_OPTIONS.map(cards => `${cards} cards and ${suitCountOptionsFor(cards).join(", ")} suits`).join("; ")}`);
         process.exit(1);
     }
     // the candidate seeds come from a fixed sequence, so that a run can be repeated
@@ -46,7 +47,7 @@ if (!isMainThread) {
             `            ${seeds.slice(i * 8, i * 8 + 8).join(", ")},`);
         const lines = CARD_COUNT_OPTIONS.flatMap(cards => [
             `    ${cards}: {`,
-            ...SUIT_COUNT_OPTIONS.flatMap(suits => {
+            ...suitCountOptionsFor(cards).flatMap(suits => {
                 const seeds = lists[cards]?.[suits] ?? [];
                 return seeds.length === 0 ? [`        ${suits}: [],`] : [`        ${suits}: [`, ...seedLines(seeds), "        ],"];
             }),
