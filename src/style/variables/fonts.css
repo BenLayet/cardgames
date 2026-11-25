@@ -1,6 +1,8 @@
 :root {
-    --bs-body-font-family: "Cherry Bomb One", system-ui;
-    --bs-body-font-weight: 400;
-    --bs-body-font-size: max(14px, min(6vw, 4vh, 28px));
+    --app-font-display: "Young Serif", Georgia, "Times New Roman", serif;
+    --app-font-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --bs-body-font-family: var(--app-font-body);
+    --bs-body-font-weight: 500;
+    --bs-body-font-size: max(15px, min(4.2vw, 3vh, 20px));
     font-size: var(--bs-body-font-size);
 }

@@ -1,83 +1,87 @@
-:root{
-    /* Base colors */
-    --bs-primary: #fd7e14;
-    --bs-secondary: #6c757d;
-    --bs-success: #198754;
-    --bs-info: #0dcaf0;
-    --bs-warning: #ffc107;
-    --bs-danger: #dc3545;
-    --bs-light: #f8f9fa;
-    --bs-dark: #212529;
-    --bs-body-bg: #115511;
-    --bs-body-color: white;
+/* "Salon vert": a green felt on a wooden table, cream ink and ruby accents.
+   Every color of the application comes from these tokens. */
+:root {
+    --app-felt: #0f3b2c;
+    --app-felt-light: #1f6149;
+    --app-felt-dark: #0a2a1f;
+    --app-wood: #6b4226;
+    --app-wood-dark: #3c2414;
+    --app-brass: #c9a26b;
+    --app-ink: #f4eee2;
+    --app-muted: #bccab9;
+    --app-ruby: #c2364a;
+    --app-ruby-dark: #7e1d2b;
+    --app-gold: #f2d48a;
+    --app-line: #f4eee238;
+    --app-surface: #00000024;
+    --app-panel: #0a2a1ff0;
 
-    /* RGB values for creating opacity variants */
-    --bs-primary-rgb: 253, 126, 20;
-    --bs-secondary-rgb: 108, 117, 125;
-    --bs-success-rgb: 25, 135, 84;
-    --bs-info-rgb: 13, 202, 240;
-    --bs-warning-rgb: 255, 193, 7;
-    --bs-danger-rgb: 220, 53, 69;
-    --bs-light-rgb: 248, 249, 250;
-    --bs-dark-rgb: 33, 37, 41;
-    --bs-body-bg-rgb: 17, 85, 17;
-    --bs-body-color-rgb: 255, 255, 255;
-
-    /* Opacity variants - Primary */
-    --bs-primary-10: rgba(var(--bs-primary-rgb), 0.1);
-    --bs-primary-25: rgba(var(--bs-primary-rgb), 0.25);
-    --bs-primary-50: rgba(var(--bs-primary-rgb), 0.5);
-    --bs-primary-75: rgba(var(--bs-primary-rgb), 0.75);
-    --bs-primary-90: rgba(var(--bs-primary-rgb), 0.9);
-
-    /* Opacity variants - Secondary */
-    --bs-secondary-10: rgba(var(--bs-secondary-rgb), 0.1);
-    --bs-secondary-25: rgba(var(--bs-secondary-rgb), 0.25);
-    --bs-secondary-50: rgba(var(--bs-secondary-rgb), 0.5);
-    --bs-secondary-75: rgba(var(--bs-secondary-rgb), 0.75);
-    --bs-secondary-90: rgba(var(--bs-secondary-rgb), 0.9);
-
-    /* Opacity variants - Body color (white) */
-    --bs-body-color-10: rgba(var(--bs-body-color-rgb), 0.1);
-    --bs-body-color-25: rgba(var(--bs-body-color-rgb), 0.25);
-    --bs-body-color-50: rgba(var(--bs-body-color-rgb), 0.5);
-    --bs-body-color-75: rgba(var(--bs-body-color-rgb), 0.75);
-    --bs-body-color-90: rgba(var(--bs-body-color-rgb), 0.9);
-
-    /* Opacity variants - Success */
-    --bs-success-10: rgba(var(--bs-success-rgb), 0.1);
-    --bs-success-25: rgba(var(--bs-success-rgb), 0.25);
-    --bs-success-50: rgba(var(--bs-success-rgb), 0.5);
-    --bs-success-75: rgba(var(--bs-success-rgb), 0.75);
-
-    /* Opacity variants - Danger */
-    --bs-danger-10: rgba(var(--bs-danger-rgb), 0.1);
-    --bs-danger-25: rgba(var(--bs-danger-rgb), 0.25);
-    --bs-danger-50: rgba(var(--bs-danger-rgb), 0.5);
-    --bs-danger-75: rgba(var(--bs-danger-rgb), 0.75);
+    /* Bootstrap reads these */
+    --bs-primary: var(--app-ruby);
+    --bs-primary-rgb: 194, 54, 74;
+    --bs-body-bg: var(--app-felt);
+    --bs-body-bg-rgb: 15, 59, 44;
+    --bs-body-color: var(--app-ink);
+    --bs-body-color-rgb: 244, 238, 226;
+    --bs-dark-rgb: 10, 42, 31;
+    --bs-border-radius: var(--app-radius);
+    --bs-border-radius-lg: var(--app-radius);
+    --bs-border-radius-sm: var(--app-radius-sm);
 }
 
 .btn {
-    --bs-btn-color: var(--bs-body-color);
-    --bs-btn-border-color: var(--bs-body-color);
-    --bs-btn-hover-color: var(--bs-body-color);
-    --bs-btn-hover-border-color: var(--bs-body-color-75);
-    --bs-btn-active-color:var(--bs-body-color-75);
-    --bs-btn-active-border-color:var(--bs-body-color-75);
-    --bs-btn-disabled-color: var(--bs-body-color-50);
+    --bs-btn-color: var(--app-ink);
+    --bs-btn-border-width: 1.5px;
+    --bs-btn-border-color: var(--app-line);
+    --bs-btn-hover-color: var(--app-ink);
+    --bs-btn-hover-border-color: var(--app-muted);
+    --bs-btn-active-color: var(--app-ink);
+    --bs-btn-active-border-color: var(--app-muted);
+    --bs-btn-disabled-color: var(--app-muted);
+    --bs-btn-disabled-opacity: 0.45;
     --bs-btn-focus-shadow-rgb: var(--bs-primary-rgb);
-}
-.btn-primary {
-    --bs-btn-bg: var(--bs-primary);
-    --bs-btn-hover-bg: var(--bs-primary-90);
-    --bs-btn-active-bg: var(--bs-primary-75);
-    --bs-btn-disabled-bg: var(--bs-primary);
-    --bs-btn-disabled-border-color: var(--bs-primary);
+    --bs-btn-font-weight: 700;
+    border-radius: var(--app-radius);
 }
 
+/* the main action of a screen: one per screen */
+.btn-primary {
+    --bs-btn-bg: var(--app-ruby);
+    --bs-btn-border-color: var(--app-ruby);
+    --bs-btn-hover-bg: #cf4659;
+    --bs-btn-hover-border-color: #cf4659;
+    --bs-btn-active-bg: var(--app-ruby-dark);
+    --bs-btn-active-border-color: var(--app-ruby-dark);
+    --bs-btn-disabled-bg: var(--app-ruby);
+    --bs-btn-disabled-border-color: var(--app-ruby);
+    box-shadow: 0 2px 0 var(--app-ruby-dark);
+}
+
+/* the other actions and the icon buttons */
 .btn-outline-primary {
-    --bs-btn-border-color: var(--bs-primary);
-    --bs-btn-hover-bg: var(--bs-primary-90);
-    --bs-btn-active-bg: var(--bs-primary);
-    --bs-btn-disabled-border-color: var(--bs-primary-50);
+    --bs-btn-bg: var(--app-surface);
+    --bs-btn-hover-bg: #ffffff14;
+    --bs-btn-active-bg: #ffffff1f;
+    --bs-btn-disabled-bg: transparent;
+    --bs-btn-disabled-border-color: var(--app-line);
+}
+
+/* a set of options where one is chosen, see .choice-group */
+.btn-choice {
+    --bs-btn-bg: transparent;
+    --bs-btn-border-color: transparent;
+    --bs-btn-hover-bg: #ffffff14;
+    --bs-btn-hover-border-color: transparent;
+    --bs-btn-active-bg: var(--app-ruby);
+    --bs-btn-active-border-color: transparent;
+    --bs-btn-disabled-border-color: transparent;
+    --bs-btn-color: var(--app-muted);
+    border-radius: var(--app-radius-sm);
+}
+
+.btn-choice[aria-pressed="true"] {
+    --bs-btn-bg: var(--app-ruby);
+    --bs-btn-color: var(--app-ink);
+    --bs-btn-hover-bg: var(--app-ruby);
+    --bs-btn-disabled-bg: var(--app-ruby);
 }

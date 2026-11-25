@@ -8,11 +8,12 @@
     z-index: 2000;
     pointer-events: none;
     white-space: nowrap;
-    color: #e3d93f;
+    color: var(--app-gold);
+    font-family: var(--app-font-display);
     font-size: clamp(2rem, 8vw, 4rem);
     line-height: 1.1;
-    font-weight: bold;
-    text-shadow: 0 0 20px rgba(0, 0, 0, 0.8), 0 0 40px rgba(227, 217, 63, 0.6), 4px 4px 8px rgba(0, 0, 0, 0.5);
+    font-weight: 400;
+    text-shadow: 0 0 20px rgba(0, 0, 0, 0.8), 0 0 40px rgba(242, 212, 138, 0.5), 4px 4px 8px rgba(0, 0, 0, 0.5);
     animation: battle-message-pop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1) both,
     battle-message-pulse 1.2s ease-in-out 0.5s infinite alternate;
 }

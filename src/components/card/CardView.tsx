@@ -5,7 +5,7 @@ const getCardImage = (card: Card) => {
 };
 
 const getCardBackImage = () => {
-    return new URL(`../../assets/cards/2B.svg`, import.meta.url).href;
+    return new URL(`../../assets/cards/back.svg`, import.meta.url).href;
 };
 
 // Both faces are rendered back to back; toggling faceUp flips the card in 3D

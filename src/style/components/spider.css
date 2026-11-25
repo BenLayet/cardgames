@@ -1,7 +1,7 @@
 .spider-table {
     /* ten columns share the width of the screen, and the cards stay small enough to leave room for long columns */
     --spider-gap: clamp(0.15rem, 0.8vw, 0.6rem);
-    --spider-card-w: min(calc((100vw - 1.5rem) / 10 - var(--spider-gap)), 11dvh, 110px);
+    --spider-card-w: min(calc((100vw - 2 * var(--app-frame) - 1.5rem) / 10 - var(--spider-gap)), 11dvh, 110px);
     --spider-card-h: calc(var(--spider-card-w) * 200 / 143);
     user-select: none;
     -webkit-user-select: none;
@@ -11,7 +11,7 @@
 @media (orientation: portrait) {
     .spider-table {
         --spider-gap: 2px;
-        --spider-card-w: min(calc((100vw - 0.5rem - 9 * var(--spider-gap)) / 10), 110px);
+        --spider-card-w: min(calc((100vw - 2 * var(--app-frame) - 0.5rem - 9 * var(--spider-gap)) / 10), 110px);
     }
 
     /* a smaller top bar leaves more room to the columns */
@@ -46,7 +46,7 @@
 .spider-slot {
     width: calc(var(--spider-card-w) * 0.6);
     height: calc(var(--spider-card-h) * 0.6);
-    border: #bbb2 1px solid;
+    border: 1px dashed var(--app-line);
     border-radius: 4px;
     overflow: hidden;
 }
@@ -61,7 +61,7 @@
     width: calc(var(--spider-card-w) + 30px);
     height: var(--spider-card-h);
     padding: 0;
-    border: #bbb2 1px solid;
+    border: 1px dashed var(--app-line);
     border-radius: 5px;
     background: none;
 }
@@ -91,7 +91,7 @@
     min-height: calc(var(--spider-card-h) * (1 + var(--column-height, 0)));
     border-radius: 5px;
     /* the empty column shows where a card can go */
-    background: linear-gradient(#bbb2, #bbb2) top / 100% var(--spider-card-h) no-repeat;
+    background: linear-gradient(#0000001f, #0000001f) top / 100% var(--spider-card-h) no-repeat;
 }
 
 .spider-column .spider-card {
@@ -173,7 +173,7 @@
     box-shadow: 0 1px 2px #0003;
     background: white;
     color: #16191c;
-    font-family: system-ui, sans-serif;
+    font-family: var(--app-font-body);
     font-weight: 700;
     line-height: 1;
     overflow: hidden;
@@ -239,9 +239,10 @@
     top: -36%;
 }
 
+/* the same back as the detailed cards */
 .compact-card--back {
-    background: repeating-linear-gradient(45deg, #b22 0 3px, #d44 3px 6px);
-    border-color: white;
+    background: url("../../assets/cards/back.svg") center / 100% 100%;
+    border: 0;
 }
 
 .spider-slot .compact-card-corner {

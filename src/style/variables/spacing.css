@@ -1,0 +1,19 @@
+:root {
+    /* the spaces between elements, always taken from this scale */
+    --app-space-1: 0.25rem;
+    --app-space-2: 0.5rem;
+    --app-space-3: 0.75rem;
+    --app-space-4: 1rem;
+    --app-space-5: 1.5rem;
+    --app-space-6: 2rem;
+    --app-radius: 8px;
+    --app-radius-sm: 5px;
+    /* the wooden edge of the table around the screen */
+    --app-frame: 6px;
+}
+
+@media (min-width: 640px) {
+    :root {
+        --app-frame: 10px;
+    }
+}
