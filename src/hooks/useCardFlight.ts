@@ -7,6 +7,8 @@ const EASING = "cubic-bezier(.2, .8, .2, 1)";
 const COLLECT_MS = 420;
 const COLLECT_STAGGER_MS = 35;
 const CELEBRATION_MS = 1100;
+// the completed sequence rests a moment in its column before it leaves
+const JOIN_PAUSE_MS = 120;
 
 // The places of the completed sequences: one child of the element for each sequence, in order
 export type Sequences = { count: number, slots: RefObject<HTMLElement | null> };
@@ -96,7 +98,7 @@ const collect = (table: HTMLElement, cards: { rect: DOMRect, element: HTMLElemen
     // the ace leaves first and the king last, as when the sequence is picked up from the top
     const rank = (element: HTMLElement) => Number(element.dataset.rank ?? 0);
     const aceFirst = [...cards].sort((a, b) => rank(a.element) - rank(b.element) || b.rect.top - a.rect.top);
-    const flights = aceFirst.map(({rect, element}, index) => {
+    aceFirst.forEach(({rect, element}) => {
         element.className = "spider-card";
         // out of the table, the card is no longer followed from one render to the next
         element.removeAttribute("data-card-id");
@@ -105,17 +107,48 @@ const collect = (table: HTMLElement, cards: { rect: DOMRect, element: HTMLElemen
             width: `${rect.width}px`, height: `${rect.height}px`, transform: "", transformOrigin: "0 0",
         });
         layer.appendChild(element);
-        const scale = target.width / rect.width;
-        return element.animate([
-            {transform: "translate(0, 0) scale(1)"},
-            {transform: `translate(${target.left - rect.left}px, ${target.top - rect.top}px) scale(${scale})`},
-        ], {duration: COLLECT_MS, delay: index * COLLECT_STAGGER_MS, easing: "cubic-bezier(.4, 0, .2, 1)", fill: "forwards"});
     });
+    // the cards that completed the sequence first land on the rest of it, in its column
+    const landings = landingsOf(aceFirst);
+    const joins = aceFirst.flatMap(({rect, element}, index) => {
+        const landing = landings[index];
+        if (landing.left === rect.left && landing.top === rect.top) return [];
+        return [element.animate([
+            {transform: "translate(0, 0)"},
+            {transform: `translate(${landing.left - rect.left}px, ${landing.top - rect.top}px)`},
+        ], {duration: FLIGHT_MS, easing: EASING, fill: "forwards"})];
+    });
+    const leave = () => Promise.all(aceFirst.map(({element}, index) => {
+        const from = landings[index];
+        const scale = target.width / from.width;
+        return element.animate([
+            {transform: `translate(${from.left - parseFloat(element.style.left)}px, ${from.top - parseFloat(element.style.top)}px) scale(1)`},
+            {transform: `translate(${target.left - parseFloat(element.style.left)}px, ${target.top - parseFloat(element.style.top)}px) scale(${scale})`},
+        ], {duration: COLLECT_MS, delay: index * COLLECT_STAGGER_MS, easing: "cubic-bezier(.4, 0, .2, 1)", fill: "forwards"}).finished;
+    }));
     const landed = () => {
         layer.remove();
         slot.classList.remove("spider-slot--waiting");
         slot.classList.add("spider-slot--won");
         setTimeout(() => slot.classList.remove("spider-slot--won"), CELEBRATION_MS);
     };
-    Promise.all(flights.map(flight => flight.finished)).then(landed, landed);
+    Promise.all(joins.map(join => join.finished))
+        .then(() => new Promise(resolve => setTimeout(resolve, joins.length > 0 ? JOIN_PAUSE_MS : 0)))
+        .then(leave)
+        .then(landed, landed);
+};
+
+// Where each card lies once the sequence is whole in the column of its king: the cards already there stay,
+// the others go below the last of them, with the same spacing
+const landingsOf = (aceFirst: { rect: DOMRect }[]): { left: number, top: number, width: number }[] => {
+    const king = aceFirst[aceFirst.length - 1].rect;
+    const inColumn = (rect: DOMRect) => Math.abs(rect.left - king.left) < 1;
+    const kingFirst = [...aceFirst].reverse();
+    const staying = kingFirst.findIndex(card => !inColumn(card.rect));
+    if (staying === -1) return aceFirst.map(({rect}) => rect);
+    const rest = kingFirst.slice(0, staying);
+    const last = rest[rest.length - 1].rect;
+    const step = rest.length > 1 ? (last.top - rest[0].rect.top) / (rest.length - 1) : last.height * 0.25;
+    return kingFirst.map(({rect}, index) => index < staying ? rect : {left: last.left, top: last.top + step * (index - staying + 1), width: last.width})
+        .reverse();
 };
