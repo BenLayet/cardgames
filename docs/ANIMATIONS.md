@@ -1,14 +1,15 @@
 # Animations
 
 The game state never holds animation flags. It only says where each card is (which stack, at which
-position, face up or down). The view turns that into positions on screen, and GSAP moves each card
-from where it is to where it should be.
+position, face up or down). The view turns that into positions on screen, and the browser's
+[Web Animations API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API)
+(`element.animate`) moves each card from where it is to where it should be. No animation library is used.
 
 ```
-action → updater changes the stacks → cardsWithLocation selector → AnimatedCardView → gsap.to(...)
+action → updater changes the stacks → cardsWithLocation selector → AnimatedCardView → element.animate(...)
 ```
 
-## Card movements (GSAP)
+## Card movements in Battle
 
 ### 1. Where each card belongs: `cardsWithLocation`
 
@@ -52,11 +53,15 @@ first measure is available.
 
 Each card is rendered with `key={card}`, so React keeps the same DOM element when the card
 changes stack. When its placement or the layout changes, a `useLayoutEffect` computes the
-target and tweens the element to it:
+target, reads the current `transform` of the element (which includes a movement still under way),
+sets the target as its `transform`, and animates from the one to the other:
 
 ```ts
-const {x, y, rotation} = computeFinalPosition({stackLocation, index, messyLevel}, layoutState);
-gsap.to(ref.current, {x, y, rotation, duration: 0.5, ease: "power2.out"});
+const target = `translate(${x}px, ${y}px) rotate(${rotation}deg)`;
+const current = getComputedStyle(element).transform;
+movement.current?.cancel();
+element.style.transform = target;
+movement.current = element.animate([{transform: current}, {transform: target}], {duration: 500, easing: EASE_OUT});
 ```
 
 `computeFinalPosition`:
@@ -74,7 +79,17 @@ stacks being played are drawn above the others.
 
 `CardView` renders the face and the back of the card back to back. When `faceUp` is false,
 the `card-flip--face-down` class rotates `.card-flip-inner` by 180° on the Y axis, with
-`transition: transform 0.45s ease-in-out`. GSAP is not involved in the flip.
+`transition: transform 0.45s ease-in-out`. `AnimatedCardView` is not involved in the flip.
+
+## Card movements in Spider
+
+`src/hooks/useCardFlight.ts`
+
+Spider uses the same API with the FLIP technique: after each render, the hook measures every element
+with a `data-card-id`, compares it with where it was before the render, and animates it from the old
+place to the new one. A card that was not on the table comes from the stock. A card still flying is
+taken from where it is on screen. Nothing flies when the screen is resized or when the user asks
+for reduced motion.
 
 ## Timing of a round
 
@@ -103,8 +118,8 @@ suspenseStarted: ({suspenseCompleted}) => after(DELAYS_MS.suspense, suspenseComp
 `dealRequested` calls `schedulerService.cancelAll()` first, so nothing pending from a previous
 game runs in the new one.
 
-When a delay is shorter than the GSAP tween (0.5 s), the next movement starts from wherever
-the card is: `gsap.to` always starts from the current position.
+When a delay is shorter than a movement (0.5 s), the next movement starts from wherever
+the card is: `AnimatedCardView` always starts from the position on screen.
 
 ## Other animations (CSS keyframes)
 
