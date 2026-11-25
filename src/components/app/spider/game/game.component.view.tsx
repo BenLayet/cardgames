@@ -14,7 +14,7 @@ import {AppBar} from "../../../navigation/AppBar.tsx";
 import {TableActions} from "../../../navigation/TableActions.tsx";
 import {Fireworks} from "../../../fireworks/Fireworks.tsx";
 import {EndMessage} from "../../../end-message/EndMessage.tsx";
-import type {CardPosition} from "../../../../model/spider.model.ts";
+import {type CardPosition, spiderRank} from "../../../../model/spider.model.ts";
 
 // a press that moves less than this is a click, not a drag
 const DRAG_THRESHOLD_PX = 8;
@@ -77,7 +77,8 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
     // the cards fly to where they go, and the dealt cards come from the stock
     const tableRef = useRef<HTMLDivElement>(null);
     const stockRef = useRef<HTMLButtonElement>(null);
-    useCardFlight(tableRef, stockRef);
+    const slotsRef = useRef<HTMLDivElement>(null);
+    useCardFlight(tableRef, stockRef, {count: v.completed.length, slots: slotsRef});
     const Face = compact ? CompactCardView : CardView;
 
     const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
@@ -124,7 +125,7 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
     return <div ref={tableRef} className="spider-table vstack gap-3" style={{"--spider-columns": v.columns.length} as CSSProperties}>
         <AppBar title={t("games.spider")} level={2} onBack={onBack}/>
         <div className="spider-top-bar d-flex justify-content-between align-items-start gap-2">
-            <div className="spider-completed" aria-label={t("completedSequences", {count: v.completed.length})}>
+            <div ref={slotsRef} className="spider-completed" aria-label={t("completedSequences", {count: v.completed.length})}>
                 {Array.from({length: v.sequenceCount}, (_, i) => <div key={i} className="spider-slot">
                     {v.completed[i] && <div className="spider-card"><Face card={`K${v.completed[i]}`}/></div>}
                 </div>)}
@@ -164,7 +165,7 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
                             dragged ? "spider-card--dragged" : "",
                             isHinted(columnIndex, index) ? "spider-card--hint" : "",
                         ].join(" ");
-                        return <div key={card.id} data-index={index} data-card-id={card.id} className={classes}
+                        return <div key={card.id} data-index={index} data-card-id={card.id} data-rank={spiderRank(card.card)} className={classes}
                                     style={{
                                         top: `calc(var(--spider-card-h) * ${offsets[index]})`,
                                         transform: dragged ? `translate(${press?.dx ?? 0}px, ${press?.dy ?? 0}px)` : undefined,
