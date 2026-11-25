@@ -28,13 +28,12 @@ describe("spider", () => {
         expect(suits.size).toBe(4);
     });
 
-    it("goes back to the setup screen and stops the music when the player wants to play again", async () => {
+    it("goes back to the setup screen when the player wants to play again", async () => {
         await store.when({name: "startGameRequested", statePath: setupPath});
 
         await store.when({name: "playAgainRequested", statePath: gamePath});
 
         expect(store.getValues("").isStarted()).toBe(false);
-        expect(audioService.stopBackgroundMusic).toHaveBeenCalled();
     });
 
     it("offers to resume a saved game, and resumes it", async () => {

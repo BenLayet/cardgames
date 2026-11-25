@@ -39,7 +39,6 @@ describe("battle", () => {
 
         expect(store.getValues("").isStarted()).toBe(false);
         expect(audioService.stopAll).toHaveBeenCalled();
-        expect(audioService.stopBackgroundMusic).toHaveBeenCalled();
     });
 
     it("forgets the pending steps of a round when going home in the middle of it", async () => {

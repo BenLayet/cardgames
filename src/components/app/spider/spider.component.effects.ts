@@ -9,6 +9,5 @@ export type Dependencies = {
 export const effects = ({audioService}: Dependencies): Effects<Contract> => ({
     goHomeRequested: () => {
         audioService.stopAll();
-        audioService.stopBackgroundMusic();
     },
 });

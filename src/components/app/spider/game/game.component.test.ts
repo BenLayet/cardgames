@@ -54,7 +54,6 @@ describe("spider game", () => {
         expect(dealt).toHaveLength(104);
         expect(new Set(dealt.map(c => c.card.charAt(1)))).toEqual(new Set(["S", "H"]));
         expect(values().stockRowCount()).toBe(5);
-        expect(audioService.startBackgroundMusic).toHaveBeenCalled();
     });
 
     it("moves the cards dropped on a column that accepts them", async () => {
