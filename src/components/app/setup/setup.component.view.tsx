@@ -5,6 +5,7 @@ import {faMinus, faPlay, faPlus, faRobot, faUser} from "@fortawesome/free-solid-
 
 import type {SetupContract} from "./setup.component.ts";
 import {GameBar} from "../../game-bar/GameBar.tsx";
+import {hasRules} from "../../game-bar/rules.ts";
 import {MAX_NAME_LENGTH} from "./setup.component.state.ts";
 
 const SUIT_SYMBOLS = "♠♥♦♣";
@@ -14,7 +15,7 @@ export const View = ({path = "", onResume}: { path?: string, onResume?: () => vo
     const [v, d] = useSofter<SetupContract>(path);
     const {t} = useTranslation();
     return (<div className="setup vstack position-relative">
-            <GameBar onBack={() => d.backRequested()}/>
+            <GameBar onBack={() => d.backRequested()} rules={hasRules(v.gameId) ? v.gameId : undefined}/>
             <div className="setup-body vstack align-items-center">
                 <h1 className="game-title">{t(`games.${v.gameId}`)}</h1>
                 <div className="setup-options d-flex flex-column text-center">
