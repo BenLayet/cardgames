@@ -214,6 +214,19 @@ describe("hints", () => {
         expect(findMoves(t)).toEqual([]);
     });
 
+    it("suggests using an empty column in words only, after the moves onto a card", () => {
+        const t = table([cards("_2C", "8S"), cards("9S"), cards("_3D", "4H"), cards()]);
+        expect(findHints(t)).toEqual([
+            {kind: "move", move: {from: {column: 0, index: 1}, to: 1}},
+            {kind: "emptyColumn"},
+        ]);
+    });
+
+    it("suggests using an empty column when no move onto a card helps", () => {
+        const t = table([cards("_2C", "8S"), cards()]);
+        expect(findHints(t)).toEqual([{kind: "emptyColumn"}]);
+    });
+
     it("suggests dealing a row when no move helps, and says when nothing is left", () => {
         const stock = cards(...Array.from({length: COLUMN_COUNT}, () => "_5C"));
         expect(findHints(table(Array.from({length: COLUMN_COUNT}, () => cards("KH")), stock))).toEqual([{kind: "deal"}]);
