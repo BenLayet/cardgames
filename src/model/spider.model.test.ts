@@ -252,6 +252,16 @@ describe("click destinations", () => {
         expect(clickDestinationsOf(t, {column: 0, index: 0})).toEqual([1, 3]);
     });
 
+    it("keeps only the card of the same suit when a single one can take the cards", () => {
+        const t = table([cards("8S"), cards("9H"), cards("9S"), [], cards("9D")]);
+        expect(clickDestinationsOf(t, {column: 0, index: 0})).toEqual([2]);
+    });
+
+    it("offers every card when several of the same suit can take the cards", () => {
+        const t = table([cards("8S"), cards("9S"), cards("9H"), cards("9S")]);
+        expect(clickDestinationsOf(t, {column: 0, index: 0})).toEqual([1, 2, 3]);
+    });
+
     it("keeps only the leftmost empty column when no card can take the cards", () => {
         const t = table([cards("_4D", "8S"), cards("KH")]);
         expect(clickDestinationsOf(t, {column: 0, index: 1})).toEqual([2]);

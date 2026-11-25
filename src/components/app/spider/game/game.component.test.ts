@@ -86,6 +86,15 @@ describe("spider game", () => {
         expect(values().selected()).toBeNull();
     });
 
+    it("moves a clicked card right away onto the only card of its suit that can take it", async () => {
+        await deal([cards("8S"), cards("9H"), cards("9S")]);
+
+        await store.when(event("cardClicked", {column: 0, index: 0}));
+
+        expect(column(2)).toEqual(["9S", "8S"]);
+        expect(values().selected()).toBeNull();
+    });
+
     it("shows the columns where a clicked card can go, and moves it to the one clicked next", async () => {
         await deal([cards("8S"), cards("9H"), cards("9D")]);
 
