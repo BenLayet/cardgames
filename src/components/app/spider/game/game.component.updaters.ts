@@ -7,6 +7,7 @@ import {
     collectCompletedSequences,
     dealRow,
     clickDestinationsOf,
+    destinationsOf,
     moveCards,
     type Table,
 } from "../../../../model/spider.model.ts";
@@ -39,7 +40,7 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
     },
     // a click on a column where the selected cards go moves them, see the forwarders
     columnClicked: ({state, payload: column}) => {
-        if (state.selected !== null && !clickDestinationsOf(state.table, state.selected).includes(column)) state.selected = null;
+        if (state.selected !== null && !destinationsOf(state.table, state.selected).includes(column)) state.selected = null;
         state.hintIndex = null;
     },
     moveRequested: ({state}) => {
