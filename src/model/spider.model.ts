@@ -184,3 +184,37 @@ export const findHints = (table: Table): Hint[] => {
     if (moves.length > 0) return moves;
     return [canDealRow(table) ? {kind: "deal"} : {kind: "none"}];
 };
+
+// A game in progress, as it is saved to be resumed later
+export type SavedSpiderGame = {
+    table: Table;
+    // the tables before the last moves, for the undo
+    history: Table[];
+    moveCount: number;
+};
+
+const isSpiderCard = (value: unknown): value is SpiderCard => {
+    const card = value as Partial<SpiderCard> | null;
+    return typeof card === "object" && card !== null
+        && typeof card.id === "number"
+        && typeof card.faceUp === "boolean"
+        && typeof card.card === "string" && spiderRank(card.card) >= 0 && SUITS.includes(suitOf(card.card));
+};
+const isCardList = (value: unknown): value is SpiderCard[] => Array.isArray(value) && value.every(isSpiderCard);
+const isTable = (value: unknown): value is Table => {
+    const table = value as Partial<Table> | null;
+    return typeof table === "object" && table !== null
+        && Array.isArray(table.columns) && table.columns.length === COLUMN_COUNT && table.columns.every(isCardList)
+        && isCardList(table.stock)
+        && Array.isArray(table.completed) && table.completed.every(suit => SUITS.includes(suit))
+        && table.columns.flat().length + table.stock.length + table.completed.length * SPIDER_RANKS.length === DECK_SIZE;
+};
+
+// Data read back from the storage may have been written by another version of the game, or changed by hand
+export const isSavedSpiderGame = (value: unknown): value is SavedSpiderGame => {
+    const game = value as Partial<SavedSpiderGame> | null;
+    return typeof game === "object" && game !== null
+        && isTable(game.table)
+        && Array.isArray(game.history) && game.history.every(isTable)
+        && typeof game.moveCount === "number";
+};

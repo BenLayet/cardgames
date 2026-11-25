@@ -4,11 +4,12 @@ import type {GameContract} from "./game";
 import type {SetupContract} from "../setup";
 import type {Values} from "./spider.component.selectors";
 
-export const uiEvents = ["goHomeRequested"] as const;
+export const uiEvents = ["goHomeRequested", "resumeRequested"] as const;
 export const allEvents = [
     ...uiEvents,
     "startGameRequested",
     "homeRequested",
+    "gameFinished",
 ] as const;
 export type Events = EventsContract<
     typeof allEvents, Record<never, never>, typeof uiEvents

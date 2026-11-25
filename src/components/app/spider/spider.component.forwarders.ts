@@ -11,9 +11,11 @@ export const eventForwarders = {
                     to: "dealRequested",
                     withPayload: ({values}) => ({suitCount: values.suitCount()}),
                 },
+                {from: "resumeRequested", to: "restoreRequested"},
             ],
             listeners: [
-                {from: "playAgainRequested", to: "goHomeRequested"}
+                {from: "playAgainRequested", to: "goHomeRequested"},
+                {from: "gameEnded", to: "gameFinished"},
             ]
         },
         setup: {
