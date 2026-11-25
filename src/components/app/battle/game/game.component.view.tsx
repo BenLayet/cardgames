@@ -1,7 +1,7 @@
 import {useSofter} from "@softer-components/redux-adapter";
 
 import type {GameContract} from "./game.component.ts";
-import {type MouseEvent, useRef} from "react";
+import {type PointerEvent, useRef} from "react";
 import {useMeasure} from "../../../../hooks/useMeasure.ts";
 import {AnimatedCardView, type LayoutState} from "../../../card/AnimatedCardView.tsx";
 import {Fireworks} from "../../../fireworks/Fireworks.tsx";
@@ -33,14 +33,16 @@ export const View = ({path = ""}) => {
         }
     }), [gameRef]);
     // against the computer the whole table plays for player 1,
-    // between two humans each one taps their own half: player 2 sits at the top
-    const onTableClicked = (event: MouseEvent<HTMLDivElement>) => {
+    // between two humans each one taps their own half: player 2 sits at the top.
+    // A pointer down is handled for each finger, so both players can tap at the same time
+    // (a click is not fired when two fingers touch the screen together)
+    const onTableClicked = (event: PointerEvent<HTMLDivElement>) => {
         const table = event.currentTarget.getBoundingClientRect();
         if (!v.isPlayer2Computer && event.clientY < table.top + table.height / 2) d.player2Clicked();
         else d.player1Clicked();
     };
     return <>
-        <div ref={gameRef} className="vstack justify-content-between" onClick={onTableClicked}>
+        <div ref={gameRef} className="battle-table vstack justify-content-between" onPointerDown={onTableClicked}>
             <div style={{position: "absolute", bottom: 0, right: 0, zIndex: 1000}}>
                 <div ref={deckRef} className="card-stack-container" style={{borderStyle: "none"}}>
                     {layoutState && v.cardsWithLocation.map(c =>
