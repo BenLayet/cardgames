@@ -81,4 +81,32 @@ describe("setup screen", () => {
         await store.when({name: "removePlayerRequested", statePath: []});
         expect(values().seats()).toEqual(["human", "computer", "computer"]);
     });
+
+    it("remembers the names of the players for every game", async () => {
+        const {store, values, settingsService} = setup();
+        await store.when({name: "renamePlayerRequested", payload: {index: 1, name: "Léa"}, statePath: []});
+        expect(values().playerNames()).toEqual(["", "Léa"]);
+        expect(settingsService.load().playerNames).toEqual(["", "Léa"]);
+        // the computer plays without a name
+        expect(values().seatNames()).toEqual([null, null]);
+
+        await store.when({name: "toggleSeatRequested", payload: 1, statePath: []});
+        expect(values().seatNames()).toEqual([null, "Léa"]);
+    });
+
+    it("keeps the names of the seats that the game does not show", async () => {
+        const {store, settingsService} = setup({playerNames: ["Tom", "Léa", "Zoé"]});
+        await store.when({name: "renamePlayerRequested", payload: {index: 0, name: "Max"}, statePath: []});
+        expect(settingsService.load().playerNames).toEqual(["Max", "Léa", "Zoé"]);
+    });
+
+    it("names a seat after its number when its name is blank", () => {
+        const {values} = setup({playerNames: ["  ", "Léa"], seats: {bataille: ["human", "human"]}});
+        expect(values().seatNames()).toEqual([null, "Léa"]);
+    });
+
+    it("ignores stored names that are not text, and cuts long ones", () => {
+        const {values} = setup({playerNames: [42, "A very long name for a seat"] as unknown as string[]});
+        expect(values().playerNames()).toEqual(["", "A very long name"]);
+    });
 });

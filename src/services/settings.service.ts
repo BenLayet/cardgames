@@ -10,6 +10,8 @@ export type Settings = {
     suitCount: number;
     // who sits at each seat, by game
     seats: Partial<Record<GameId, SeatKind[]>>;
+    // the names typed for each seat, shared by all the games ("" when none was typed)
+    playerNames: string[];
 };
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -19,6 +21,7 @@ export const DEFAULT_SETTINGS: Settings = {
     cardCount: 32,
     suitCount: 1,
     seats: {},
+    playerNames: [],
 };
 
 export interface SettingsService {

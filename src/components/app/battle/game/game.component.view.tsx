@@ -39,6 +39,10 @@ export const View = ({path = ""}) => {
         if (!v.isPlayer2Computer && event.clientY < table.top + table.height / 2) d.player2Clicked();
         else d.player1Clicked();
     };
+    const winnerName = v.hasPlayer1WonGame ? v.player1Name : v.player2Name;
+    // between two humans, each half of the table shows whose it is
+    const seatLabel = (name: string | null, number: number) => !v.isPlayer2Computer &&
+        <div className={`battle-seat-name battle-seat-name--player${number}`}>{name ?? t("playerNumber", {number})}</div>;
     return <>
         <div ref={gameRef} className="vstack justify-content-between" onClick={onTableClicked}>
             <div style={{position: "absolute", bottom: 0, right: 0, zIndex: 1000}}>
@@ -47,7 +51,8 @@ export const View = ({path = ""}) => {
                         <AnimatedCardView key={c.card} card={c.card} placement={c.placement} layoutState={layoutState}/>)}
                 </div>
             </div>
-            <div className="d-flex justify-content-end">
+            <div className="d-flex justify-content-end align-items-start">
+                {seatLabel(v.player2Name, 2)}
                 <div ref={player2WonCardsRef} className="card-stack-container"/>
                 <div ref={player2RemainingCardsRef} className="card-stack-container"/>
             </div>
@@ -63,9 +68,10 @@ export const View = ({path = ""}) => {
                     <div ref={player2BeingPlayedCardsRef} className="card-stack-container"/>
                 </div>
             </div>
-            <div className="d-flex">
+            <div className="d-flex align-items-end">
                 <div ref={player1RemainingCardsRef} className="card-stack-container"/>
                 <div ref={player1WonCardsRef} className="card-stack-container"/>
+                {seatLabel(v.player1Name, 1)}
             </div>
         </div>
         {v.hasGameEnded && <div className="end-message-overlay" onClick={() => d.playAgainRequested()}>
@@ -81,7 +87,7 @@ export const View = ({path = ""}) => {
             }
             {!v.isPlayer2Computer && (v.hasPlayer1WonGame || v.hasPlayer2WonGame) && <>
                 <Fireworks/>
-                <h1>{t("playerWins", {number: v.hasPlayer1WonGame ? 1 : 2})}</h1>
+                <h1>{winnerName ? t("namedPlayerWins", {name: winnerName}) : t("playerWins", {number: v.hasPlayer1WonGame ? 1 : 2})}</h1>
             </>
             }
             {v.isTiedGame && <h1>{t("tie")}</h1>}

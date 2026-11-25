@@ -4,6 +4,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faArrowLeft, faMinus, faPlay, faPlus, faRobot, faUser} from "@fortawesome/free-solid-svg-icons";
 
 import type {SetupContract} from "./setup.component.ts";
+import {MAX_NAME_LENGTH} from "./setup.component.state.ts";
 
 const SUIT_SYMBOLS = "♠♥♦♣";
 
@@ -39,7 +40,15 @@ export const View = ({path = "", onResume}: { path?: string, onResume?: () => vo
                         <div className="d-flex flex-column gap-2">
                             {v.seats.map((seat, index) => <div key={index}
                                     className="d-flex gap-2 justify-content-between align-items-center">
-                                <span className="text-nowrap fw-bold">{t("playerNumber", {number: index + 1})}</span>
+                                {/* a human can be named when several people play; a seat is otherwise named after its number */}
+                                {seat === "human" && v.maxPlayers > 1
+                                    ? <input className="form-control seat-name" type="text"
+                                             value={v.playerNames[index]} maxLength={MAX_NAME_LENGTH}
+                                             placeholder={t("playerNumber", {number: index + 1})}
+                                             aria-label={t("playerName", {number: index + 1})}
+                                             autoComplete="off" enterKeyHint="done"
+                                             onChange={event => d.renamePlayerRequested({index, name: event.target.value})}/>
+                                    : <span className="text-nowrap fw-bold">{t("playerNumber", {number: index + 1})}</span>}
                                 {/* a seat that cannot change shows its kind, rather than a choice with a disabled option */}
                                 {!v.changeableSeats[index] ? <span className="seat-fixed">
                                     <FontAwesomeIcon icon={seat === "human" ? faUser : faRobot}/> {t(seat)}

@@ -92,5 +92,7 @@ export const selectors = {
     areCardsBeingPlayed,
     battleCount,
     isPlayer2Computer: (state: State) => state.isPlayer2Computer,
+    player1Name: (state: State) => state.playerNames[0] ?? null,
+    player2Name: (state: State) => state.playerNames[1] ?? null,
 } satisfies Selectors<State>;
 export type Values = ExtractComponentValuesContract<typeof selectors>;
