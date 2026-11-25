@@ -181,13 +181,39 @@
     letter-spacing: -0.05em;
 }
 
-.compact-card-center {
+/* the symbols, placed by their center inside the area below the top line */
+.compact-card-pips {
     position: absolute;
-    inset: 35% 0 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    inset: 46% 16% 11%;
+    font-size: calc(var(--spider-card-w) * 0.2);
+}
+
+.compact-card-pips > span {
+    position: absolute;
+    transform: translate(-50%, -50%);
+}
+
+.compact-card-pips > .compact-card-pip--down {
+    transform: translate(-50%, -50%) rotate(180deg);
+}
+
+.compact-card-pips--ace {
     font-size: calc(var(--spider-card-w) * 0.6);
+}
+
+/* the head of the figure, cut from the detailed picture of the card */
+.compact-card-face {
+    position: absolute;
+    inset: 34% 0 0;
+    overflow: hidden;
+}
+
+.compact-card-face img {
+    position: absolute;
+    width: 330%;
+    max-width: none;
+    left: -115%;
+    top: -52%;
 }
 
 .compact-card--back {
@@ -199,6 +225,3 @@
     font-size: calc(var(--spider-card-w) * 0.3);
 }
 
-.spider-slot .compact-card-center {
-    font-size: calc(var(--spider-card-w) * 0.35);
-}
