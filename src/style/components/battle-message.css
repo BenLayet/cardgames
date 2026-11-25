@@ -36,3 +36,10 @@
         scale: 1.08;
     }
 }
+
+/* two players may tap together: no double-tap zoom or text selection on the table */
+.battle-table {
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+}

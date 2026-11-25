@@ -15,6 +15,9 @@
 }
 
 .end-message-overlay h1 {
+    text-align: center;
+    text-wrap: balance;
+    padding: 0 var(--app-space-3);
     color: var(--app-gold);
     font-size: 4em;
     text-shadow: 0 0 20px rgba(0, 0, 0, 0.8), 0 0 40px rgba(242, 212, 138, 0.5), 4px 4px 8px rgba(0, 0, 0, 0.5);
