@@ -164,9 +164,10 @@
     position: relative;
     display: block;
     border-radius: 4px;
-    border: 1px solid #0004;
+    border: 1px solid #0003;
+    box-shadow: 0 1px 2px #0003;
     background: white;
-    color: #111;
+    color: #16191c;
     font-family: system-ui, sans-serif;
     font-weight: 700;
     line-height: 1;
@@ -186,11 +187,26 @@
     letter-spacing: -0.05em;
 }
 
-/* the symbols, placed by their center inside the area below the top line */
+.compact-card-suit {
+    display: block;
+    width: 0.82em;
+    height: 0.82em;
+    fill: currentColor;
+}
+
+.compact-card-corner .compact-card-suit {
+    width: 0.78em;
+    height: 0.78em;
+}
+
+/* the symbols, placed by their center inside the area below the top line; --pip is their size in card widths */
 .compact-card-pips {
     position: absolute;
-    inset: 46% 16% 11%;
-    font-size: calc(var(--spider-card-w) * 0.2);
+    top: calc(var(--spider-card-h) * 0.34 + var(--spider-card-w) * var(--pip) * 0.42);
+    bottom: calc(var(--spider-card-h) * 0.03 + var(--spider-card-w) * var(--pip) * 0.42);
+    left: 10%;
+    right: 10%;
+    font-size: calc(var(--spider-card-w) * var(--pip));
 }
 
 .compact-card-pips > span {
@@ -202,23 +218,20 @@
     transform: translate(-50%, -50%) rotate(180deg);
 }
 
-.compact-card-pips--ace {
-    font-size: calc(var(--spider-card-w) * 0.6);
-}
-
-/* the head of the figure, cut from the detailed picture of the card */
+/* the head and shoulders of the figure, cut from the detailed picture of the card */
 .compact-card-face {
     position: absolute;
-    inset: 34% 0 0;
+    inset: 34% 9% 5%;
     overflow: hidden;
+    border-radius: calc(var(--spider-card-w) * 0.06);
 }
 
 .compact-card-face img {
     position: absolute;
-    width: 330%;
+    width: 300%;
     max-width: none;
-    left: -115%;
-    top: -52%;
+    left: -100%;
+    top: -36%;
 }
 
 .compact-card--back {
