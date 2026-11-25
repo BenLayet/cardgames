@@ -78,3 +78,23 @@ body:has(.game-bar) #root {
     padding-bottom: var(--game-bar-bottom);
     padding-right: var(--game-bar-right);
 }
+
+/* the settings, second in the bar: their menu opens above the bar, or beside it when it stands on the right */
+.game-bar .settings-menu {
+    position: relative;
+    margin: 0;
+}
+
+.game-bar .settings-menu-panel {
+    top: auto;
+    bottom: calc(100% + 0.5rem);
+}
+
+@media (orientation: landscape) {
+    .game-bar .settings-menu-panel {
+        top: 0;
+        bottom: auto;
+        left: auto;
+        right: calc(100% + 0.5rem);
+    }
+}

@@ -47,12 +47,4 @@ describe("app", () => {
         await store.when({name: "backRequested", statePath: [["spider", "0"], ["setup", "0"]]});
         expect(store.getValues("").page()).toBe("HOME");
     });
-
-    it("only offers the settings on the home page", async () => {
-        expect(store.getValues("").areSettingsAvailable()).toBe(true);
-
-        await store.when({name: "gameSelected", payload: "bataille", statePath: []});
-
-        expect(store.getValues("").areSettingsAvailable()).toBe(false);
-    });
 });

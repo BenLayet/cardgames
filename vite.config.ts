@@ -1,9 +1,30 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import { execSync } from 'node:child_process'
+import { readFileSync } from 'node:fs'
+
+// what was deployed, shown in the settings: the version of package.json, the commit and the build date
+const commitOf = (): string => {
+  // AWS Amplify gives the commit it builds; otherwise ask git
+  if (process.env.AWS_COMMIT_ID) return process.env.AWS_COMMIT_ID.slice(0, 7)
+  try {
+    return execSync('git rev-parse --short HEAD').toString().trim()
+  } catch {
+    return 'unknown'
+  }
+}
+const appVersion = {
+  version: JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf-8')).version as string,
+  commit: commitOf(),
+  builtAt: new Date().toISOString(),
+}
 
 // https://vite.dev/config/
 export default defineConfig({
+  define: {
+    __APP_VERSION__: JSON.stringify(appVersion),
+  },
   plugins: [
     react(),
     // makes the game installable on phones and playable offline
