@@ -1,7 +1,7 @@
 .spider-table {
     /* ten columns share the width of the screen, and the cards stay small enough to leave room for long columns */
     --spider-gap: clamp(0.15rem, 0.8vw, 0.6rem);
-    --spider-card-w: min(calc((100vw - 2 * var(--app-frame) - 1.5rem) / 10 - var(--spider-gap)), 11dvh, 110px);
+    --spider-card-w: min(calc((100vw - 2 * var(--app-frame) - var(--game-bar-right) - 1.5rem) / 10 - var(--spider-gap)), calc((100dvh - var(--game-bar-bottom)) * .11), 110px);
     --spider-card-h: calc(var(--spider-card-w) * 200 / 143);
     user-select: none;
     -webkit-user-select: none;
@@ -11,19 +11,9 @@
 @media (orientation: portrait) {
     .spider-table {
         --spider-gap: 2px;
-        --spider-card-w: min(calc((100vw - 2 * var(--app-frame) - 0.5rem - 9 * var(--spider-gap)) / 10), 110px);
+        --spider-card-w: min(calc((100vw - 2 * var(--app-frame) - var(--game-bar-right) - 0.5rem - 9 * var(--spider-gap)) / 10), 110px);
     }
 
-    /* a smaller top bar leaves more room to the columns */
-    .spider-top-bar {
-        font-size: 0.7em;
-    }
-
-    .spider-top-bar .btn {
-        --bs-btn-font-size: 0.7rem;
-        --bs-btn-padding-x: 0.5rem;
-        --bs-btn-padding-y: 0.25rem;
-    }
 }
 
 .spider-card .card-image {
