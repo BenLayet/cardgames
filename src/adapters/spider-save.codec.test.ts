@@ -33,7 +33,12 @@ describe("saved game codec", () => {
         expect(decodeSavedGame(JSON.stringify(game))).toEqual(game);
     });
 
-    it.each(["", "not json", "{\"format\":2,\"table\":\"x\",\"history\":[],\"moveCount\":0}"])("ignores %j", text => {
+    it("ignores a game saved by a newer version", () => {
+        const saved = JSON.parse(encodeSavedGame(game)) as Record<string, unknown>;
+        expect(decodeSavedGame(JSON.stringify({...saved, format: 3}))).toBeNull();
+    });
+
+    it.each(["", "[]", "{\"table\":1}", "not json", "{\"format\":2,\"table\":\"x\",\"history\":[],\"moveCount\":0}"])("ignores %j", text => {
         expect(decodeSavedGame(text)).toBeNull();
     });
 });

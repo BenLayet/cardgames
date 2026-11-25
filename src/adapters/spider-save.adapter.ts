@@ -9,8 +9,11 @@ const LEGACY_STORAGE_KEY = "cardgames.spider.game";
 
 // Stores the games in the browser; without storage (private mode, blocked...) the games are simply not kept
 export class LocalStorageSpiderSaveAdapter implements SpiderSaveService {
-    load(variant: SpiderVariant): SavedSpiderGame | null {
+    constructor() {
         this.moveLegacyGame();
+    }
+
+    load(variant: SpiderVariant): SavedSpiderGame | null {
         try {
             const stored = localStorage.getItem(storageKey(variant));
             return stored === null ? null : decodeSavedGame(stored);
@@ -20,7 +23,6 @@ export class LocalStorageSpiderSaveAdapter implements SpiderSaveService {
     }
 
     savedVariants(): SpiderVariant[] {
-        this.moveLegacyGame();
         try {
             return SPIDER_VARIANTS.filter(variant => localStorage.getItem(storageKey(variant)) !== null);
         } catch {
@@ -28,7 +30,7 @@ export class LocalStorageSpiderSaveAdapter implements SpiderSaveService {
         }
     }
 
-    // the single game saved before goes to the key of its number of cards and of suits
+    // the single game saved before goes to the key of its number of cards and of suits, once when the application starts
     private moveLegacyGame(): void {
         try {
             const stored = localStorage.getItem(LEGACY_STORAGE_KEY);
