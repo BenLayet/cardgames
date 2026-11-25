@@ -104,7 +104,7 @@
       },
       {
         "title": "Stock",
-        "text": "It deals one card on each column. It only works when every column holds at least one card, so fill any empty column first."
+        "text": "It deals one card on each column. It is only possible when every column holds at least one card."
       },
       {
         "title": "Help",
