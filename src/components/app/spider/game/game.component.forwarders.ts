@@ -1,7 +1,7 @@
 import type {EventForwarders} from "@softer-components/types";
 
 import type {Contract} from "./game.component.contract.ts";
-import {canMoveCards, destinationsOf} from "../../../../model/spider.model.ts";
+import {canMoveCards, clickDestinationsOf} from "../../../../model/spider.model.ts";
 
 // the steps of a game: each event leads to the next one when its condition is met
 export const eventForwarders = {
@@ -24,8 +24,8 @@ export const eventForwarders = {
         // cards that can only go to one column go there right away
         {
             from: "cardPicked", to: "moveRequested",
-            onCondition: ({values, payload}) => destinationsOf(values.table(), payload).length === 1,
-            withPayload: ({values, payload}) => ({from: payload, to: destinationsOf(values.table(), payload)[0]}),
+            onCondition: ({values, payload}) => clickDestinationsOf(values.table(), payload).length === 1,
+            withPayload: ({values, payload}) => ({from: payload, to: clickDestinationsOf(values.table(), payload)[0]}),
         },
         {from: "cardsDropped", to: "moveRequested"},
         {

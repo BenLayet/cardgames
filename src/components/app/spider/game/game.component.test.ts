@@ -92,13 +92,29 @@ describe("spider game", () => {
         expect(values().destinations()).toEqual([]);
     });
 
-    it("moves the selected cards to an empty column when it is clicked", async () => {
-        await deal([cards("8S"), cards("9H"), []]);
+    it("offers only the cards where the clicked card can go, not the empty columns", async () => {
+        await deal([cards("8S"), cards("9H"), [], cards("9D")]);
 
         await store.when(event("cardClicked", {column: 0, index: 0}));
-        await store.when(event("columnClicked", 2));
 
-        expect(column(2)).toEqual(["8S"]);
+        expect(values().destinations()).toEqual([1, 3]);
+    });
+
+    it("moves a clicked card to the leftmost empty column when only empty columns can take it", async () => {
+        await deal([cards("_4D", "8S"), [], []]);
+
+        await store.when(event("cardClicked", {column: 0, index: 1}));
+
+        expect(column(1)).toEqual(["8S"]);
+        expect(column(2)).toEqual([]);
+    });
+
+    it("still moves dropped cards to any empty column", async () => {
+        await deal([cards("8S"), cards("9H"), [], []]);
+
+        await store.when(event("cardsDropped", {from: {column: 0, index: 0}, to: 3}));
+
+        expect(column(3)).toEqual(["8S"]);
     });
 
     it("unselects on a click elsewhere or on the same card again", async () => {

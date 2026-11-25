@@ -3,7 +3,7 @@ import type {ExtractComponentValuesContract, Selectors} from "@softer-components
 import type {State} from "./game.component.state.ts";
 import {
     canDealRow,
-    destinationsOf,
+    clickDestinationsOf,
     findHints,
     hasCompletedSequence,
     isWon,
@@ -26,7 +26,7 @@ export const selectors = {
     isWon: (state: State) => isWon(state.table),
     selected: (state: State) => state.selected,
     // the columns where the selected cards can go
-    destinations: (state: State) => state.selected === null ? [] : destinationsOf(state.table, state.selected),
+    destinations: (state: State) => state.selected === null ? [] : clickDestinationsOf(state.table, state.selected),
     hint: (state: State) => {
         if (state.hintIndex === null) return null;
         const hints = findHints(state.table);

@@ -6,7 +6,7 @@ import {
     canPickCards,
     collectCompletedSequences,
     dealRow,
-    destinationsOf,
+    clickDestinationsOf,
     moveCards,
     type Table,
 } from "../../../../model/spider.model.ts";
@@ -30,13 +30,13 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
     cardPicked: ({state, payload}) => {
         const isAlreadySelected = state.selected?.column === payload.column && state.selected.index === payload.index;
         // cards with a single destination go there right away, see the forwarders
-        const hasSeveralDestinations = canPickCards(state.table, payload) && destinationsOf(state.table, payload).length > 1;
+        const hasSeveralDestinations = canPickCards(state.table, payload) && clickDestinationsOf(state.table, payload).length > 1;
         state.selected = !isAlreadySelected && hasSeveralDestinations ? payload : null;
         state.hintIndex = null;
     },
     // a click on a column where the selected cards go moves them, see the forwarders
     columnClicked: ({state, payload: column}) => {
-        if (state.selected !== null && !destinationsOf(state.table, state.selected).includes(column)) state.selected = null;
+        if (state.selected !== null && !clickDestinationsOf(state.table, state.selected).includes(column)) state.selected = null;
         state.hintIndex = null;
     },
     moveRequested: ({state}) => {
