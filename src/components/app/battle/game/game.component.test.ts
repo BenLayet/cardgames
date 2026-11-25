@@ -47,7 +47,6 @@ describe("game", () => {
         expect(stack("player1RemainingCards")).toHaveLength(6);
         expect(stack("player2RemainingCards")).toHaveLength(6);
         expect(values().canPlayer1Play()).toBe(true);
-        expect(audioService.startBackgroundMusic).toHaveBeenCalled();
     });
 
     it("gives both cards to the player with the highest card", async () => {

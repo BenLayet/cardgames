@@ -4,16 +4,22 @@ import crowdDisappointmentSoundUrl from "../assets/audio/crowd-disappointment.mp
 import cardSlideSoundUrl from "../assets/audio/card-slide-1.mp3";
 import backgroundMusicUrl from "../assets/audio/soft-piano-loop.mp3";
 
+// browsers refuse to play sound before the user has interacted with the page
+const USER_GESTURE_EVENTS = ["pointerdown", "keydown", "touchend"] as const;
+
 export class AudioAdapter implements AudioService {
     private currentAudio: HTMLAudioElement | null = null;
     private readonly cardSlideAudio = new Audio(cardSlideSoundUrl);
     private backgroundMusic: HTMLAudioElement | null = null;
     private musicEnabled = true;
     private soundsEnabled = true;
+    private waitingForUserGesture = false;
 
+    // the music plays on every screen, so turning it on starts it right away
     setMusicEnabled(enabled: boolean): void {
         this.musicEnabled = enabled;
-        if (!enabled) this.stopBackgroundMusic();
+        if (enabled) this.startBackgroundMusic();
+        else this.stopBackgroundMusic();
     }
 
     setSoundsEnabled(enabled: boolean): void {
@@ -21,24 +27,25 @@ export class AudioAdapter implements AudioService {
         if (!enabled) this.stopAll();
     }
 
-    // Loops forever once started; not affected by stopAll()
-    startBackgroundMusic(): void {
-        if (!this.musicEnabled || this.backgroundMusic) return;
-        const music = new Audio(backgroundMusicUrl);
-        music.loop = true;
-        music.volume = 0.3;
-        this.backgroundMusic = music;
+    // Loops forever once started, across screens; not affected by stopAll()
+    private startBackgroundMusic(): void {
+        if (!this.musicEnabled) return;
+        if (!this.backgroundMusic) {
+            const music = new Audio(backgroundMusicUrl);
+            music.loop = true;
+            music.volume = 0.3;
+            this.backgroundMusic = music;
+        }
+        const music = this.backgroundMusic;
+        if (!music.paused) return;
         music.play().catch((error: unknown) => {
-            // allow a retry at the next game start
-            this.backgroundMusic = null;
-            console.error("Failed to play background music:", error);
+            if (error instanceof DOMException && error.name === "NotAllowedError") this.retryAtUserGesture();
+            else console.error("Failed to play background music:", error);
         });
     }
 
-    stopBackgroundMusic(): void {
-        if (!this.backgroundMusic) return;
-        this.backgroundMusic.pause();
-        this.backgroundMusic = null;
+    private stopBackgroundMusic(): void {
+        this.backgroundMusic?.pause();
     }
 
     stopAll(): void {
@@ -65,6 +72,17 @@ export class AudioAdapter implements AudioService {
         audio.play().catch((error: unknown) => {
             console.error("Failed to play card slide sound:", error);
         });
+    }
+
+    private retryAtUserGesture(): void {
+        if (this.waitingForUserGesture) return;
+        this.waitingForUserGesture = true;
+        const retry = () => {
+            this.waitingForUserGesture = false;
+            USER_GESTURE_EVENTS.forEach(name => document.removeEventListener(name, retry, true));
+            this.startBackgroundMusic();
+        };
+        USER_GESTURE_EVENTS.forEach(name => document.addEventListener(name, retry, true));
     }
 
     private play(soundUrl: string): void {

@@ -24,14 +24,12 @@ export const effects = ({audioService, spiderSaveService}: Dependencies): Effect
     return {
         // picking the deal is random, so it happens here and not in the updaters
         dealRequested: ({dealCompleted}, {payload: {suitCount, cardCount}}) => {
-            audioService.startBackgroundMusic();
             dealCompleted(dealSeededTable({suitCount, cardCount}, pickSolvableSeed({suitCount, cardCount})));
         },
         dealCompleted: (_, {values}) => save(values),
         restoreRequested: ({gameRestored}, {payload: variant}) => {
             const saved = spiderSaveService.load(variant);
             if (saved === null) return;
-            audioService.startBackgroundMusic();
             gameRestored(saved);
         },
         cardsMoved: (_, {values}) => {

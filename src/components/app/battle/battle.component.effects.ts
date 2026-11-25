@@ -13,6 +13,5 @@ export const effects = ({audioService, schedulerService}: Dependencies): Effects
         // the game may be left in the middle of a round
         schedulerService.cancelAll();
         audioService.stopAll();
-        audioService.stopBackgroundMusic();
     },
 });

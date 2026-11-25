@@ -18,7 +18,6 @@ export const effects = ({audioService, schedulerService}: Dependencies): Effects
         dealRequested: ({dealCompleted}, {payload: {cardCount}}) => {
             // forget whatever was still pending from a previous game
             schedulerService.cancelAll();
-            audioService.startBackgroundMusic();
             const cardsToDeal = createDeck(cardCount);
             const shuffledDeck = shuffleDeck(cardsToDeal);
             const player1Cards = shuffledDeck.slice(0, cardsToDeal.length / 2);
