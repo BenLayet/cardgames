@@ -1,6 +1,7 @@
 import {type RefObject, useLayoutEffect, useRef} from "react";
 
 const FLIGHT_MS = 260;
+const SWAY_PX = 4;
 const EASING = "cubic-bezier(.2, .8, .2, 1)";
 // the cards of a completed sequence leave one after the other
 const COLLECT_MS = 420;
@@ -73,7 +74,8 @@ export const useCardFlight = (
             if (!now || !from) return;
             const dx = from.left - now.left;
             const dy = from.top - now.top;
-            if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
+            // a few pixels are the sway of a selected card, not a move
+            if (Math.abs(dx) < SWAY_PX && Math.abs(dy) < SWAY_PX) return;
             flights.current.set(element, element.animate([
                 {transform: `translate(${dx}px, ${dy}px)`, zIndex: 50},
                 {transform: "translate(0, 0)", zIndex: 50},
