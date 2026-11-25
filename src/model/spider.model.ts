@@ -1,13 +1,14 @@
 import {type Card, type Rank, seededRandom, shuffleDeck, type Suit, SUITS} from "./deck.model.ts";
 import {SOLVABLE_DEAL_SEEDS} from "./spider-deals.ts";
 
-// Spider solitaire: two decks dealt into ten columns, or one deck into eight columns.
+// Spider solitaire: two decks dealt into ten columns, one deck into eight columns, or half a deck into six columns.
+// Half a deck (26 cards) is played with one or two suits only: twice the spades, or the spades and the hearts.
 // A completed sequence is a run from the king down to the ace of the same suit; the game is won when every card is in one.
 // The functions below never change the given table, they return a new one.
 
 export const SUIT_COUNT_OPTIONS = [1, 2, 4];
 // the first one is the usual game
-export const CARD_COUNT_OPTIONS = [104, 52];
+export const CARD_COUNT_OPTIONS = [104, 52, 26];
 // in Spider the ace is the lowest card
 const SPIDER_RANKS: readonly Rank[] = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K"];
 const SEQUENCE_LENGTH = SPIDER_RANKS.length;
@@ -20,7 +21,18 @@ export type SpiderLayout = {
 const LAYOUTS: Readonly<Record<number, SpiderLayout>> = {
     104: {columnCount: 10, initialTableauSize: 54},
     52: {columnCount: 8, initialTableauSize: 28},
+    26: {columnCount: 6, initialTableauSize: 14},
 };
+// the numbers of suits that each number of cards can be played with
+const SUIT_COUNTS_BY_CARD_COUNT: Readonly<Record<number, readonly number[]>> = {
+    104: SUIT_COUNT_OPTIONS,
+    52: SUIT_COUNT_OPTIONS,
+    26: [1, 2],
+};
+export const suitCountOptionsFor = (cardCount: number): readonly number[] => SUIT_COUNTS_BY_CARD_COUNT[cardCount] ?? [];
+// every number of cards with every number of suits it can be played with
+export const SPIDER_VARIANTS: readonly SpiderVariant[] = CARD_COUNT_OPTIONS.flatMap(cardCount =>
+    suitCountOptionsFor(cardCount).map(suitCount => ({cardCount, suitCount})));
 export const spiderLayout = (cardCount: number): SpiderLayout => {
     if (!CARD_COUNT_OPTIONS.includes(cardCount)) throw new Error(`Spider is played with ${CARD_COUNT_OPTIONS.join(" or ")} cards, not ${cardCount}`);
     return LAYOUTS[cardCount];
@@ -64,6 +76,7 @@ export const suitOf = (card: Card) => card.charAt(1) as Suit;
 export const createSpiderDeck = (suitCount: number, cardCount: number): Card[] => {
     if (!SUIT_COUNT_OPTIONS.includes(suitCount)) throw new Error(`Spider is played with 1, 2 or 4 suits, not ${suitCount}`);
     spiderLayout(cardCount);
+    if (!suitCountOptionsFor(cardCount).includes(suitCount)) throw new Error(`Spider with ${cardCount} cards is not played with ${suitCount} suits`);
     const suits = SUITS.slice(0, suitCount);
     const copies = cardCount / (suits.length * SPIDER_RANKS.length);
     return Array.from({length: copies}).flatMap(() =>

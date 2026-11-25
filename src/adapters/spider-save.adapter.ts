@@ -1,4 +1,4 @@
-import {CARD_COUNT_OPTIONS, type SavedSpiderGame, type SpiderVariant, SUIT_COUNT_OPTIONS, variantOf} from "../model/spider.model.ts";
+import {type SavedSpiderGame, SPIDER_VARIANTS, type SpiderVariant, variantOf} from "../model/spider.model.ts";
 import type {SpiderSaveService} from "../services/spider-save.service.ts";
 import {decodeSavedGame, encodeSavedGame} from "./spider-save.codec.ts";
 
@@ -6,7 +6,6 @@ import {decodeSavedGame, encodeSavedGame} from "./spider-save.codec.ts";
 const storageKey = ({cardCount, suitCount}: SpiderVariant) => `cardgames.spider.game.${cardCount}.${suitCount}`;
 // where the single game was kept before
 const LEGACY_STORAGE_KEY = "cardgames.spider.game";
-const VARIANTS: SpiderVariant[] = CARD_COUNT_OPTIONS.flatMap(cardCount => SUIT_COUNT_OPTIONS.map(suitCount => ({cardCount, suitCount})));
 
 // Stores the games in the browser; without storage (private mode, blocked...) the games are simply not kept
 export class LocalStorageSpiderSaveAdapter implements SpiderSaveService {
@@ -23,7 +22,7 @@ export class LocalStorageSpiderSaveAdapter implements SpiderSaveService {
     savedVariants(): SpiderVariant[] {
         this.moveLegacyGame();
         try {
-            return VARIANTS.filter(variant => localStorage.getItem(storageKey(variant)) !== null);
+            return SPIDER_VARIANTS.filter(variant => localStorage.getItem(storageKey(variant)) !== null);
         } catch {
             return [];
         }

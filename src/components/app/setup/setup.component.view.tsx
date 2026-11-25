@@ -80,9 +80,10 @@ export const View = ({path = "", onResume}: { path?: string, onResume?: () => vo
                     {v.suitCountOptions.length > 0 && <div>
                         <span className="setup-label">{t("suitCount")}</span>
                         <div className="choice-group">
-                            {v.suitCountOptions.map((option) => <button
+                            {v.suitCountOptions.map((option, index) => <button
                                     key={option}
                                     className="btn btn-choice px-3"
+                                    disabled={!v.availableSuitCounts[index]}
                                     aria-pressed={v.suitCount === option}
                                     aria-label={t("suitCountOption", {count: option})}
                                     title={t("suitCountOption", {count: option})}

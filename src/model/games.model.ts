@@ -16,14 +16,18 @@ export type GameDefinition = {
     cardCountOptions: number[];
     // numbers of suits offered on the setup screen, none when the game does not let the player choose
     suitCountOptions: number[];
+    // the numbers of suits that cannot be chosen with a number of cards
+    unavailableSuitCounts?: Partial<Record<number, readonly number[]>>;
 };
+export const isSuitCountAvailable = (game: GameDefinition, cardCount: number, suitCount: number) =>
+    game.suitCountOptions.includes(suitCount) && !(game.unavailableSuitCounts?.[cardCount]?.includes(suitCount) ?? false);
 
 // The player ranges of the games that are not playable yet are only indicative
 export const GAMES: readonly GameDefinition[] = [
     // the current battle engine has exactly two players
     {id: "bataille", minPlayers: 2, maxPlayers: 2, computerOpponents: true, available: true, cardCountOptions: [12, 16, 32, 52], suitCountOptions: []},
     {id: "batailleCorse", minPlayers: 2, maxPlayers: 6, computerOpponents: true, available: false, cardCountOptions: [], suitCountOptions: []},
-    {id: "spider", minPlayers: 1, maxPlayers: 1, computerOpponents: false, available: true, cardCountOptions: [104, 52], suitCountOptions: [1, 2, 4]},
+    {id: "spider", minPlayers: 1, maxPlayers: 1, computerOpponents: false, available: true, cardCountOptions: [104, 52, 26], suitCountOptions: [1, 2, 4], unavailableSuitCounts: {26: [4]}},
     {id: "crapette", minPlayers: 2, maxPlayers: 2, computerOpponents: true, available: false, cardCountOptions: [], suitCountOptions: []},
     {id: "pouilleux", minPlayers: 2, maxPlayers: 6, computerOpponents: true, available: false, cardCountOptions: [], suitCountOptions: []},
 ];

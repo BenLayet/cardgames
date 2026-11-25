@@ -4,7 +4,6 @@ import type {Card} from "./deck.model.ts";
 import {SOLVABLE_DEAL_SEEDS} from "./spider-deals.ts";
 import {
     canDealRow,
-    CARD_COUNT_OPTIONS,
     canMoveCards,
     canPickCards,
     clickDestinationsOf,
@@ -26,7 +25,7 @@ import {
     type SpiderCard,
     sequenceCountOf,
     stockRowCount,
-    SUIT_COUNT_OPTIONS,
+    SPIDER_VARIANTS,
     type Table,
     variantOf,
 } from "./spider.model.ts";
@@ -73,6 +72,13 @@ describe("createSpiderDeck", () => {
         expect(deck.filter(card => card.endsWith("H"))).toHaveLength(26);
     });
 
+    it("uses half a deck with one or two suits only", () => {
+        const spades = "A23456789TJQK".split("").map(rank => `${rank}S`);
+        expect(createSpiderDeck(1, 26)).toEqual([...spades, ...spades]);
+        expect(createSpiderDeck(2, 26)).toEqual([...spades, ...spades.map(card => card.replace("S", "H"))]);
+        expect(() => createSpiderDeck(4, 26)).toThrow();
+    });
+
     it("rejects other card counts", () => {
         expect(() => createSpiderDeck(1, 32)).toThrow();
     });
@@ -101,10 +107,18 @@ describe("dealTable", () => {
     });
 });
 
-describe("solvable deals", () => {
-    const variants = CARD_COUNT_OPTIONS.flatMap(cardCount => SUIT_COUNT_OPTIONS.map(suitCount => ({cardCount, suitCount})));
+describe("dealTable with half a deck", () => {
+    it("deals 14 of 26 cards into six columns, and keeps 2 rows of 6 in the stock", () => {
+        const dealt = dealTable(createSpiderDeck(2, 26));
+        expect(dealt.columns.map(column => column.length)).toEqual([3, 3, 2, 2, 2, 2]);
+        expect(stockRowCount(dealt)).toBe(2);
+        expect(sequenceCountOf(dealt)).toBe(2);
+        expect(variantOf(dealt)).toEqual({suitCount: 2, cardCount: 26});
+    });
+});
 
-    it.each(variants)("knows deals with $cardCount cards and $suitCount suit(s), each one once", ({cardCount, suitCount}) => {
+describe("solvable deals", () => {
+    it.each(SPIDER_VARIANTS)("knows deals with $cardCount cards and $suitCount suit(s), each one once", ({cardCount, suitCount}) => {
         const seeds = SOLVABLE_DEAL_SEEDS[cardCount]?.[suitCount] ?? [];
         expect(seeds.length).toBeGreaterThan(0);
         expect(new Set(seeds).size).toBe(seeds.length);
