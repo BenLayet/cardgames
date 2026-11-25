@@ -83,50 +83,30 @@
         "text": "Win all the cards of the other player."
       },
       {
-        "title": "Deal",
-        "text": "The cards are shuffled and split into two equal piles, face down. With fewer than 52 cards, the highest ones are kept: with 32 cards, from 7 to ace."
-      },
-      {
         "title": "A round",
-        "text": "Each player taps their pile to turn over its top card. The higher card wins both cards, which go to that player's won pile. The ace is the highest, then the king, queen, jack, 10, and so on down to the 2."
+        "text": "Each player turns over their top card. The higher card takes both. Ace is highest, 2 is lowest."
       },
       {
         "title": "Battle",
-        "text": "When both cards have the same value, it is a battle: each player lays one card face down, then one card face up. The higher card wins all the cards laid. If they are equal again, the battle goes on."
-      },
-      {
-        "title": "End of the game",
-        "text": "When a pile is empty, the player takes back the cards they won. The player with no card left loses. If both players run out at the same time, the game is a tie."
+        "text": "On a tie, each player lays one card face down, then one face up. The higher card takes them all."
       }
     ],
     "spider": [
       {
         "title": "Goal",
-        "text": "Arrange all the cards into complete sequences, from king down to ace, of the same suit. A complete sequence leaves the table. The game is won when no card is left."
+        "text": "Build sequences from king down to ace in one suit."
       },
       {
         "title": "Moving",
-        "text": "A card goes on a card one rank higher, whatever its suit: a 6 on a 7. Several cards move together only if they follow each other in the same suit. A face-down card left at the bottom of a column is turned over."
-      },
-      {
-        "title": "Empty column",
-        "text": "Any card, or run of cards that follow each other, can go to an empty column."
+        "text": "A card goes on the rank just above: a 6 on a 7. A same-suit run moves as one. An empty column takes anything."
       },
       {
         "title": "Stock",
-        "text": "Tapping the stock deals one card on each column. This cannot be done while a column is empty."
-      },
-      {
-        "title": "Suits",
-        "text": "With 1 suit, all cards are spades. With 2 or 4 suits, sequences are harder to build."
-      },
-      {
-        "title": "Number of cards",
-        "text": "104 cards: 2 decks on 10 columns, 8 sequences to build. 52 cards: 1 deck on 8 columns, 4 sequences to build."
+        "text": "It deals one card on each column, if none is empty."
       },
       {
         "title": "Help",
-        "text": "The light bulb suggests a move, and each new press suggests another one. The arrow undoes the last move. The game is saved after every move."
+        "text": "The light bulb suggests a move, the arrow undoes the last move."
       }
     ]
   }

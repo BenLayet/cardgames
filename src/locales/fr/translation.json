@@ -83,50 +83,30 @@
         "text": "Gagner toutes les cartes de l'autre joueur."
       },
       {
-        "title": "Distribution",
-        "text": "Les cartes sont mélangées et partagées en deux paquets égaux, faces cachées. Avec moins de 52 cartes, on garde les plus fortes : avec 32 cartes, du 7 à l'as."
-      },
-      {
         "title": "Un tour",
-        "text": "Chaque joueur touche son paquet pour retourner la carte du dessus. La plus forte gagne les deux cartes, qui vont dans le tas de ce joueur. L'as est la plus forte, puis le roi, la dame, le valet, le 10, et ainsi de suite jusqu'au 2."
+        "text": "Chacun retourne sa carte du dessus. La plus forte prend les deux. L'as est la plus forte, le 2 la plus faible."
       },
       {
         "title": "Bataille",
-        "text": "Si les deux cartes ont la même valeur, c'est la bataille : chaque joueur pose une carte face cachée, puis une carte face visible. La plus forte gagne toutes les cartes posées. En cas de nouvelle égalité, la bataille continue."
-      },
-      {
-        "title": "Fin de la partie",
-        "text": "Quand un paquet est vide, le joueur reprend les cartes qu'il a gagnées. Celui qui n'a plus aucune carte a perdu. Si les deux joueurs n'en ont plus en même temps, c'est un match nul."
+        "text": "En cas d'égalité, chacun pose une carte cachée puis une visible. La plus forte prend tout."
       }
     ],
     "spider": [
       {
         "title": "But",
-        "text": "Ranger toutes les cartes en suites complètes, du roi à l'as, de la même couleur. Une suite complète quitte la table. La partie est gagnée quand il ne reste plus de carte."
+        "text": "Faire des suites du roi à l'as dans la même couleur."
       },
       {
         "title": "Déplacer",
-        "text": "Une carte se pose sur une carte d'une valeur juste au-dessus, quelle que soit sa couleur : un 6 sur un 7. Plusieurs cartes se déplacent ensemble seulement si elles se suivent dans la même couleur. Une carte cachée qui se retrouve en bas d'une colonne est retournée."
-      },
-      {
-        "title": "Colonne vide",
-        "text": "N'importe quelle carte, ou suite de cartes qui se suivent, peut aller dans une colonne vide."
+        "text": "Une carte va sur la valeur juste au-dessus : un 6 sur un 7. Une suite de même couleur bouge d'un bloc. Une colonne vide accepte tout."
       },
       {
         "title": "Pioche",
-        "text": "Toucher la pioche pose une carte sur chaque colonne. C'est impossible tant qu'une colonne est vide."
-      },
-      {
-        "title": "Couleurs",
-        "text": "Avec 1 couleur, toutes les cartes sont des piques. Avec 2 ou 4 couleurs, les suites sont plus difficiles à faire."
-      },
-      {
-        "title": "Nombre de cartes",
-        "text": "104 cartes : 2 jeux sur 10 colonnes, 8 suites à faire. 52 cartes : 1 jeu sur 8 colonnes, 4 suites à faire."
+        "text": "Elle pose une carte sur chaque colonne, si aucune n'est vide."
       },
       {
         "title": "Aide",
-        "text": "L'ampoule propose un coup, et chaque nouvel appui en propose un autre. La flèche annule le dernier coup. La partie est sauvegardée à chaque coup."
+        "text": "L'ampoule propose un coup, la flèche annule le dernier coup."
       }
     ]
   }
