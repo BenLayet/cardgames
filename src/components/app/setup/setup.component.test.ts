@@ -95,8 +95,8 @@ describe("setup screen", () => {
         await store.when({name: "renamePlayerRequested", payload: {index: 1, name: "Léa"}, statePath: []});
         expect(values().playerNames()).toEqual(["", "Léa"]);
         expect(settingsService.load().playerNames).toEqual(["", "Léa"]);
-        // the computer plays without a name
-        expect(values().seatNames()).toEqual([null, null]);
+        // the computer plays under the name typed for it, and keeps it as a human
+        expect(values().seatNames()).toEqual([null, "Léa"]);
 
         await store.when({name: "toggleSeatRequested", payload: 1, statePath: []});
         expect(values().seatNames()).toEqual([null, "Léa"]);
