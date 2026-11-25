@@ -68,4 +68,41 @@ describe("spider", () => {
 
         expect(store.getValues("").canResume()).toBe(true);
     });
+
+    it("keeps one game for each number of suits, and resumes the one of the chosen number", async () => {
+        const spiderSaveService = fakeSpiderSaveService();
+        const spider = initTestStore(spiderDef({audioService, settingsService: fakeSettingsService({suitCount: 1}), spiderSaveService}));
+        await spider.when({name: "startGameRequested", statePath: setupPath});
+        await spider.when({name: "goHomeRequested", statePath: []});
+        await spider.when({name: "setSuitCountRequested", payload: 4, statePath: setupPath});
+        // no game was started with 4 suits
+        expect(spider.getValues("").canResume()).toBe(false);
+        await spider.when({name: "startGameRequested", statePath: setupPath});
+        const fourSuits = spider.getValues("/game").columns();
+        await spider.when({name: "goHomeRequested", statePath: []});
+
+        await spider.when({name: "setSuitCountRequested", payload: 1, statePath: setupPath});
+        expect(spider.getValues("").canResume()).toBe(true);
+        expect(spiderSaveService.savedSuitCounts()).toEqual([1, 4]);
+
+        await spider.when({name: "setSuitCountRequested", payload: 4, statePath: setupPath});
+        await spider.when({name: "resumeRequested", statePath: []});
+        expect(spider.getValues("/game").columns()).toEqual(fourSuits);
+    });
+
+    it("forgets only the won game of its number of suits", async () => {
+        const spiderSaveService = fakeSpiderSaveService();
+        const spider = initTestStore(spiderDef({audioService, settingsService: fakeSettingsService({suitCount: 1}), spiderSaveService}));
+        await spider.when({name: "startGameRequested", statePath: setupPath});
+        await spider.when({name: "goHomeRequested", statePath: []});
+        await spider.when({name: "setSuitCountRequested", payload: 2, statePath: setupPath});
+        await spider.when({name: "startGameRequested", statePath: setupPath});
+
+        await spider.when({name: "gameEnded", statePath: gamePath});
+        await spider.when({name: "playAgainRequested", statePath: gamePath});
+
+        expect(spider.getValues("").canResume()).toBe(false);
+        await spider.when({name: "setSuitCountRequested", payload: 1, statePath: setupPath});
+        expect(spider.getValues("").canResume()).toBe(true);
+    });
 });

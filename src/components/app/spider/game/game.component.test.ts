@@ -213,11 +213,11 @@ describe("spider game", () => {
 
     it("saves the game after each move, with what the undo needs", async () => {
         await deal([cards("_4D", "8S"), cards("9H")]);
-        expect(spiderSaveService.load()?.moveCount).toBe(0);
+        expect(spiderSaveService.load(1)?.moveCount).toBe(0);
 
         await store.when(event("cardsDropped", {from: {column: 0, index: 1}, to: 1}));
 
-        const saved = spiderSaveService.load();
+        const saved = spiderSaveService.load(1);
         expect(saved?.moveCount).toBe(1);
         expect(saved?.table.columns[1].map(c => c.card)).toEqual(["9H", "8S"]);
         expect(saved?.history).toHaveLength(1);
@@ -232,7 +232,7 @@ describe("spider game", () => {
             await store.when(event("cardsDropped", {from: {column: from, index: 1}, to: 3 - from}));
         }
         expect(values().moveCount()).toBe(150);
-        expect(spiderSaveService.load()?.history).toHaveLength(150);
+        expect(spiderSaveService.load(1)?.history).toHaveLength(150);
     });
 
     it("resumes the saved game, undo included", async () => {
@@ -240,7 +240,7 @@ describe("spider game", () => {
         await store.when(event("cardsDropped", {from: {column: 0, index: 1}, to: 1}));
         const resumed = initTestStore(gameDef({audioService, spiderSaveService}));
 
-        await resumed.when(event("restoreRequested"));
+        await resumed.when(event("restoreRequested", {suitCount: 1}));
 
         const resumedValues = resumed.getValues("");
         expect(resumedValues.moveCount()).toBe(1);
@@ -255,6 +255,6 @@ describe("spider game", () => {
 
         await store.when(event("cardsDropped", {from: {column: 1, index: 0}, to: 0}));
 
-        expect(spiderSaveService.load()).toBeNull();
+        expect(spiderSaveService.load(1)).toBeNull();
     });
 });

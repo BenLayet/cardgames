@@ -9,6 +9,8 @@ export const initialState = {
     // which of the hints is shown, none until the hint button is pressed
     hintIndex: null as number | null,
     moveCount: 0,
+    // the number of suits of the game, which has its own save
+    suitCount: 1,
     gameEnded: false,
 };
 
