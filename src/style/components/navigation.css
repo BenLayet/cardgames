@@ -1,0 +1,168 @@
+/* the bar at the top of every screen (AppBar.tsx) and what lies on the felt of a game (TableActions.tsx) */
+:root {
+    --app-bar-h: 3.25rem;
+    /* the room kept free for the actions of a game, below and on the right of the table */
+    --table-reserve-bottom: 0px;
+    --table-reserve-right: 0px;
+    --table-action-size: 3.5rem;
+}
+
+/* ---- the bar at the top ---- */
+
+.app-bar {
+    position: fixed;
+    z-index: 1000;
+    top: var(--app-frame);
+    left: var(--app-frame);
+    right: var(--app-frame);
+    height: calc(var(--app-bar-h) + env(safe-area-inset-top, 0px));
+    display: flex;
+    align-items: center;
+    gap: var(--app-space-1);
+    padding: env(safe-area-inset-top, 0px) max(var(--app-space-2), env(safe-area-inset-right, 0px)) 0 max(var(--app-space-2), env(safe-area-inset-left, 0px));
+    background: var(--app-panel);
+    border-bottom: 1px solid var(--app-line);
+}
+
+body:has(.app-bar) #root {
+    padding-top: calc(var(--app-bar-h) + env(safe-area-inset-top, 0px));
+}
+
+.app-bar-title {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0 var(--app-space-1);
+    font-size: 1.3rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.app-bar-logo {
+    width: 2rem;
+    height: 2rem;
+    margin: 0 var(--app-space-1);
+    border-radius: var(--app-radius-sm);
+}
+
+/* the buttons of the bar are icons only, without a frame, like in most applications */
+.app-bar .app-bar-button,
+.app-bar .settings-menu > .btn {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    color: var(--app-ink);
+    border-color: transparent;
+    background: transparent;
+}
+
+.app-bar .app-bar-button:hover,
+.app-bar .settings-menu > .btn:hover {
+    background: var(--app-surface);
+}
+
+/* the settings, last in the bar: their menu opens below it, against the right side */
+.app-bar .settings-menu {
+    position: relative;
+    margin: 0;
+}
+
+.app-bar .settings-menu-panel {
+    top: calc(100% + 0.5rem);
+    bottom: auto;
+    left: auto;
+    right: 0;
+}
+
+/* a screen held sideways keeps the bar at the top, thinner, to leave the height to the cards */
+@media (orientation: landscape) and (max-height: 600px) {
+    :root {
+        --app-bar-h: 2.5rem;
+    }
+
+    .app-bar-title {
+        font-size: 1.1rem;
+    }
+
+    .app-bar .app-bar-button,
+    .app-bar .settings-menu > .btn {
+        min-height: 2.25rem;
+    }
+
+    .app-bar-logo {
+        width: 1.6rem;
+        height: 1.6rem;
+    }
+}
+
+/* ---- the felt of a game: status line and actions ---- */
+
+body:has(.table-actions) {
+    --table-reserve-bottom: calc(var(--table-action-size) + 2.25rem);
+}
+
+body:has(.table-status) #root {
+    padding-bottom: var(--table-reserve-bottom);
+    padding-right: var(--table-reserve-right);
+}
+
+/* the actions of the game, in the bottom right corner, under the right thumb */
+.table-actions {
+    position: fixed;
+    z-index: 900;
+    right: calc(var(--app-frame) + max(var(--app-space-2), env(safe-area-inset-right, 0px)));
+    bottom: calc(var(--app-frame) + max(var(--app-space-2), env(safe-area-inset-bottom, 0px)));
+    display: flex;
+    gap: var(--app-space-2);
+}
+
+.table-action {
+    width: calc(var(--table-action-size) + 0.5rem);
+    min-height: var(--table-action-size);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.15rem;
+    padding: 0.25rem;
+    font-size: 0.7rem;
+    line-height: 1.1;
+    color: var(--app-ink);
+    background: var(--app-panel);
+    border-color: var(--app-muted);
+}
+
+.table-action svg {
+    font-size: 1.1rem;
+}
+
+/* the status line of every game, at the bottom in the middle: count of moves, hints, whose turn it is */
+.table-status {
+    position: fixed;
+    z-index: 800;
+    left: calc(var(--app-frame) + var(--app-space-3));
+    right: calc(var(--app-frame) + var(--app-space-3));
+    bottom: calc(var(--app-frame) + var(--table-action-size) + var(--app-space-2) * 2 + env(safe-area-inset-bottom, 0px));
+    text-align: center;
+    color: var(--app-ink);
+    font-size: 0.875rem;
+    line-height: 1.25;
+    pointer-events: none;
+}
+
+/* sideways, the actions stand in a column on the right side, and the status line goes down to the bottom */
+@media (orientation: landscape) {
+    body:has(.table-actions) {
+        --table-reserve-bottom: 1.75rem;
+        --table-reserve-right: calc(var(--table-action-size) + 1.25rem);
+    }
+
+    .table-actions {
+        flex-direction: column;
+    }
+
+    .table-status {
+        bottom: calc(var(--app-frame) + var(--app-space-2) + env(safe-area-inset-bottom, 0px));
+        right: calc(var(--app-frame) + var(--table-reserve-right));
+    }
+}

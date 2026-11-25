@@ -9,7 +9,8 @@ import {CardView} from "../../../card/CardView.tsx";
 import {CompactCardView} from "../../../card/CompactCardView.tsx";
 import {useMeasure} from "../../../../hooks/useMeasure.ts";
 import {cardOffsets} from "./game.component.layout.ts";
-import {GameBar} from "../../../game-bar/GameBar.tsx";
+import {AppBar} from "../../../navigation/AppBar.tsx";
+import {TableActions} from "../../../navigation/TableActions.tsx";
 import {Fireworks} from "../../../fireworks/Fireworks.tsx";
 import type {CardPosition} from "../../../../model/spider.model.ts";
 
@@ -46,6 +47,12 @@ const targetAt = (element: Element | null): { column: number, index: number | nu
     };
 };
 
+// the columns stop above the status line and the actions of the game, when these lie below them
+const bottomLimit = (columns: DOMRect) => Math.min(window.innerHeight, ...[".table-status", ".table-actions"].map(selector => {
+    const element = document.querySelector(selector)?.getBoundingClientRect();
+    return element && element.height > 0 && element.left < columns.right && element.right > columns.left ? element.top : window.innerHeight;
+}));
+
 export const View = ({path = "", onBack}: { path?: string, onBack: () => void }) => {
     const [v, d] = useSofter<GameContract>(path);
     const {t} = useTranslation();
@@ -61,7 +68,7 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
         return {
             compact: card.width < COMPACT_CARD_MAX_WIDTH_PX,
             // in card heights, below the top of the first card of a column
-            room: Math.max(MIN_COLUMN_ROOM, (window.innerHeight - columns.top - BOTTOM_MARGIN_PX) / cardHeight - 1),
+            room: Math.max(MIN_COLUMN_ROOM, (bottomLimit(columns) - columns.top - BOTTOM_MARGIN_PX) / cardHeight - 1),
         };
     }, [columnsRef]);
     const compact = measured?.compact ?? false;
@@ -109,29 +116,13 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
     const isHintedTarget = (column: number) => hintedMove?.to === column;
 
     return <div className="spider-table vstack gap-3" style={{"--spider-columns": v.columns.length} as CSSProperties}>
+        <AppBar title={t("games.spider")} level={2} onBack={onBack}/>
         <div className="spider-top-bar d-flex justify-content-between align-items-start gap-2">
             <div className="spider-completed" aria-label={t("completedSequences", {count: v.completed.length})}>
                 {Array.from({length: v.sequenceCount}, (_, i) => <div key={i} className="spider-slot">
                     {v.completed[i] && <div className="spider-card"><Face card={`K${v.completed[i]}`}/></div>}
                 </div>)}
             </div>
-            <GameBar onBack={onBack} rules="spider" status={<>
-                {v.hint?.kind === "none" && <span className="fst-italic">{t("noUsefulMove")}</span>}
-                {v.hint?.kind === "emptyColumn" && <span className="fst-italic">{t("useEmptyColumn")}</span>}
-                {v.hint?.kind !== "none" && v.hint?.kind !== "emptyColumn" &&
-                    <span className="text-nowrap">{t("moves", {count: v.moveCount})}</span>}
-            </>}>
-                <button className="btn btn-outline-primary" disabled={v.hasGameEnded}
-                        title={t("hint")} aria-label={t("hint")}
-                        onClick={() => d.hintRequested()}>
-                    <FontAwesomeIcon icon={faLightbulb}/>
-                </button>
-                <button className="btn btn-outline-primary" disabled={!v.canUndo}
-                        title={t("undo")} aria-label={t("undo")}
-                        onClick={() => d.undoRequested()}>
-                    <FontAwesomeIcon icon={faRotateLeft}/>
-                </button>
-            </GameBar>
                 <button className={`spider-stock ${v.isDealBlocked ? "spider-stock--blocked" : ""} ${v.hint?.kind === "deal" ? "spider-hint" : ""}`}
                         disabled={!v.canDealRow}
                         title={v.isDealBlocked ? t("dealBlocked") : t("dealRow", {count: v.stockRowCount})}
@@ -183,5 +174,22 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
             <h1>{t("victory")}</h1>
             <p className="fs-4">{t("moves", {count: v.moveCount})}</p>
         </div>}
+        <TableActions status={<>
+            {v.hint?.kind === "none" && <span className="fst-italic">{t("noUsefulMove")}</span>}
+            {v.hint?.kind === "emptyColumn" && <span className="fst-italic">{t("useEmptyColumn")}</span>}
+            {v.hint?.kind !== "none" && v.hint?.kind !== "emptyColumn" &&
+                <span className="text-nowrap">{t("moves", {count: v.moveCount})}</span>}
+        </>}>
+            <button className="btn table-action" disabled={v.hasGameEnded}
+                    onClick={() => d.hintRequested()}>
+                <FontAwesomeIcon icon={faLightbulb}/>
+                <span>{t("hint")}</span>
+            </button>
+            <button className="btn table-action" disabled={!v.canUndo}
+                    onClick={() => d.undoRequested()}>
+                <FontAwesomeIcon icon={faRotateLeft}/>
+                <span>{t("undo")}</span>
+            </button>
+        </TableActions>
     </div>;
 };

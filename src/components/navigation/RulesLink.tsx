@@ -8,16 +8,15 @@ import type {GameWithRules} from "./rules.ts";
 
 type RuleSection = { title: string, text: string };
 
-// A button that shows the rules of a game, as they are played in the application
-export const RulesButton = ({gameId}: { gameId: GameWithRules }) => {
+// A link that shows the rules of a game, as they are played in the application
+export const RulesLink = ({gameId}: { gameId: GameWithRules }) => {
     const {t} = useTranslation();
     // only a window over the screen, nothing else depends on it
     const [isOpen, setOpen] = useState(false);
     const sections = t(`rules.${gameId}`, {returnObjects: true}) as RuleSection[];
     return <>
-        <button className="btn btn-outline-primary" title={t("rules.button")} aria-label={t("rules.button")}
-                onClick={() => setOpen(true)}>
-            <FontAwesomeIcon icon={faBook}/>
+        <button className="btn btn-link rules-link" onClick={() => setOpen(true)}>
+            <FontAwesomeIcon icon={faBook}/> {t("rules.read")}
         </button>
         {isOpen && <Modal title={`${t("rules.title")} · ${t(`games.${gameId}`)}`} onClose={() => setOpen(false)}>
             {sections.map(section => <section key={section.title}>

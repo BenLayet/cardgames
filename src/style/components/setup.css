@@ -53,3 +53,33 @@
     border-color: var(--app-gold);
     box-shadow: 0 0 0 .2rem #f2d48a40;
 }
+
+/* the rules of the game, read from its menu: a plain link under the main action */
+.rules-link {
+    color: var(--app-muted);
+    border-color: transparent;
+    font-size: .9rem;
+}
+
+.rules-link:hover,
+.rules-link:active {
+    color: var(--app-ink);
+    border-color: transparent;
+}
+
+/* a phone held sideways: the options stand side by side, so that the main action stays on screen */
+@media (orientation: landscape) and (max-height: 600px) {
+    .setup-body {
+        gap: var(--app-space-4);
+        padding-top: var(--app-space-4);
+    }
+
+    .setup-options.flex-column {
+        flex-direction: row !important;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: flex-start;
+        max-width: none;
+        gap: var(--app-space-4) var(--app-space-6);
+    }
+}
