@@ -1,6 +1,5 @@
 import {CardView} from "./CardView.tsx";
 import {useLayoutEffect, useRef} from "react";
-import gsap from "gsap";
 import type {Card, CardPlacement, StackLocation} from "../../model/deck.model.ts";
 
 interface CardProps {
@@ -40,13 +39,26 @@ function computeFinalPosition(location: Pick<CardPlacement, "stackLocation" | "i
     };
 }
 
+const MOVE_MS = 500;
+// slows down towards the end, like a card sliding on the felt
+const EASE_OUT = "cubic-bezier(0.33, 1, 0.68, 1)";
+
 export function AnimatedCardView({card, placement, layoutState}: CardProps) {
     const ref = useRef<HTMLDivElement>(null);
+    const movement = useRef<Animation | null>(null);
     const {stackLocation, index, messyLevel} = placement;
+    // The card moves from where it is on screen, even in the middle of a previous movement, to where it belongs
     useLayoutEffect(() => {
-        if (!ref.current) return;
+        const element = ref.current;
+        if (!element) return;
         const {x, y, rotation} = computeFinalPosition({stackLocation, index, messyLevel}, layoutState);
-        gsap.to(ref.current, {x, y, rotation, duration: 0.5, ease: "power2.out"});
+        const target = `translate(${x}px, ${y}px) rotate(${rotation}deg)`;
+        // read before the previous movement is stopped, so that it includes where that movement has taken the card
+        const current = getComputedStyle(element).transform;
+        movement.current?.cancel();
+        element.style.transform = target;
+        if (typeof element.animate !== "function") return;
+        movement.current = element.animate([{transform: current}, {transform: target}], {duration: MOVE_MS, easing: EASE_OUT});
     }, [stackLocation, index, messyLevel, layoutState]);
 
     return (

@@ -13,7 +13,7 @@ Features: a setup screen per game (player count, human or computer at each seat)
 - [Vite](https://vite.dev/) for dev server and build, [Vitest](https://vitest.dev/) for tests
 - [softer-components](https://www.npmjs.com/package/@softer-components/types) on top of Redux for state (components are split into state, updaters, effects, selectors and views)
 - [i18next](https://www.i18next.com/) / react-i18next for translations
-- [GSAP](https://gsap.com/) for card animations
+- the browser's Web Animations API for card animations, without a library (see `docs/ANIMATIONS.md`)
 - [vite-plugin-pwa](https://vite-pwa-org.netlify.app/) for the manifest and service worker
 - Bootstrap and Font Awesome for UI
 
