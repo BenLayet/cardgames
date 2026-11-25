@@ -130,14 +130,12 @@
     cursor: pointer;
 }
 
-.spider-column--hint,
-.spider-hint {
-    --spider-highlight: #ffe14d;
+/* the hint: the cards to move pulse in yellow, and where they go is shown in blue, like a destination to choose */
+.spider-column--hint {
+    --spider-highlight: #4fd1ff;
 }
 
 .spider-card--hint,
-.spider-column--hint > .spider-card:last-child,
-.spider-column--hint:empty,
 .spider-hint {
     --spider-highlight: #ffe14d;
     animation: spider-hint-pulse 0.8s ease-in-out 3;
