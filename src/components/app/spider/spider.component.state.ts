@@ -1,7 +1,7 @@
-export const createInitialState = (hasSavedGame: boolean) => ({
+export const createInitialState = (savedSuitCounts: number[]) => ({
     isStarted: false,
-    // a game in progress was saved and can be resumed
-    hasSavedGame,
+    // the numbers of suits that have a game in progress to resume
+    savedSuitCounts,
 });
 
 export type State = ReturnType<typeof createInitialState>;

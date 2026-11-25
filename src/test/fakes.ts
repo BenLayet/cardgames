@@ -27,15 +27,16 @@ export const fakeSettingsService = (initial: Partial<Settings> = {}) => {
 };
 
 // Keeps the saved game in memory so tests can check what was saved
-export const fakeSpiderSaveService = (initial: SavedSpiderGame | null = null) => {
-    let saved = initial;
+export const fakeSpiderSaveService = (initial: Record<number, SavedSpiderGame> = {}) => {
+    const saved = new Map(Object.entries(initial).map(([suitCount, game]) => [Number(suitCount), game]));
     return {
-        load: () => saved,
-        save: vi.fn((game: SavedSpiderGame) => {
-            saved = game;
+        load: (suitCount: number) => saved.get(suitCount) ?? null,
+        save: vi.fn((suitCount: number, game: SavedSpiderGame) => {
+            saved.set(suitCount, game);
         }),
-        clear: vi.fn(() => {
-            saved = null;
+        clear: vi.fn((suitCount: number) => {
+            saved.delete(suitCount);
         }),
+        savedSuitCounts: () => [...saved.keys()].sort(),
     } satisfies SpiderSaveService;
 };

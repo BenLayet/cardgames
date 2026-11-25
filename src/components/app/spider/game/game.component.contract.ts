@@ -34,6 +34,7 @@ export type Events = EventsContract<
         cardsDropped: Move,
         cardPicked: CardPosition,
         dealRequested: { suitCount: number },
+        restoreRequested: { suitCount: number },
         dealCompleted: Table,
         gameRestored: SavedSpiderGame,
         moveRequested: Move,

@@ -4,10 +4,10 @@ import type {Contract} from "./spider.component.contract";
 import type {State} from "./spider.component.state";
 
 export const stateUpdaters: StateUpdaters<Contract, State> = {
-    // the new game is saved as soon as it is dealt
-    startGameRequested: ({state}) => {
+    // the new game is saved as soon as it is dealt, in place of the one with the same number of suits
+    startGameRequested: ({state, values}) => {
         state.isStarted = true;
-        state.hasSavedGame = true;
+        if (!state.savedSuitCounts.includes(values.suitCount())) state.savedSuitCounts.push(values.suitCount());
     },
     resumeRequested: ({state}) => {
         state.isStarted = true;
@@ -16,7 +16,7 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
         state.isStarted = false;
     },
     // a won game is not kept
-    gameFinished: ({state}) => {
-        state.hasSavedGame = false;
+    gameFinished: ({state, values}) => {
+        state.savedSuitCounts = state.savedSuitCounts.filter(suitCount => suitCount !== values.suitCount());
     },
 };
