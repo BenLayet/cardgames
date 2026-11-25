@@ -104,7 +104,7 @@
       },
       {
         "title": "Pioche",
-        "text": "Elle pose une carte sur chaque colonne, si aucune n'est vide."
+        "text": "Elle pose une carte sur chaque colonne. Elle ne marche que si toutes les colonnes ont au moins une carte : remplissez d'abord les colonnes vides."
       },
       {
         "title": "Aide",
