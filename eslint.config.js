@@ -22,7 +22,7 @@ export default defineConfig([
             parserOptions: {
                 // the type-checked rules need the TypeScript project
                 projectService: {
-                    // vite.config.ts is outside the src folder covered by tsconfig.json, the scripts have their own
+                    // vite.config.ts is outside the src folder covered by tsconfig.json, the scripts and e2e have their own
                     allowDefaultProject: ['vite.config.ts'],
                 },
                 tsconfigRootDir: import.meta.dirname,
@@ -38,8 +38,8 @@ export default defineConfig([
         },
     },
     {
-        // the scripts run with Node.js
-        files: ['scripts/**/*.ts'],
+        // the scripts and the end-to-end tests run with Node.js
+        files: ['scripts/**/*.ts', 'e2e/**/*.ts'],
         languageOptions: {globals: globals.node},
     },
 ])
