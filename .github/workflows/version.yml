@@ -1,0 +1,53 @@
+name: Version
+
+# Once a pull request is merged into main, raises the version in package.json as its label says
+# (minor or patch, see version-label.yml), commits it on main and tags it vX.Y.Z
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+# one merge at a time, so that two merges in a row raise the version twice
+concurrency:
+  group: version
+  cancel-in-progress: false
+
+jobs:
+  bump:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Raise the version, commit and tag it
+        env:
+          LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          if echo "$LABELS" | grep -q '"minor"'; then level=minor
+          elif echo "$LABELS" | grep -q '"patch"'; then level=patch
+          else
+            echo "::warning::Pull request #$PR_NUMBER has neither a minor nor a patch label: the version is left as it is"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for attempt in 1 2 3 4; do
+            git fetch origin main
+            git reset --hard origin/main
+            version=$(npm version "$level" --no-git-tag-version)
+            git commit -am "Version ${version#v} (#$PR_NUMBER)"
+            git tag -f "$version"
+            if git push origin HEAD:main && git push origin "$version"; then
+              echo "Version ${version#v}"
+              exit 0
+            fi
+            # main moved meanwhile: start again from it
+            sleep $((attempt * 5))
+          done
+          exit 1

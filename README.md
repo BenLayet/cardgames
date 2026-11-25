@@ -71,8 +71,12 @@ docs/                 notes on animations and CSS selectors
 
 The version in `package.json` is shown at the bottom of the About window (the info button of the home page), with the commit and the build date.
 
-- Minor (`1.1.0`, `1.2.0`…): every new feature or visible change.
-- Patch (`1.0.1`…): only when nothing changes visually.
+A pull request does not change the version. It carries one label instead, which a check requires:
+
+- `minor` (`1.1.0`, `1.2.0`…): a new feature or a visible change.
+- `patch` (`1.0.1`…): nothing changes visually.
+
+Once the pull request is merged into `main`, the *Version* workflow (`.github/workflows/version.yml`) raises the version in `package.json` as the label says, commits it on `main` and tags it `vX.Y.Z`. Pull requests opened at the same time therefore never conflict on the version, and their titles carry no version number.
 
 ## Deployment
 
