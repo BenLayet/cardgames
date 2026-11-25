@@ -1,4 +1,44 @@
+h1, .display-font {
+    font-family: var(--app-font-display);
+    font-weight: 400;
+}
+
 h1.game-title {
-    font-size: 4em;
+    font-size: 2.6em;
+    line-height: 1.05;
     text-align: center;
+    margin: 0;
+    text-wrap: balance;
+}
+
+/* the small line above a title */
+.eyebrow {
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #f2b7a8;
+}
+
+/* the name of a group of options */
+.setup-label {
+    display: block;
+    margin-bottom: var(--app-space-2);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--app-muted);
+}
+
+/* options where one is chosen, drawn as one segmented control */
+.choice-group {
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 3px;
+    padding: 3px;
+    border: 1.5px solid var(--app-line);
+    border-radius: var(--app-radius);
+    background: var(--app-surface);
 }

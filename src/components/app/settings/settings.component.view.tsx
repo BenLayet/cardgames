@@ -18,7 +18,7 @@ export const View = ({path = ""}) => {
     return (
         <div className="settings-menu">
             <button
-                className="btn btn-primary"
+                className="btn btn-outline-primary"
                 title={t("settings")}
                 aria-label={t("settings")}
                 aria-expanded={v.isMenuOpen}

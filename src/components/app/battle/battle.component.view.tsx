@@ -16,7 +16,7 @@ export const View = ({path = ""}) => {
             {v.isStartable && <Setup path={c.setup}/>}
             {v.shouldMenuBeVisible && <div className="m-2">
                 <button
-                    className="btn btn-primary"
+                    className="btn btn-outline-primary"
                     title={t('back')}
                     onClick={() => d.goHomeRequested()}
                 >

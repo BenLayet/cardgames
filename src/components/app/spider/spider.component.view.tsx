@@ -15,7 +15,7 @@ export const View = ({path = ""}) => {
             {v.isStartable && <Setup path={c.setup} onResume={v.canResume ? () => d.resumeRequested() : undefined}/>}
             {v.isStarted && <>
                 <div className="m-2">
-                    <button className="btn btn-primary" title={t("back")} aria-label={t("back")}
+                    <button className="btn btn-outline-primary" title={t("back")} aria-label={t("back")}
                             onClick={() => d.goHomeRequested()}>
                         <FontAwesomeIcon icon={faArrowLeft}/>
                     </button>

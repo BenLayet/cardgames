@@ -2,9 +2,9 @@
     /* Maintain 143:200 aspect ratio while adapting to device constraints */
     width: min(30vw, 25dvh * (143/200));
     height: min(25dvh, 30vw * (200/143));
-    border: #bbb2 1px solid;
+    border: 1px dashed var(--app-line);
     margin: 0 0.5rem;
-    border-radius: 5px;
+    border-radius: var(--app-radius-sm);
 }
 
 .card-image {
