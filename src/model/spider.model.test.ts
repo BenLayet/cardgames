@@ -15,6 +15,7 @@ import {
     findMoves,
     EMPTY_TABLE,
     hasCompletedSequence,
+    isSavedSpiderGame,
     isWon,
     movableRunStart,
     moveCards,
@@ -204,5 +205,22 @@ describe("hints", () => {
         const stock = cards(...Array.from({length: COLUMN_COUNT}, () => "_5C"));
         expect(findHints(table(Array.from({length: COLUMN_COUNT}, () => cards("KH")), stock))).toEqual([{kind: "deal"}]);
         expect(findHints(table(Array.from({length: COLUMN_COUNT}, () => cards("KH"))))).toEqual([{kind: "none"}]);
+    });
+});
+
+describe("saved game", () => {
+    it("accepts a game that was saved", () => {
+        const dealt = dealTable(createSpiderDeck(2));
+        const saved = JSON.parse(JSON.stringify({table: dealt, history: [dealt], moveCount: 3})) as unknown;
+        expect(isSavedSpiderGame(saved)).toBe(true);
+    });
+
+    it.each([
+        ["nothing", null],
+        ["another shape", {columns: []}],
+        ["missing cards", {table: {...dealTable(createSpiderDeck(1)), stock: []}, history: [], moveCount: 0}],
+        ["an unknown card", {table: {...EMPTY_TABLE, stock: cards("ZZ")}, history: [], moveCount: 0}],
+    ])("rejects %s", (_, value) => {
+        expect(isSavedSpiderGame(value)).toBe(false);
     });
 });

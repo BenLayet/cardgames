@@ -25,6 +25,7 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
     dealCompleted: ({state, payload}) => {
         state.table = payload;
     },
+    gameRestored: ({payload}) => ({...initialState, ...payload}),
     // a click on a card that is not where the selected cards go picks that card, see the forwarders
     cardPicked: ({state, payload}) => {
         const isAlreadySelected = state.selected?.column === payload.column && state.selected.index === payload.index;

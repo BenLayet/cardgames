@@ -5,17 +5,19 @@ import type {ExtractEventNameUnion, ExtractPayload} from "@softer-components/typ
 import {gameDef, type GameContract} from "./game.component.ts";
 import type {Card} from "../../../../model/deck.model.ts";
 import {COLUMN_COUNT, type SpiderCard, type Table} from "../../../../model/spider.model.ts";
-import {fakeAudioService} from "../../../../test/fakes.ts";
+import {fakeAudioService, fakeSpiderSaveService} from "../../../../test/fakes.ts";
 
 const event = <N extends ExtractEventNameUnion<GameContract>>(name: N, payload?: ExtractPayload<GameContract, N>) =>
     ({name, payload, statePath: []});
 
 let audioService: ReturnType<typeof fakeAudioService>;
+let spiderSaveService: ReturnType<typeof fakeSpiderSaveService>;
 let store: TestStore<GameContract>;
 
 beforeEach(() => {
     audioService = fakeAudioService();
-    store = initTestStore(gameDef({audioService}));
+    spiderSaveService = fakeSpiderSaveService();
+    store = initTestStore(gameDef({audioService, spiderSaveService}));
 });
 
 const values = () => store.getValues("");
@@ -191,5 +193,40 @@ describe("spider game", () => {
 
         expect(values().moveCount()).toBe(0);
         expect(values().columns().flat()).toEqual([]);
+    });
+
+    it("saves the game after each move, with what the undo needs", async () => {
+        await deal([cards("_4D", "8S"), cards("9H")]);
+        expect(spiderSaveService.load()?.moveCount).toBe(0);
+
+        await store.when(event("cardsDropped", {from: {column: 0, index: 1}, to: 1}));
+
+        const saved = spiderSaveService.load();
+        expect(saved?.moveCount).toBe(1);
+        expect(saved?.table.columns[1].map(c => c.card)).toEqual(["9H", "8S"]);
+        expect(saved?.history).toHaveLength(1);
+    });
+
+    it("resumes the saved game, undo included", async () => {
+        await deal([cards("_4D", "8S"), cards("9H")]);
+        await store.when(event("cardsDropped", {from: {column: 0, index: 1}, to: 1}));
+        const resumed = initTestStore(gameDef({audioService, spiderSaveService}));
+
+        await resumed.when(event("restoreRequested"));
+
+        const resumedValues = resumed.getValues("");
+        expect(resumedValues.moveCount()).toBe(1);
+        expect(resumedValues.columns()[1].map(c => c.card)).toEqual(["9H", "8S"]);
+        await resumed.when(event("undoRequested"));
+        expect(resumed.getValues("").columns()[0].map(c => c.card)).toEqual(["4D", "8S"]);
+    });
+
+    it("forgets the saved game once it is won", async () => {
+        const completed = Array<Table["completed"][number]>(7).fill("S");
+        await deal([cards(...SEQUENCE_WITHOUT_ACE), cards("AS")], {completed});
+
+        await store.when(event("cardsDropped", {from: {column: 1, index: 0}, to: 0}));
+
+        expect(spiderSaveService.load()).toBeNull();
     });
 });
