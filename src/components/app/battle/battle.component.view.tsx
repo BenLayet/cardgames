@@ -1,17 +1,19 @@
 import {useSofter} from "@softer-components/redux-adapter";
+import {useTranslation} from "react-i18next";
 
 import type {BattleContract} from "./battle.component";
 import {Game} from "./game";
-import {GameBar} from "../../game-bar/GameBar.tsx";
+import {AppBar} from "../../navigation/AppBar.tsx";
 import {Setup} from "../setup";
 
 export const View = ({path = ""}) => {
     const [v, d, c] = useSofter<BattleContract>(path);
+    const {t} = useTranslation();
     return (
         <div className="vstack p-2 justify-content-between position-relative" style={{backgroundColor: '', position: 'relative'}}>
 
             {v.isStartable && <Setup path={c.setup}/>}
-            {v.shouldMenuBeVisible && <GameBar onBack={() => d.goHomeRequested()} rules="bataille"/>}
+            {v.shouldMenuBeVisible && <AppBar title={t("games.bataille")} level={2} onBack={() => d.goHomeRequested()}/>}
             {v.isStarted && <Game path={c.game}/>}
         </div>
     );

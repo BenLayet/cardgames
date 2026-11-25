@@ -6,7 +6,7 @@ import {Battle} from "./battle";
 import {Settings} from "./settings";
 import {Spider} from "./spider";
 import {Home} from "./home/home.view";
-import {SettingsSlot} from "../game-bar/settings-slot.ts";
+import {SettingsSlot} from "../navigation/settings-slot.ts";
 
 export const View = ({path = ""}) => {
     const [v, d, c] = useSofter<AppContract>(path);

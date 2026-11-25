@@ -1,7 +1,7 @@
 import {useTranslation} from "react-i18next";
 
-import {GAMES} from "../../../model/games.model.ts";
-import {Modal} from "../../modal/Modal.tsx";
+import {GAMES} from "../../model/games.model.ts";
+import {Modal} from "../modal/Modal.tsx";
 
 // What the application is, and which version was deployed
 export const About = ({onClose}: { onClose: () => void }) => {
