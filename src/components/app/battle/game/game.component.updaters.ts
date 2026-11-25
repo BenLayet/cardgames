@@ -25,7 +25,7 @@ const restack = (player: PlayerState): void => {
 };
 
 export const stateUpdaters: StateUpdaters<Contract, State> = {
-    dealRequested: ({payload: {isPlayer2Computer}}) => ({...initialState, isPlayer2Computer}),
+    dealRequested: ({payload: {isPlayer2Computer, playerNames}}) => ({...initialState, isPlayer2Computer, playerNames}),
     dealCompleted: ({state, payload}) => {
         state.player1.remainingCards = payload.player1Cards;
         state.player2.remainingCards = payload.player2Cards;

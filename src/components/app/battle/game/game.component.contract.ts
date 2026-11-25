@@ -33,7 +33,7 @@ export const allEvents = [
     "player2WonGame",
 ] as const;
 export type Events = EventsContract<
-    typeof allEvents, { dealRequested: { cardCount: number, isPlayer2Computer: boolean }, dealCompleted: { player1Cards: Card[], player2Cards: Card[] } }, typeof uiEvents
+    typeof allEvents, { dealRequested: { cardCount: number, isPlayer2Computer: boolean, playerNames: (string | null)[] }, dealCompleted: { player1Cards: Card[], player2Cards: Card[] } }, typeof uiEvents
 >;
 
 export type Contract = {

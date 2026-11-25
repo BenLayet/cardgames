@@ -34,3 +34,27 @@
     font-size: .875rem;
     font-weight: 600;
 }
+
+/* the name of a human seat, typed on the felt */
+.seat-name {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 14rem;
+    font-weight: 700;
+    color: var(--app-ink);
+    background: var(--app-surface);
+    border: 1.5px solid var(--app-line);
+    border-radius: var(--app-radius);
+}
+
+.seat-name::placeholder {
+    color: var(--app-muted);
+    font-weight: 600;
+}
+
+.seat-name:focus {
+    color: var(--app-ink);
+    background: var(--app-surface);
+    border-color: var(--app-gold);
+    box-shadow: 0 0 0 .2rem #f2d48a40;
+}

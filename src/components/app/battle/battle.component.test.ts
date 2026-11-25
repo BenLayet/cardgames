@@ -59,4 +59,15 @@ describe("battle", () => {
 
         expect(store.getValues("/game").isPlayer2Computer()).toBe(false);
     });
+
+    it("gives the names typed on the setup screen to the game", async () => {
+        await store.when({name: "toggleSeatRequested", payload: 1, statePath: setupPath});
+        await store.when({name: "renamePlayerRequested", payload: {index: 0, name: "Tom"}, statePath: setupPath});
+        await store.when({name: "startGameRequested", statePath: setupPath});
+        await vi.runAllTimersAsync();
+
+        expect(store.getValues("/game").player1Name()).toBe("Tom");
+        expect(store.getValues("/game").player2Name()).toBe(null);
+    });
 });
+

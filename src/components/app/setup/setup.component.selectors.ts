@@ -11,6 +11,11 @@ export const selectors = {
     suitCount: (state: State) => state.suitCount,
     suitCountOptions: (state: State) => state.game.suitCountOptions,
     playerCount,
+    // the name typed for each seat, "" when none was typed
+    playerNames: (state: State) => state.seats.map((_, index) => state.playerNames[index] ?? ""),
+    // the name shown for each seat during the game, null for a seat named after its number
+    seatNames: (state: State) => state.seats.map((seat, index) =>
+        seat === "human" && state.playerNames[index]?.trim() ? state.playerNames[index].trim() : null),
     minPlayers: (state: State) => state.game.minPlayers,
     maxPlayers: (state: State) => state.game.maxPlayers,
     isPlayerCountFixed: (state: State) => state.game.minPlayers === state.game.maxPlayers,

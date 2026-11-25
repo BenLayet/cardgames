@@ -9,7 +9,7 @@ export const eventForwarders = {
                 {
                     from: "startGameRequested",
                     to: "dealRequested",
-                    withPayload: ({values}) => ({cardCount: values.cardCount(), isPlayer2Computer: values.isPlayer2Computer()}),
+                    withPayload: ({values}) => ({cardCount: values.cardCount(), isPlayer2Computer: values.isPlayer2Computer(), playerNames: values.playerNames()}),
                 },
             ],
             listeners: [
