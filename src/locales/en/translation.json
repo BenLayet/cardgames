@@ -64,5 +64,14 @@
     "K": "K"
   },
   "newGame": "New game",
-  "resumeGame": "Resume the game"
+  "resumeGame": "Resume the game",
+  "close": "Close",
+  "about": {
+    "button": "About",
+    "title": "About",
+    "intro_one": "Card Games brings together card games to play alone, against the computer or with others on the same device. For now there is one game: {{games}}. More will come.",
+    "intro_other": "Card Games brings together card games to play alone, against the computer or with others on the same device. For now there are {{count}} games: {{games}}. More will come.",
+    "free": "Everything is free, with no ads.",
+    "donations": "Soon, a button will let you make a donation to support the application."
+  }
 }

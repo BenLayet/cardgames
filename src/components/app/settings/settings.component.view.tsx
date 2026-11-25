@@ -14,7 +14,7 @@ const LANGUAGE_LABELS: Record<Language, { flag: string, name: string, switchTo: 
 
 export const View = ({path = ""}) => {
     const [v, d] = useSofter<SettingsContract>(path);
-    const {t, i18n} = useTranslation();
+    const {t} = useTranslation();
     return (
         <div className="settings-menu">
             <button
@@ -60,10 +60,6 @@ export const View = ({path = ""}) => {
                             onClick={() => d.toggleSoundsRequested()}>
                             <FontAwesomeIcon icon={v.soundsEnabled ? faVolumeHigh : faVolumeXmark}/>
                         </button>
-                    </div>
-                    {/* what was deployed: version, commit and build date */}
-                    <div className="settings-menu-version">
-                        {t("version")} {__APP_VERSION__.version} · {__APP_VERSION__.commit} · {new Date(__APP_VERSION__.builtAt).toLocaleDateString(i18n.language)}
                     </div>
                 </div>
             </>}

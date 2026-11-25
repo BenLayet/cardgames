@@ -1,8 +1,13 @@
+import {useState} from "react";
 import {useTranslation} from "react-i18next";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faCircleInfo} from "@fortawesome/free-solid-svg-icons";
 
 import type {Card} from "../../../model/deck.model.ts";
 import {GAMES, type GameDefinition, type GameId} from "../../../model/games.model.ts";
 import {CardView} from "../../card/CardView.tsx";
+import {GameBar} from "../../game-bar/GameBar.tsx";
+import {About} from "./about.view.tsx";
 
 // a few cards fanned out on each tile, null for a card seen from the back
 const FANS: Record<GameId, (Card | null)[]> = {
@@ -32,7 +37,16 @@ const Fan = ({cards}: { cards: (Card | null)[] }) => <div className="game-tile-f
 // The list of the games that can be played
 export const Home = ({onGameSelected}: { onGameSelected: (gameId: GameId) => void }) => {
     const {t} = useTranslation();
+    // only a window over the page, nothing else depends on it
+    const [isAboutOpen, setAboutOpen] = useState(false);
     return (<div className="home vstack align-items-center">
+            <GameBar>
+                <button className="btn btn-outline-primary" title={t("about.button")} aria-label={t("about.button")}
+                        onClick={() => setAboutOpen(true)}>
+                    <FontAwesomeIcon icon={faCircleInfo}/>
+                </button>
+            </GameBar>
+            {isAboutOpen && <About onClose={() => setAboutOpen(false)}/>}
             <div className="home-hero">
                 <span className="eyebrow">{t("tagline")}</span>
                 <h1 className="game-title">{t("title")}</h1>
