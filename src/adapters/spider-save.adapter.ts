@@ -1,5 +1,6 @@
-import {isSavedSpiderGame, type SavedSpiderGame} from "../model/spider.model.ts";
+import type {SavedSpiderGame} from "../model/spider.model.ts";
 import type {SpiderSaveService} from "../services/spider-save.service.ts";
+import {decodeSavedGame, encodeSavedGame} from "./spider-save.codec.ts";
 
 const STORAGE_KEY = "cardgames.spider.game";
 
@@ -7,18 +8,27 @@ const STORAGE_KEY = "cardgames.spider.game";
 export class LocalStorageSpiderSaveAdapter implements SpiderSaveService {
     load(): SavedSpiderGame | null {
         try {
-            const stored: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "null");
-            return isSavedSpiderGame(stored) ? stored : null;
+            const stored = localStorage.getItem(STORAGE_KEY);
+            return stored === null ? null : decodeSavedGame(stored);
         } catch {
             return null;
         }
     }
 
+    // When the storage is full, the oldest moves are dropped from the undo until the game fits
     save(game: SavedSpiderGame): void {
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(game));
-        } catch (error) {
-            console.error("Failed to save the spider game:", error);
+        let history = game.history;
+        for (;;) {
+            try {
+                localStorage.setItem(STORAGE_KEY, encodeSavedGame({...game, history}));
+                return;
+            } catch (error) {
+                if (history.length === 0) {
+                    console.error("Failed to save the spider game:", error);
+                    return;
+                }
+                history = history.slice(Math.ceil(history.length / 2));
+            }
         }
     }
 
