@@ -15,7 +15,7 @@ const commitOf = (): string => {
   }
 }
 const appVersion = {
-  version: JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf-8')).version as string,
+  version: (JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf-8')) as { version: string }).version,
   commit: commitOf(),
   builtAt: new Date().toISOString(),
 }
