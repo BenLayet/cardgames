@@ -11,10 +11,14 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Jeux de cartes',
-        short_name: 'Jeux de cartes',
-        description: 'Des jeux de cartes : bataille, Spider',
-        lang: 'fr',
+        // English by default, French for a device in French (browsers without localized manifests use the default)
+        name: 'Card Games',
+        short_name: 'Card Games',
+        description: 'Card games: Battle, Spider',
+        lang: 'en',
+        name_localized: {fr: 'Jeux de cartes'},
+        short_name_localized: {fr: 'Jeux de cartes'},
+        description_localized: {fr: 'Des jeux de cartes : bataille, Spider'},
         start_url: '/',
         scope: '/',
         display: 'standalone',
