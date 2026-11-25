@@ -1,6 +1,6 @@
 import type {EventsContract} from "@softer-components/types";
 
-import type {CardPosition, Move, SavedSpiderGame, Table} from "../../../../model/spider.model.ts";
+import type {CardPosition, Move, SavedSpiderGame, SpiderVariant, Table} from "../../../../model/spider.model.ts";
 import type {Values} from "./game.component.selectors.ts";
 
 export const uiEvents = [
@@ -33,8 +33,8 @@ export type Events = EventsContract<
         columnClicked: number,
         cardsDropped: Move,
         cardPicked: CardPosition,
-        dealRequested: { suitCount: number },
-        restoreRequested: { suitCount: number },
+        dealRequested: SpiderVariant,
+        restoreRequested: SpiderVariant,
         dealCompleted: Table,
         gameRestored: SavedSpiderGame,
         moveRequested: Move,

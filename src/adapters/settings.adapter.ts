@@ -8,9 +8,11 @@ export class LocalStorageSettingsAdapter implements SettingsService {
         try {
             const stored: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}");
             // ignore anything else than an object, such as a value written by hand
-            return typeof stored === "object" && stored !== null
-                ? {...DEFAULT_SETTINGS, ...(stored as Partial<Settings>)}
-                : DEFAULT_SETTINGS;
+            if (typeof stored !== "object" || stored === null) return DEFAULT_SETTINGS;
+            const {cardCount, ...settings} = stored as Partial<Settings> & { cardCount?: unknown };
+            // a single card count was kept before, the battle's
+            const cardCounts = settings.cardCounts ?? (typeof cardCount === "number" ? {bataille: cardCount} : undefined);
+            return {...DEFAULT_SETTINGS, ...settings, ...(cardCounts && {cardCounts})};
         } catch {
             return DEFAULT_SETTINGS;
         }

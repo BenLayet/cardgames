@@ -7,14 +7,21 @@ const validNames = (names: unknown): string[] => Array.isArray(names)
     ? names.map(name => typeof name === "string" ? name.slice(0, MAX_NAME_LENGTH) : "")
     : [];
 
-export const createInitialState = (game: GameDefinition, {cardCount, suitCount, seats, playerNames}: Settings) => {
+// the stored card count of the game, or its default when it is no longer offered
+const validCardCount = (game: GameDefinition, cardCounts: unknown): number => {
+    const stored: unknown = (cardCounts as Partial<Record<string, unknown>> | null | undefined)?.[game.id];
+    return typeof stored === "number" && game.cardCountOptions.includes(stored)
+        ? stored
+        : DEFAULT_SETTINGS.cardCounts[game.id] ?? game.cardCountOptions.at(0) ?? 0;
+};
+
+export const createInitialState = (game: GameDefinition, {cardCounts, suitCount, seats, playerNames}: Settings) => {
     const storedSeats: unknown = (seats as Partial<Record<string, unknown>> | null | undefined)?.[game.id];
     return {
         game,
         // ignore stored seats that the game no longer allows
         seats: areValidSeats(game, storedSeats) ? storedSeats : defaultSeats(game),
-        // ignore a stored card count that is no longer offered
-        cardCount: game.cardCountOptions.includes(cardCount) ? cardCount : DEFAULT_SETTINGS.cardCount,
+        cardCount: validCardCount(game, cardCounts),
         suitCount: game.suitCountOptions.includes(suitCount) ? suitCount : DEFAULT_SETTINGS.suitCount,
         playerNames: validNames(playerNames),
     };

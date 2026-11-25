@@ -15,7 +15,7 @@ let store: TestStore<BattleContract>;
 beforeEach(() => {
     vi.useFakeTimers();
     audioService = fakeAudioService();
-    settingsService = fakeSettingsService({cardCount: 16});
+    settingsService = fakeSettingsService({cardCounts: {bataille: 16}});
     store = initTestStore(battleDef({audioService, settingsService, schedulerService: new TimeoutSchedulerAdapter()}));
 });
 afterEach(() => {

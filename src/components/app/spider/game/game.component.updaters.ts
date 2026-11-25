@@ -21,14 +21,14 @@ const play = (state: State, next: (table: Table) => Table): void => {
 };
 
 export const stateUpdaters: StateUpdaters<Contract, State> = {
-    dealRequested: ({payload: {suitCount}}) => ({...initialState, suitCount}),
-    restoreRequested: ({state, payload: {suitCount}}) => {
-        state.suitCount = suitCount;
+    dealRequested: ({payload: variant}) => ({...initialState, variant}),
+    restoreRequested: ({state, payload: variant}) => {
+        state.variant = variant;
     },
     dealCompleted: ({state, payload}) => {
         state.table = payload;
     },
-    gameRestored: ({state, payload}) => ({...initialState, ...payload, suitCount: state.suitCount}),
+    gameRestored: ({state, payload}) => ({...initialState, ...payload, variant: state.variant}),
     // a click on a card that is not where the selected cards go picks that card, see the forwarders
     cardPicked: ({state, payload}) => {
         const isAlreadySelected = state.selected?.column === payload.column && state.selected.index === payload.index;

@@ -8,6 +8,7 @@ import {
     hasCompletedSequence,
     isWon,
     movableRunStart,
+    sequenceCountOf,
     stockRowCount,
     type SavedSpiderGame,
 } from "../../../../model/spider.model.ts";
@@ -35,7 +36,9 @@ export const selectors = {
     moveCount: (state: State) => state.moveCount,
     canUndo: (state: State) => state.history.length > 0 && !state.gameEnded,
     hasGameEnded: (state: State) => state.gameEnded,
-    suitCount: (state: State) => state.suitCount,
+    variant: (state: State) => state.variant,
+    // the places for the completed sequences
+    sequenceCount: (state: State) => sequenceCountOf(state.table),
     // what is kept to resume the game, every move included so that all of them can still be undone
     savedGame: (state: State): SavedSpiderGame => ({
         table: state.table,

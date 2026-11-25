@@ -14,8 +14,9 @@ export const effects = ({settingsService}: Dependencies): Effects<Contract> => {
         settingsService.save({seats: {...settingsService.load().seats, [gameId]: seats}});
     };
     return {
-        setCardCountRequested: (_, {payload: cardCount}) => {
-            settingsService.save({cardCount});
+        // the card counts of the other games are kept
+        setCardCountRequested: (_, {payload: cardCount, values}) => {
+            settingsService.save({cardCounts: {...settingsService.load().cardCounts, [values.gameId()]: cardCount}});
         },
         setSuitCountRequested: (_, {payload: suitCount}) => {
             settingsService.save({suitCount});
