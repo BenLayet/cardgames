@@ -42,5 +42,20 @@
   "completedSequences_one": "{{count}} completed sequence",
   "completedSequences_other": "{{count}} completed sequences",
   "hint": "Hint",
-  "noUsefulMove": "No useful move left"
+  "noUsefulMove": "No useful move left",
+  "ranks": {
+    "A": "A",
+    "2": "2",
+    "3": "3",
+    "4": "4",
+    "5": "5",
+    "6": "6",
+    "7": "7",
+    "8": "8",
+    "9": "9",
+    "T": "10",
+    "J": "J",
+    "Q": "Q",
+    "K": "K"
+  }
 }

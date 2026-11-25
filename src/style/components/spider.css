@@ -3,16 +3,26 @@
     --spider-gap: clamp(0.15rem, 0.8vw, 0.6rem);
     --spider-card-w: min(calc((100vw - 1.5rem) / 10 - var(--spider-gap)), 11dvh, 110px);
     --spider-card-h: calc(var(--spider-card-w) * 200 / 143);
-    /* how far apart the cards of a column are spread */
-    --spider-spread: 1;
     user-select: none;
     -webkit-user-select: none;
 }
 
-/* a phone held upright has narrow cards and plenty of height */
+/* a phone held upright: the columns take the whole width */
 @media (orientation: portrait) {
     .spider-table {
-        --spider-spread: 1.7;
+        --spider-gap: 2px;
+        --spider-card-w: min(calc((100vw - 0.5rem - 9 * var(--spider-gap)) / 10), 110px);
+    }
+
+    /* a smaller top bar leaves more room to the columns */
+    .spider-top-bar {
+        font-size: 0.7em;
+    }
+
+    .spider-top-bar .btn {
+        --bs-btn-font-size: 0.7rem;
+        --bs-btn-padding-x: 0.5rem;
+        --bs-btn-padding-y: 0.25rem;
     }
 }
 
@@ -78,7 +88,7 @@
 .spider-column {
     position: relative;
     width: var(--spider-card-w);
-    min-height: calc(var(--spider-card-h) * (1 + var(--column-height, 0) * var(--spider-spread)));
+    min-height: calc(var(--spider-card-h) * (1 + var(--column-height, 0)));
     border-radius: 5px;
     /* the empty column shows where a card can go */
     background: linear-gradient(#bbb2, #bbb2) top / 100% var(--spider-card-h) no-repeat;
@@ -142,4 +152,53 @@
     50% {
         opacity: 0.6;
     }
+}
+
+/* a card drawn with text when the pictures would be too small to read */
+.compact-card {
+    position: relative;
+    display: block;
+    border-radius: 4px;
+    border: 1px solid #0004;
+    background: white;
+    color: #111;
+    font-family: system-ui, sans-serif;
+    font-weight: 700;
+    line-height: 1;
+    overflow: hidden;
+}
+
+.compact-card--red {
+    color: #c8102e;
+}
+
+.compact-card-corner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2px 2px 0;
+    font-size: calc(var(--spider-card-w) * 0.4);
+    letter-spacing: -0.05em;
+}
+
+.compact-card-center {
+    position: absolute;
+    inset: 35% 0 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: calc(var(--spider-card-w) * 0.6);
+}
+
+.compact-card--back {
+    background: repeating-linear-gradient(45deg, #b22 0 3px, #d44 3px 6px);
+    border-color: white;
+}
+
+.spider-slot .compact-card-corner {
+    font-size: calc(var(--spider-card-w) * 0.3);
+}
+
+.spider-slot .compact-card-center {
+    font-size: calc(var(--spider-card-w) * 0.35);
 }

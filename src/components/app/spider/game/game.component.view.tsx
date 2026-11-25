@@ -1,34 +1,25 @@
 import {useSofter} from "@softer-components/redux-adapter";
 import {useTranslation} from "react-i18next";
-import {type CSSProperties, type PointerEvent, useState} from "react";
+import {type CSSProperties, type PointerEvent, useRef, useState} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faLightbulb, faRotateLeft} from "@fortawesome/free-solid-svg-icons";
 
 import type {GameContract} from "./game.component.ts";
 import {CardView} from "../../../card/CardView.tsx";
+import {CompactCardView} from "../../../card/CompactCardView.tsx";
+import {useMeasure} from "../../../../hooks/useMeasure.ts";
+import {cardOffsets} from "./game.component.layout.ts";
 import {Fireworks} from "../../../fireworks/Fireworks.tsx";
-import {type CardPosition, SEQUENCE_COUNT, type SpiderCard} from "../../../../model/spider.model.ts";
+import {type CardPosition, SEQUENCE_COUNT} from "../../../../model/spider.model.ts";
 
-// how much of a covered card is visible, in card heights
-const FACE_DOWN_OFFSET = 0.12;
-const FACE_UP_OFFSET = 0.28;
-// long columns are squeezed so that they fit in about this many card heights
-const MAX_COLUMN_OFFSETS = 3.2;
 // a press that moves less than this is a click, not a drag
 const DRAG_THRESHOLD_PX = 8;
-
-// top of each card, in card heights
-const cardOffsets = (column: SpiderCard[]): number[] => {
-    const offsets: number[] = [];
-    let top = 0;
-    column.forEach(card => {
-        offsets.push(top);
-        top += card.faceUp ? FACE_UP_OFFSET : FACE_DOWN_OFFSET;
-    });
-    const last = offsets[offsets.length - 1] ?? 0;
-    const squeeze = last > MAX_COLUMN_OFFSETS ? MAX_COLUMN_OFFSETS / last : 1;
-    return offsets.map(offset => offset * squeeze);
-};
+// narrower cards are drawn with text only, the pictures would be unreadable
+const COMPACT_CARD_MAX_WIDTH_PX = 60;
+// columns always have room for this many card heights, even on a short screen
+const MIN_COLUMN_ROOM = 2;
+// space kept free below the columns
+const BOTTOM_MARGIN_PX = 8;
 
 type Press = {
     pointerId: number;
@@ -59,6 +50,21 @@ export const View = ({path = ""}) => {
     const {t} = useTranslation();
     // a drag only moves the cards on screen until they are dropped, so it stays in the view
     const [press, setPress] = useState<Press | null>(null);
+    // the size of the cards and the height left below the top of the columns decide how the columns are laid out
+    const columnsRef = useRef<HTMLDivElement>(null);
+    const measured = useMeasure(() => {
+        const columns = columnsRef.current?.getBoundingClientRect();
+        const card = columnsRef.current?.firstElementChild?.getBoundingClientRect();
+        if (!columns || !card || card.width === 0) return null;
+        const cardHeight = card.width * 200 / 143;
+        return {
+            compact: card.width < COMPACT_CARD_MAX_WIDTH_PX,
+            // in card heights, below the top of the first card of a column
+            room: Math.max(MIN_COLUMN_ROOM, (window.innerHeight - columns.top - BOTTOM_MARGIN_PX) / cardHeight - 1),
+        };
+    }, [columnsRef]);
+    const compact = measured?.compact ?? false;
+    const Face = compact ? CompactCardView : CardView;
 
     const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
         if (!event.isPrimary || press !== null) return;
@@ -102,10 +108,10 @@ export const View = ({path = ""}) => {
     const isHintedTarget = (column: number) => hintedMove?.to === column;
 
     return <div className="spider-table vstack gap-3">
-        <div className="d-flex justify-content-between align-items-start gap-2">
+        <div className="spider-top-bar d-flex justify-content-between align-items-start gap-2">
             <div className="spider-completed" aria-label={t("completedSequences", {count: v.completed.length})}>
                 {Array.from({length: SEQUENCE_COUNT}, (_, i) => <div key={i} className="spider-slot">
-                    {v.completed[i] && <div className="spider-card"><CardView card={`K${v.completed[i]}`}/></div>}
+                    {v.completed[i] && <div className="spider-card"><Face card={`K${v.completed[i]}`}/></div>}
                 </div>)}
             </div>
             <div className="d-flex align-items-center gap-2 flex-wrap justify-content-end">
@@ -128,18 +134,18 @@ export const View = ({path = ""}) => {
                         onClick={() => d.stockClicked()}>
                     {Array.from({length: v.stockRowCount}, (_, i) =>
                         <div key={i} className="spider-card spider-stock-card" style={{left: `${i * 6}px`}}>
-                            <CardView faceUp={false}/>
+                            <Face faceUp={false}/>
                         </div>)}
                 </button>
             </div>
         </div>
-        <div className="spider-columns"
+        <div ref={columnsRef} className="spider-columns"
              onPointerDown={onPointerDown}
              onPointerMove={onPointerMove}
              onPointerUp={onPointerUp}
              onPointerCancel={() => setPress(null)}>
             {v.columns.map((column, columnIndex) => {
-                const offsets = cardOffsets(column);
+                const offsets = cardOffsets(column, measured?.room ?? MIN_COLUMN_ROOM, compact);
                 const columnClasses = [
                     "spider-column",
                     v.destinations.includes(columnIndex) ? "spider-column--destination" : "",
@@ -158,10 +164,10 @@ export const View = ({path = ""}) => {
                         ].join(" ");
                         return <div key={card.id} data-index={index} className={classes}
                                     style={{
-                                        top: `calc(var(--spider-card-h) * var(--spider-spread) * ${offsets[index]})`,
+                                        top: `calc(var(--spider-card-h) * ${offsets[index]})`,
                                         transform: dragged ? `translate(${press?.dx ?? 0}px, ${press?.dy ?? 0}px)` : undefined,
                                     }}>
-                            <CardView card={card.card} faceUp={card.faceUp}/>
+                            <Face card={card.card} faceUp={card.faceUp}/>
                         </div>;
                     })}
                 </div>;
