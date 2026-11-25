@@ -57,7 +57,7 @@ export const dealTable = (deck: Card[]): Table => {
     return {columns, stock: cards.slice(INITIAL_TABLEAU_SIZE), completed: []};
 };
 
-const followsInSequence = (upper: SpiderCard, lower: SpiderCard) =>
+export const followsInSequence = (upper: SpiderCard, lower: SpiderCard) =>
     upper.faceUp && lower.faceUp
     && suitOf(upper.card) === suitOf(lower.card)
     && spiderRank(upper.card) === spiderRank(lower.card) + 1;
