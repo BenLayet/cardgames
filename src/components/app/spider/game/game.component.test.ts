@@ -207,6 +207,18 @@ describe("spider game", () => {
         expect(saved?.history).toHaveLength(1);
     });
 
+    it("saves every move for the undo, however long the game", async () => {
+        await deal([cards("8S"), cards("9H"), cards("9D")]);
+        await store.when(event("cardsDropped", {from: {column: 0, index: 0}, to: 1}));
+        // the 8 goes back and forth between the two nines
+        for (let i = 1; i < 150; i++) {
+            const from = i % 2 === 1 ? 1 : 2;
+            await store.when(event("cardsDropped", {from: {column: from, index: 1}, to: 3 - from}));
+        }
+        expect(values().moveCount()).toBe(150);
+        expect(spiderSaveService.load()?.history).toHaveLength(150);
+    });
+
     it("resumes the saved game, undo included", async () => {
         await deal([cards("_4D", "8S"), cards("9H")]);
         await store.when(event("cardsDropped", {from: {column: 0, index: 1}, to: 1}));

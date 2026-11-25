@@ -12,9 +12,6 @@ import {
     type SavedSpiderGame,
 } from "../../../../model/spider.model.ts";
 
-// the undo goes back at most this many moves in a resumed game
-const SAVED_UNDO_COUNT = 100;
-
 export const selectors = {
     table: (state: State) => state.table,
     columns: (state: State) => state.table.columns,
@@ -38,10 +35,10 @@ export const selectors = {
     moveCount: (state: State) => state.moveCount,
     canUndo: (state: State) => state.history.length > 0 && !state.gameEnded,
     hasGameEnded: (state: State) => state.gameEnded,
-    // what is kept to resume the game: the oldest moves cannot be undone after that
+    // what is kept to resume the game, every move included so that all of them can still be undone
     savedGame: (state: State): SavedSpiderGame => ({
         table: state.table,
-        history: state.history.slice(-SAVED_UNDO_COUNT),
+        history: state.history,
         moveCount: state.moveCount,
     }),
 } satisfies Selectors<State>;
