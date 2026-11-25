@@ -44,6 +44,7 @@
   "completedSequences_one": "{{count}} completed sequence",
   "completedSequences_other": "{{count}} completed sequences",
   "hint": "Hint",
+  "useEmptyColumn": "You can move cards to an empty column",
   "noUsefulMove": "No useful move left",
   "ranks": {
     "A": "A",

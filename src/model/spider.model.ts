@@ -148,7 +148,7 @@ export const clickDestinationsOf = (table: Table, from: CardPosition): number[] 
 };
 
 export type Move = { from: CardPosition, to: number };
-export type Hint = { kind: "move", move: Move } | { kind: "deal" } | { kind: "none" };
+export type Hint = { kind: "move", move: Move } | { kind: "emptyColumn" } | { kind: "deal" } | { kind: "none" };
 
 // How useful a move is, or null when it changes nothing worth doing
 const moveScore = (table: Table, {from, to}: Move): number | null => {
@@ -186,10 +186,17 @@ export const findMoves = (table: Table): Move[] =>
         .sort((a, b) => b.score - a.score)
         .map(scored => scored.move);
 
-// The hints shown one after the other: the useful moves, else dealing a row, else nothing left to do
+// The hints shown one after the other: the useful moves onto a card,
+// then, said in words only, that an empty column can be used,
+// else dealing a row, else nothing left to do
 export const findHints = (table: Table): Hint[] => {
-    const moves = findMoves(table).map((move): Hint => ({kind: "move", move}));
-    if (moves.length > 0) return moves;
+    const moves = findMoves(table);
+    const ontoCards = moves
+        .filter(move => table.columns[move.to].length > 0)
+        .map((move): Hint => ({kind: "move", move}));
+    const emptyColumn: Hint[] = moves.some(move => table.columns[move.to].length === 0) ? [{kind: "emptyColumn"}] : [];
+    const hints = [...ontoCards, ...emptyColumn];
+    if (hints.length > 0) return hints;
     return [canDealRow(table) ? {kind: "deal"} : {kind: "none"}];
 };
 

@@ -44,6 +44,7 @@
   "completedSequences_one": "{{count}} suite terminée",
   "completedSequences_other": "{{count}} suites terminées",
   "hint": "Indice",
+  "useEmptyColumn": "Tu peux déplacer des cartes vers une colonne vide",
   "noUsefulMove": "Plus de coup utile",
   "ranks": {
     "A": "A",

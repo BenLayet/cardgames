@@ -116,6 +116,7 @@ export const View = ({path = ""}) => {
             </div>
             <div className="d-flex align-items-center gap-2 flex-wrap justify-content-end">
                 {v.hint?.kind === "none" && <span className="small fst-italic" role="status">{t("noUsefulMove")}</span>}
+                {v.hint?.kind === "emptyColumn" && <span className="small fst-italic" role="status">{t("useEmptyColumn")}</span>}
                 <span className="text-nowrap">{t("moves", {count: v.moveCount})}</span>
                 <button className="btn btn-outline-primary" disabled={v.hasGameEnded}
                         title={t("hint")} aria-label={t("hint")}
