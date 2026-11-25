@@ -18,7 +18,8 @@ export const View = ({path = "", onResume}: { path?: string, onResume?: () => vo
             <div className="setup-body vstack align-items-center">
                 <h1 className="game-title">{t(`games.${v.gameId}`)}</h1>
                 <div className="setup-options d-flex flex-column text-center">
-                    <div>
+                    {/* a game for one player has nothing to choose about the players */}
+                    {v.maxPlayers > 1 && <div>
                         <span className="setup-label">{t("players")}</span>
                         {!v.isPlayerCountFixed && <div className="d-flex gap-3 justify-content-center align-items-center mb-2">
                             <button className="btn btn-outline-primary" disabled={!v.canRemovePlayer}
@@ -36,8 +37,8 @@ export const View = ({path = "", onResume}: { path?: string, onResume?: () => vo
                         <div className="d-flex flex-column gap-2">
                             {v.seats.map((seat, index) => <div key={index}
                                     className="d-flex gap-2 justify-content-between align-items-center">
-                                {/* a human can be named when several people play; a seat is otherwise named after its number */}
-                                {seat === "human" && v.maxPlayers > 1
+                                {/* a human can be named; a computer seat is named after its number */}
+                                {seat === "human"
                                     ? <input className="form-control seat-name" type="text"
                                              value={v.playerNames[index]} maxLength={MAX_NAME_LENGTH}
                                              placeholder={t("playerNumber", {number: index + 1})}
@@ -65,7 +66,7 @@ export const View = ({path = "", onResume}: { path?: string, onResume?: () => vo
                                 </span>}
                             </div>)}
                         </div>
-                    </div>
+                    </div>}
                     {v.cardCountOptions.length > 0 && <div>
                         <span className="setup-label">{t("cardCount")}</span>
                         <div className="choice-group">
