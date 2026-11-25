@@ -3,7 +3,7 @@
     --game-bar-size: 3.75rem;
     /* the room the bar takes beside the game, on each side of the screen */
     --game-bar-bottom: 0px;
-    --game-bar-right: 0px;
+    --game-bar-left: 0px;
 }
 
 body:has(.game-bar) {
@@ -45,21 +45,21 @@ body:has(.game-bar) {
     gap: var(--app-space-2);
 }
 
-/* a screen held sideways: the bar stands on the right side, back on top and the actions at the bottom */
+/* a screen held sideways: the bar stands on the left side, back on top and the actions at the bottom */
 @media (orientation: landscape) {
     body:has(.game-bar) {
         --game-bar-bottom: 0px;
-        --game-bar-right: var(--game-bar-size);
+        --game-bar-left: var(--game-bar-size);
     }
 
     .game-bar {
-        left: auto;
+        right: auto;
         top: var(--app-frame);
         width: var(--game-bar-size);
         flex-direction: column;
-        padding: max(var(--app-space-2), env(safe-area-inset-top, 0px)) max(var(--app-space-2), env(safe-area-inset-right, 0px)) max(var(--app-space-2), env(safe-area-inset-bottom, 0px)) var(--app-space-2);
+        padding: max(var(--app-space-2), env(safe-area-inset-top, 0px)) var(--app-space-2) max(var(--app-space-2), env(safe-area-inset-bottom, 0px)) max(var(--app-space-2), env(safe-area-inset-left, 0px));
         border-top: 0;
-        border-left: 1px solid var(--app-line);
+        border-right: 1px solid var(--app-line);
     }
 
     .game-bar-status {
@@ -76,10 +76,10 @@ body:has(.game-bar) {
 /* the game leaves room for the bar */
 body:has(.game-bar) #root {
     padding-bottom: var(--game-bar-bottom);
-    padding-right: var(--game-bar-right);
+    padding-left: var(--game-bar-left);
 }
 
-/* the settings, second in the bar: their menu opens above the bar, or beside it when it stands on the right */
+/* the settings, second in the bar: their menu opens above the bar, or beside it when it stands on the left */
 .game-bar .settings-menu {
     position: relative;
     margin: 0;
@@ -94,7 +94,7 @@ body:has(.game-bar) #root {
     .game-bar .settings-menu-panel {
         top: 0;
         bottom: auto;
-        left: auto;
-        right: calc(100% + 0.5rem);
+        left: calc(100% + 0.5rem);
+        right: auto;
     }
 }

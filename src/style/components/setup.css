@@ -19,6 +19,8 @@
     gap: var(--app-space-3);
     width: 100%;
     max-width: 22rem;
+    /* .vstack stretches itself, which would hold the narrower block against the left edge */
+    align-self: center;
     margin-top: auto;
     padding-bottom: var(--app-space-4);
 }
