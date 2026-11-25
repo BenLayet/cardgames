@@ -12,9 +12,9 @@ const schedulerService = new TimeoutSchedulerAdapter();
 const languageService = new I18nextLanguageAdapter();
 const spiderSaveService = new LocalStorageSpiderSaveAdapter();
 
-const {musicEnabled, soundsEnabled, language} = settingsService.load();
-audioService.setMusicEnabled(musicEnabled);
-audioService.setSoundsEnabled(soundsEnabled);
+const {musicVolume, soundsVolume, language} = settingsService.load();
+audioService.setMusicVolume(musicVolume);
+audioService.setSoundsVolume(soundsVolume);
 void initI18n(toLanguage(language));
 
 export const configuration = {

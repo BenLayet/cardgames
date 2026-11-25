@@ -27,6 +27,8 @@
   "settings": "Settings",
   "music": "Music",
   "sounds": "Sounds",
+  "musicOff": "Off",
+  "soundsOff": "Off",
   "start": "Start",
   "victory": "Victory",
   "defeat": "You Lost...",

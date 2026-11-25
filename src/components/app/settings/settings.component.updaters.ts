@@ -10,10 +10,10 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
     setLanguageRequested: ({state, payload: language}) => {
         state.language = language;
     },
-    toggleMusicRequested: ({state}) => {
-        state.musicEnabled = !state.musicEnabled;
+    setMusicVolumeRequested: ({state, payload: volume}) => {
+        state.musicVolume = volume;
     },
-    toggleSoundsRequested: ({state}) => {
-        state.soundsEnabled = !state.soundsEnabled;
+    setSoundsVolumeRequested: ({state, payload: volume}) => {
+        state.soundsVolume = volume;
     },
 };
