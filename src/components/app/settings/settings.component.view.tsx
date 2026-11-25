@@ -1,7 +1,7 @@
 import {useSofter} from "@softer-components/redux-adapter";
 import {useTranslation} from "react-i18next";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faGear, faMusic, faVolumeHigh, faVolumeXmark, faXmark} from "@fortawesome/free-solid-svg-icons";
+import {faGear, faMusic, faVolumeHigh, faVolumeLow, faVolumeXmark, faXmark, type IconDefinition} from "@fortawesome/free-solid-svg-icons";
 
 import type {SettingsContract} from "./settings.component.ts";
 import type {Language} from "../../../services/language.service.ts";
@@ -10,6 +10,28 @@ import type {Language} from "../../../services/language.service.ts";
 const LANGUAGE_LABELS: Record<Language, { flag: string, name: string, switchTo: string }> = {
     en: {flag: "🇬🇧", name: "English", switchTo: "Switch to English"},
     fr: {flag: "🇫🇷", name: "Français", switchTo: "Changer la langue en français"},
+};
+
+// far left is off, and shows it: crossed out speaker, greyed slider, "off" written instead of the percentage
+const VolumeRow = ({label, offLabel, icon, volume, onChange}: {
+    label: string, offLabel: string, icon: IconDefinition, volume: number, onChange: (volume: number) => void,
+}) => {
+    const isOff = volume <= 0;
+    return (
+        <div className={`settings-menu-row settings-volume${isOff ? " settings-volume--off" : ""}`}>
+            <span>{label}</span>
+            <span className="settings-volume-control">
+                <FontAwesomeIcon className="settings-volume-icon" icon={isOff ? faVolumeXmark : icon}/>
+                <input
+                    type="range" min={0} max={100} step={5}
+                    value={volume}
+                    aria-label={label}
+                    aria-valuetext={isOff ? offLabel : `${volume} %`}
+                    onChange={e => onChange(Number(e.target.value))}/>
+                <span className="settings-volume-value">{isOff ? offLabel : `${volume} %`}</span>
+            </span>
+        </div>
+    );
 };
 
 export const View = ({path = ""}) => {
@@ -41,26 +63,14 @@ export const View = ({path = ""}) => {
                             </button>)}
                         </span>
                     </div>
-                    <div className="settings-menu-row">
-                        <span>{t("music")}</span>
-                        <button
-                            className={`btn ${v.musicEnabled ? 'btn-primary' : 'btn-outline-primary audio-toggle--off'}`}
-                            aria-pressed={v.musicEnabled}
-                            title={t("music")}
-                            onClick={() => d.toggleMusicRequested()}>
-                            <FontAwesomeIcon icon={faMusic}/>
-                        </button>
-                    </div>
-                    <div className="settings-menu-row">
-                        <span>{t("sounds")}</span>
-                        <button
-                            className={`btn ${v.soundsEnabled ? 'btn-primary' : 'btn-outline-primary audio-toggle--off'}`}
-                            aria-pressed={v.soundsEnabled}
-                            title={t("sounds")}
-                            onClick={() => d.toggleSoundsRequested()}>
-                            <FontAwesomeIcon icon={v.soundsEnabled ? faVolumeHigh : faVolumeXmark}/>
-                        </button>
-                    </div>
+                    <VolumeRow
+                        label={t("music")} offLabel={t("musicOff")} icon={faMusic}
+                        volume={v.musicVolume}
+                        onChange={volume => d.setMusicVolumeRequested(volume)}/>
+                    <VolumeRow
+                        label={t("sounds")} offLabel={t("soundsOff")} icon={v.soundsVolume < 50 ? faVolumeLow : faVolumeHigh}
+                        volume={v.soundsVolume}
+                        onChange={volume => d.setSoundsVolumeRequested(volume)}/>
                 </div>
             </>}
         </div>

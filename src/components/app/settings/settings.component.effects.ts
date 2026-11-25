@@ -15,14 +15,12 @@ export const effects = ({audioService, settingsService, languageService}: Depend
         languageService.setLanguage(language);
         settingsService.save({language});
     },
-    toggleMusicRequested: (_, {values}) => {
-        const musicEnabled = values.musicEnabled();
-        audioService.setMusicEnabled(musicEnabled);
-        settingsService.save({musicEnabled});
+    setMusicVolumeRequested: (_, {payload: musicVolume}) => {
+        audioService.setMusicVolume(musicVolume);
+        settingsService.save({musicVolume});
     },
-    toggleSoundsRequested: (_, {values}) => {
-        const soundsEnabled = values.soundsEnabled();
-        audioService.setSoundsEnabled(soundsEnabled);
-        settingsService.save({soundsEnabled});
+    setSoundsVolumeRequested: (_, {payload: soundsVolume}) => {
+        audioService.setSoundsVolume(soundsVolume);
+        settingsService.save({soundsVolume});
     },
 });

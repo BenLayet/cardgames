@@ -2,8 +2,9 @@ import type {GameId, SeatKind} from "../model/games.model.ts";
 
 export type Settings = {
     language: string | null;
-    musicEnabled: boolean;
-    soundsEnabled: boolean;
+    // from 0 (off) to 100 (loudest)
+    musicVolume: number;
+    soundsVolume: number;
     // deck size, by game
     cardCounts: Partial<Record<GameId, number>>;
     // number of suits of the spider solitaire
@@ -16,8 +17,8 @@ export type Settings = {
 
 export const DEFAULT_SETTINGS: Settings = {
     language: null,
-    musicEnabled: true,
-    soundsEnabled: true,
+    musicVolume: 0,
+    soundsVolume: 50,
     cardCounts: {bataille: 32, spider: 104},
     suitCount: 1,
     seats: {},

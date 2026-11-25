@@ -9,8 +9,8 @@ export const fakeAudioService = () => ({
     playApplause: vi.fn(),
     playCrowdDisappointment: vi.fn(),
     playCardSlide: vi.fn(),
-    setMusicEnabled: vi.fn(),
-    setSoundsEnabled: vi.fn(),
+    setMusicVolume: vi.fn(),
+    setSoundsVolume: vi.fn(),
 }) satisfies AudioService;
 
 // Keeps the settings in memory so tests can check what was saved

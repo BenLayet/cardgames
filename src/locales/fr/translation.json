@@ -27,6 +27,8 @@
   "settings": "Réglages",
   "music": "Musique",
   "sounds": "Sons",
+  "musicOff": "Coupée",
+  "soundsOff": "Coupés",
   "start": "Commencer",
   "victory": "Victoire",
   "defeat": "Perdu...",
