@@ -9,7 +9,7 @@ import type {GameWithRules} from "./rules.ts";
 
 // The bar shared by every screen: back first (except on the home page), then the settings and the rules of the game,
 // a short status, and the actions of the screen.
-// It lies at the bottom of the screen held upright and on the right side of the screen held sideways.
+// It lies at the bottom of the screen held upright and on the left side of the screen held sideways.
 export const GameBar = ({onBack, rules, status, children}: {
     onBack?: () => void, rules?: GameWithRules, status?: ReactNode, children?: ReactNode,
 }) => {

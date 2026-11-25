@@ -3,7 +3,7 @@
        the game sets --spider-columns */
     --spider-columns: 10;
     --spider-gap: clamp(0.15rem, 0.8vw, 0.6rem);
-    --spider-card-w: min(calc((100vw - 2 * var(--app-frame) - var(--game-bar-right) - 1.5rem) / var(--spider-columns) - var(--spider-gap)), calc((100dvh - var(--game-bar-bottom)) * .11), 110px);
+    --spider-card-w: min(calc((100vw - 2 * var(--app-frame) - var(--game-bar-left) - 1.5rem) / var(--spider-columns) - var(--spider-gap)), calc((100dvh - var(--game-bar-bottom)) * .11), 110px);
     --spider-card-h: calc(var(--spider-card-w) * 200 / 143);
     user-select: none;
     -webkit-user-select: none;
@@ -13,7 +13,7 @@
 @media (orientation: portrait) {
     .spider-table {
         --spider-gap: 2px;
-        --spider-card-w: min(calc((100vw - 2 * var(--app-frame) - var(--game-bar-right) - 0.5rem - (var(--spider-columns) - 1) * var(--spider-gap)) / var(--spider-columns)), 110px);
+        --spider-card-w: min(calc((100vw - 2 * var(--app-frame) - var(--game-bar-left) - 0.5rem - (var(--spider-columns) - 1) * var(--spider-gap)) / var(--spider-columns)), 110px);
     }
 
 }
