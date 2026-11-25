@@ -14,11 +14,16 @@ type Rects = Map<string, DOMRect>;
 
 // Cards fly from where they were to where they are now, so that the eye can follow a move, an undo or a deal.
 // Every element with a data-card-id inside the container is followed from one render to the next; a card that was
-// not on the table before comes from the element given as origin (the stock). Dragged cards follow the pointer and
-// are left alone.
+// not on the table before comes from the element given as origin (the stock). The cards for which isGrounded is true,
+// such as cards dragged by the pointer, are left alone.
 // When a sequence is completed, its cards leave the table and fly to the place of the sequence, which then shines
 // for a moment. An undo brings them back from there.
-export const useCardFlight = (container: RefObject<HTMLElement | null>, origin: RefObject<HTMLElement | null>, sequences?: Sequences) => {
+export const useCardFlight = (
+    container: RefObject<HTMLElement | null>,
+    origin: RefObject<HTMLElement | null>,
+    sequences?: Sequences,
+    isGrounded: (element: HTMLElement) => boolean = () => false,
+) => {
     // where each card lies once landed, without the shift of a flight under way
     const previous = useRef<Rects>(new Map());
     const flights = useRef(new WeakMap<HTMLElement, Animation>());
@@ -62,7 +67,7 @@ export const useCardFlight = (container: RefObject<HTMLElement | null>, origin: 
         // after an undo, the cards of the sequence come back from its place
         const originRect = (count === countBefore - 1 ? slotOf(count) : origin.current)?.getBoundingClientRect();
         elements.forEach(element => {
-            if (element.classList.contains("spider-card--dragged") || typeof element.animate !== "function") return;
+            if (isGrounded(element) || typeof element.animate !== "function") return;
             const now = rects.get(element.dataset.cardId ?? "");
             const from = onScreen.get(element) ?? before.get(element.dataset.cardId ?? "") ?? originRect;
             if (!now || !from) return;

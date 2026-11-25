@@ -26,6 +26,7 @@ pnpm install
 pnpm dev          # dev server, exposed on the local network
 pnpm test         # run tests once
 pnpm test:watch   # run tests in watch mode
+pnpm test:e2e     # end-to-end tests in Chromium, Playwright starts the dev server (first: pnpm exec playwright install chromium)
 pnpm lint         # ESLint
 pnpm build        # type check and production build into dist/
 pnpm preview      # serve the production build
@@ -61,6 +62,7 @@ src/
   assets/             card SVGs and audio
   style/              CSS
   test/               test fakes
+e2e/                  end-to-end tests of what happens on screen (Playwright)
 public/               icons for the PWA
 docs/                 notes on animations and CSS selectors
 ```
