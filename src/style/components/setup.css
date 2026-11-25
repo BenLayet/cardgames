@@ -22,3 +22,15 @@
     margin-top: auto;
     padding-bottom: var(--app-space-4);
 }
+
+/* the kind of a seat that cannot change: same size as .choice-group, without its frame */
+.seat-fixed {
+    display: inline-flex;
+    align-items: center;
+    gap: .4em;
+    min-height: calc(var(--bs-btn-padding-y, .25rem) * 2 + 1.5em + 9px);
+    padding: 0 .75rem;
+    color: var(--app-muted);
+    font-size: .875rem;
+    font-weight: 600;
+}
