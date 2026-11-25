@@ -10,7 +10,6 @@
   "playerCount_one": "{{count}} player",
   "playerCount_other": "{{count}} players",
   "playerRange": "{{min}} to {{max}} players",
-  "comingSoon": "Coming soon",
   "players": "Players:",
   "addPlayer": "Add a player",
   "removePlayer": "Remove a player",
