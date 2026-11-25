@@ -64,5 +64,14 @@
     "K": "R"
   },
   "newGame": "Nouvelle partie",
-  "resumeGame": "Reprendre la partie"
+  "resumeGame": "Reprendre la partie",
+  "close": "Fermer",
+  "about": {
+    "button": "À propos",
+    "title": "À propos",
+    "intro_one": "Jeux de cartes réunit des jeux de cartes à jouer seul, contre l'ordinateur ou à plusieurs sur le même appareil. Pour l'instant, il y a un jeu : {{games}}. D'autres viendront.",
+    "intro_other": "Jeux de cartes réunit des jeux de cartes à jouer seul, contre l'ordinateur ou à plusieurs sur le même appareil. Pour l'instant, il y a {{count}} jeux : {{games}}. D'autres viendront.",
+    "free": "Tout est gratuit et sans publicité.",
+    "donations": "Bientôt, un bouton permettra de faire un don pour soutenir l'application."
+  }
 }

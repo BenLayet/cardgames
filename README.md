@@ -57,7 +57,7 @@ docs/                 notes on animations and CSS selectors
 
 ## Versioning
 
-The version in `package.json` is shown at the bottom of the settings menu, with the commit and the build date.
+The version in `package.json` is shown at the bottom of the About window (the info button of the home page), with the commit and the build date.
 
 - Minor (`1.1.0`, `1.2.0`…): every new feature or visible change.
 - Patch (`1.0.1`…): only when nothing changes visually.

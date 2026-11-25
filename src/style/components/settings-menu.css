@@ -50,11 +50,3 @@
     }
 }
 
-/* what was deployed, discreet at the bottom of the menu */
-.settings-menu-version {
-    padding-top: var(--app-space-2);
-    border-top: 1px solid var(--app-line);
-    color: var(--app-muted);
-    font-size: .75rem;
-    font-variant-numeric: tabular-nums;
-}
