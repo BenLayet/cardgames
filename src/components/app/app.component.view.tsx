@@ -15,12 +15,9 @@ export const View = ({path = ""}) => {
     }, [d]);
     return (
         <>
-            {/* the home page shows the settings in its corner, the other pages in their bar */}
-            {v.page === "HOME" && <>
-                <Settings path={c.settings}/>
-                <Home onGameSelected={gameId => d.gameSelected(gameId)}/>
-            </>}
+            {/* every page shows the settings in its bar */}
             <SettingsSlot.Provider value={<Settings path={c.settings}/>}>
+                {v.page === "HOME" && <Home onGameSelected={gameId => d.gameSelected(gameId)}/>}
                 {v.page === "bataille" && <Battle path={c.battle}/>}
                 {v.page === "spider" && <Spider path={c.spider}/>}
             </SettingsSlot.Provider>
