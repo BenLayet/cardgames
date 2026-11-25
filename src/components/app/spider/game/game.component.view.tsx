@@ -158,6 +158,7 @@ export const View = ({path = ""}) => {
                         const classes = [
                             "spider-card",
                             index >= v.movableRunStarts[columnIndex] ? "spider-card--movable" : "",
+                            card.faceUp && index < v.movableRunStarts[columnIndex] ? "spider-card--stuck" : "",
                             isSelected(columnIndex, index) ? "spider-card--selected" : "",
                             dragged ? "spider-card--dragged" : "",
                             isHinted(columnIndex, index) ? "spider-card--hint" : "",
