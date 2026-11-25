@@ -8,7 +8,6 @@ import {
     hasCompletedSequence,
     isWon,
     movableRunStart,
-    ranksOf,
     sequenceCountOf,
     stockRowCount,
     type SavedSpiderGame,
@@ -18,9 +17,7 @@ export const selectors = {
     table: (state: State) => state.table,
     columns: (state: State) => state.table.columns,
     // index of the first card that can be picked up in each column
-    movableRunStarts: (state: State) => state.table.columns.map(column => movableRunStart(column, ranksOf(state.table))),
-    // the ranks of a sequence, from the lowest
-    ranks: (state: State) => ranksOf(state.table),
+    movableRunStarts: (state: State) => state.table.columns.map(movableRunStart),
     completed: (state: State) => state.table.completed,
     stockRowCount: (state: State) => stockRowCount(state.table),
     canDealRow: (state: State) => canDealRow(state.table),

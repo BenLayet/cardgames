@@ -149,7 +149,7 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
              onPointerUp={onPointerUp}
              onPointerCancel={() => setPress(null)}>
             {v.columns.map((column, columnIndex) => {
-                const offsets = cardOffsets(column, measured?.room ?? MIN_COLUMN_ROOM, compact, v.ranks);
+                const offsets = cardOffsets(column, measured?.room ?? MIN_COLUMN_ROOM, compact);
                 const columnClasses = [
                     "spider-column",
                     v.destinations.includes(columnIndex) ? "spider-column--destination" : "",
