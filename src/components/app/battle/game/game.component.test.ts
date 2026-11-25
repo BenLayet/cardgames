@@ -41,7 +41,7 @@ const playRound = async () => {
 
 describe("game", () => {
     it("deals half of the requested cards to each player", async () => {
-        await store.when(event("dealRequested", {cardCount: 12, isPlayer2Computer: true}));
+        await store.when(event("dealRequested", {cardCount: 12, isPlayer2Computer: true, playerNames: [null, null]}));
         await vi.runAllTimersAsync();
 
         expect(stack("player1RemainingCards")).toHaveLength(6);
@@ -126,7 +126,7 @@ describe("game", () => {
         });
 
         it("when player 1 clicks just before the cards are dealt", async () => {
-            await store.when(event("dealRequested", {cardCount: 12, isPlayer2Computer: true}));
+            await store.when(event("dealRequested", {cardCount: 12, isPlayer2Computer: true, playerNames: [null, null]}));
             await vi.advanceTimersByTimeAsync(450);
             await store.when(event("player1Clicked")); // ignored
             await vi.advanceTimersByTimeAsync(200);
@@ -177,7 +177,7 @@ describe("game", () => {
 
     describe("between two humans", () => {
         const dealToHumans = async (player1Cards: Card[], player2Cards: Card[]) => {
-            await store.when(event("dealRequested", {cardCount: 12, isPlayer2Computer: false}));
+            await store.when(event("dealRequested", {cardCount: 12, isPlayer2Computer: false, playerNames: [null, null]}));
             await vi.runAllTimersAsync();
             await deal(player1Cards, player2Cards);
         };

@@ -22,3 +22,39 @@
     margin-top: auto;
     padding-bottom: var(--app-space-4);
 }
+
+/* the kind of a seat that cannot change: same size as .choice-group, without its frame */
+.seat-fixed {
+    display: inline-flex;
+    align-items: center;
+    gap: .4em;
+    min-height: calc(var(--bs-btn-padding-y, .25rem) * 2 + 1.5em + 9px);
+    padding: 0 .75rem;
+    color: var(--app-muted);
+    font-size: .875rem;
+    font-weight: 600;
+}
+
+/* the name of a human seat, typed on the felt */
+.seat-name {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 14rem;
+    font-weight: 700;
+    color: var(--app-ink);
+    background: var(--app-surface);
+    border: 1.5px solid var(--app-line);
+    border-radius: var(--app-radius);
+}
+
+.seat-name::placeholder {
+    color: var(--app-muted);
+    font-weight: 600;
+}
+
+.seat-name:focus {
+    color: var(--app-ink);
+    background: var(--app-surface);
+    border-color: var(--app-gold);
+    box-shadow: 0 0 0 .2rem #f2d48a40;
+}

@@ -19,6 +19,8 @@ export const initialState = {
     roundWinner: null as PlayerId | null,
     // otherwise a second human plays from the other side of the screen
     isPlayer2Computer: true,
+    // the names typed on the setup screen, null for a player named after their number
+    playerNames: [] as (string | null)[],
 }
 
 export type State = typeof initialState;
