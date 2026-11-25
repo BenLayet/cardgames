@@ -1,5 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect width="100" height="100" fill="#198754"/>
-  <text x="50" y="70" font-size="60" text-anchor="middle" fill="#ff0000">♥</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<defs>
+<radialGradient id="felt" cx="50%" cy="42%" r="70%"><stop offset="0" stop-color="#22694f"/><stop offset=".55" stop-color="#0f3b2c"/><stop offset="1" stop-color="#0a2a1f"/></radialGradient>
+<pattern id="weave" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="12" height="12" fill="#8e2232"/><rect width="6" height="12" fill="#a52a3c"/><rect y="9" width="12" height="2" fill="#fff" fill-opacity=".16"/></pattern>
+<filter id="sh" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000" flood-opacity=".45"/></filter>
+</defs>
+<rect width="512" height="512" rx="96" fill="url(#felt)"/>
 
+<g transform="translate(256 262) scale(1)">
+  <g transform="rotate(-14) translate(-52 -6)" filter="url(#sh)">
+    <rect x="-100" y="-142" width="200" height="284" rx="16" fill="#fffdf8"/>
+    <rect x="-88" y="-130" width="176" height="260" rx="10" fill="url(#weave)"/>
+    <rect x="-80" y="-122" width="160" height="244" rx="7" fill="none" stroke="#fffdf8" stroke-opacity=".55" stroke-width="3"/>
+  </g>
+  <g transform="rotate(9) translate(48 -2)" filter="url(#sh)">
+    <rect x="-100" y="-142" width="200" height="284" rx="16" fill="#fffdf8"/>
+    <rect x="-86" y="-128" width="172" height="256" rx="9" fill="none" stroke="#c2364a" stroke-opacity=".35" stroke-width="3"/>
+    <path d="M0 -300C0 -400 100 -500 200 -500C300 -500 400 -400 400 -250C400 0 0 400 0 500C0 400 -400 0 -400 -250C-400 -400 -300 -500 -200 -500C-100 -500 0 -400 -0 -300Z" fill="#c2364a" transform="translate(0 4) scale(.13)"/>
+    <path d="M0 -300C0 -400 100 -500 200 -500C300 -500 400 -400 400 -250C400 0 0 400 0 500C0 400 -400 0 -400 -250C-400 -400 -300 -500 -200 -500C-100 -500 0 -400 -0 -300Z" fill="#c2364a" transform="translate(-68 -104) scale(.034)"/>
+    <path d="M0 -300C0 -400 100 -500 200 -500C300 -500 400 -400 400 -250C400 0 0 400 0 500C0 400 -400 0 -400 -250C-400 -400 -300 -500 -200 -500C-100 -500 0 -400 -0 -300Z" fill="#c2364a" transform="translate(68 104) rotate(180) scale(.034)"/>
+  </g>
+</g>
+</svg>
