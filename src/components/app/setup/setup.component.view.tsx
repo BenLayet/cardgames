@@ -40,11 +40,13 @@ export const View = ({path = "", onResume}: { path?: string, onResume?: () => vo
                             {v.seats.map((seat, index) => <div key={index}
                                     className="d-flex gap-2 justify-content-between align-items-center">
                                 <span className="text-nowrap fw-bold">{t("playerNumber", {number: index + 1})}</span>
-                                <span className="choice-group">
+                                {/* a seat that cannot change shows its kind, rather than a choice with a disabled option */}
+                                {!v.changeableSeats[index] ? <span className="seat-fixed">
+                                    <FontAwesomeIcon icon={seat === "human" ? faUser : faRobot}/> {t(seat)}
+                                </span> : <span className="choice-group">
                                     {(["human", "computer"] as const).map(kind => <button
                                         key={kind}
                                         className="btn btn-sm btn-choice text-nowrap"
-                                        disabled={seat !== kind && !v.changeableSeats[index]}
                                         aria-pressed={seat === kind}
                                         title={t(kind)}
                                         aria-label={t(kind)}
@@ -55,7 +57,7 @@ export const View = ({path = "", onResume}: { path?: string, onResume?: () => vo
                                         {/* the names do not fit next to each other on a phone */}
                                         <span className="d-none d-sm-inline"> {t(kind)}</span>
                                     </button>)}
-                                </span>
+                                </span>}
                             </div>)}
                         </div>
                     </div>
