@@ -1,14 +1,17 @@
 import {describe, expect, it} from "vitest";
 
 import type {Card} from "./deck.model.ts";
+import {SOLVABLE_DEAL_SEEDS} from "./spider-deals.ts";
 import {
     canDealRow,
+    CARD_COUNT_OPTIONS,
     canMoveCards,
     canPickCards,
     clickDestinationsOf,
     collectCompletedSequences,
     createSpiderDeck,
     dealRow,
+    dealSeededTable,
     dealTable,
     destinationsOf,
     findHints,
@@ -19,9 +22,11 @@ import {
     isWon,
     movableRunStart,
     moveCards,
+    pickSolvableSeed,
     type SpiderCard,
     sequenceCountOf,
     stockRowCount,
+    SUIT_COUNT_OPTIONS,
     type Table,
     variantOf,
 } from "./spider.model.ts";
@@ -93,6 +98,29 @@ describe("dealTable", () => {
         expect(dealRow(dealt).columns.map(column => column.length)).toEqual([5, 5, 5, 5, 4, 4, 4, 4]);
         expect(sequenceCountOf(dealt)).toBe(4);
         expect(variantOf(dealt)).toEqual({suitCount: 4, cardCount: 52});
+    });
+});
+
+describe("solvable deals", () => {
+    const variants = CARD_COUNT_OPTIONS.flatMap(cardCount => SUIT_COUNT_OPTIONS.map(suitCount => ({cardCount, suitCount})));
+
+    it.each(variants)("knows deals with $cardCount cards and $suitCount suit(s), each one once", ({cardCount, suitCount}) => {
+        const seeds = SOLVABLE_DEAL_SEEDS[cardCount]?.[suitCount] ?? [];
+        expect(seeds.length).toBeGreaterThan(0);
+        expect(new Set(seeds).size).toBe(seeds.length);
+    });
+
+    it("picks a seed from the list", () => {
+        const seeds = SOLVABLE_DEAL_SEEDS[104]?.[4] ?? [];
+        expect(pickSolvableSeed({cardCount: 104, suitCount: 4}, () => 0)).toBe(seeds[0]);
+        expect(pickSolvableSeed({cardCount: 104, suitCount: 4}, () => 0.999999)).toBe(seeds[seeds.length - 1]);
+    });
+
+    // the lists of seeds were made with this shuffle: if the deal of a seed changes, they must be made again
+    it("deals the same table from the same seed", () => {
+        const deal = dealSeededTable({cardCount: 104, suitCount: 4}, 1);
+        expect(deal).toEqual(dealSeededTable({cardCount: 104, suitCount: 4}, 1));
+        expect(deal.columns.map(column => column[column.length - 1].card)).toEqual(["8H", "QD", "AS", "AC", "3C", "6D", "TD", "2C", "8D", "6S"]);
     });
 });
 

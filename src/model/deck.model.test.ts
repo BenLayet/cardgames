@@ -1,5 +1,5 @@
 import {describe, expect, it} from "vitest";
-import {cardValue, createDeck, isFirstCardHigherValue, shuffleDeck} from "./deck.model.ts";
+import {cardValue, createDeck, isFirstCardHigherValue, seededRandom, shuffleDeck} from "./deck.model.ts";
 
 describe("createDeck", () => {
     it("creates a full deck of 52 distinct cards", () => {
@@ -42,5 +42,21 @@ describe("shuffleDeck", () => {
         const shuffled = shuffleDeck(deck);
         expect(deck).toEqual(copy);
         expect([...shuffled].sort()).toEqual([...deck].sort());
+    });
+
+    it("gives the same order for the same seed", () => {
+        const deck = createDeck(52);
+        expect(shuffleDeck(deck, seededRandom(42))).toEqual(shuffleDeck(deck, seededRandom(42)));
+        expect(shuffleDeck(deck, seededRandom(42))).not.toEqual(shuffleDeck(deck, seededRandom(43)));
+    });
+});
+
+describe("seededRandom", () => {
+    it("gives numbers from 0 to 1, the same ones for the same seed", () => {
+        const first = seededRandom(7);
+        const second = seededRandom(7);
+        const numbers = Array.from({length: 1000}, () => first());
+        expect(numbers.every(n => n >= 0 && n < 1)).toBe(true);
+        expect(Array.from({length: 1000}, () => second())).toEqual(numbers);
     });
 });
