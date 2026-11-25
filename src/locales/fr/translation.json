@@ -74,7 +74,7 @@
     "title": "À propos",
     "intro_one": "«\u00a0Jeux de cartes\u00a0» réunit des jeux de cartes à jouer seul, contre l'ordinateur ou à plusieurs sur le même appareil. Il y a actuellement un jeu : {{games}}.",
     "intro_other": "«\u00a0Jeux de cartes\u00a0» réunit des jeux de cartes à jouer seul, contre l'ordinateur ou à plusieurs sur le même appareil. Il y a actuellement {{count}} jeux : {{games}}.",
-    "free": "Tout est gratuit et sans publicité."
+    "free": "Jeux gratuits et sans publicité pour toujours, et autant que possible sans connexion."
   },
   "rules": {
     "read": "Lire les règles",
