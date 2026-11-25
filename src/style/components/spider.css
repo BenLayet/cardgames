@@ -104,6 +104,11 @@
     touch-action: none;
 }
 
+/* the face up cards that cannot be moved are slightly greyed, so that the run that can be moved stands out */
+.spider-card--stuck .card-image {
+    filter: brightness(0.84) grayscale(0.2);
+}
+
 .spider-card--selected .card-image {
     filter: drop-shadow(0 0 4px var(--bs-primary)) brightness(0.9);
 }
