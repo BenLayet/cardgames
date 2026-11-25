@@ -190,11 +190,15 @@ export const isWon = (table: Table): boolean =>
 export const destinationsOf = (table: Table, from: CardPosition): number[] =>
     table.columns.flatMap((_, to) => canMoveCards(table, from, to) ? [to] : []);
 
-// The columns offered when the cards are clicked: the cards that can take them, else the leftmost empty column.
+// The columns offered when the cards are clicked: the only card of their suit that can take them,
+// else the cards that can take them, else the leftmost empty column.
 // Dropping the cards on any empty column remains possible.
 export const clickDestinationsOf = (table: Table, from: CardPosition): number[] => {
     const destinations = destinationsOf(table, from);
     const onCards = destinations.filter(to => table.columns[to].length > 0);
+    const suit = suitOf(table.columns[from.column][from.index].card);
+    const onSuit = onCards.filter(to => suitOf(table.columns[to][table.columns[to].length - 1].card) === suit);
+    if (onSuit.length === 1) return onSuit;
     return onCards.length > 0 ? onCards : destinations.slice(0, 1);
 };
 
