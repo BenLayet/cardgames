@@ -2,6 +2,13 @@ import {type RefObject, useLayoutEffect, useRef} from "react";
 
 const FLIGHT_MS = 260;
 const EASING = "cubic-bezier(.2, .8, .2, 1)";
+// the cards of a completed sequence leave one after the other
+const COLLECT_MS = 420;
+const COLLECT_STAGGER_MS = 35;
+const CELEBRATION_MS = 1100;
+
+// The places of the completed sequences: one child of the element for each sequence, in order
+export type Sequences = { count: number, slots: RefObject<HTMLElement | null> };
 
 type Rects = Map<string, DOMRect>;
 
@@ -9,11 +16,16 @@ type Rects = Map<string, DOMRect>;
 // Every element with a data-card-id inside the container is followed from one render to the next; a card that was
 // not on the table before comes from the element given as origin (the stock). Dragged cards follow the pointer and
 // are left alone.
-export const useCardFlight = (container: RefObject<HTMLElement | null>, origin: RefObject<HTMLElement | null>) => {
+// When a sequence is completed, its cards leave the table and fly to the place of the sequence, which then shines
+// for a moment. An undo brings them back from there.
+export const useCardFlight = (container: RefObject<HTMLElement | null>, origin: RefObject<HTMLElement | null>, sequences?: Sequences) => {
     // where each card lies once landed, without the shift of a flight under way
     const previous = useRef<Rects>(new Map());
     const flights = useRef(new WeakMap<HTMLElement, Animation>());
     const viewport = useRef({width: 0, height: 0});
+    // the elements of the cards, kept to fly the collected ones after they have left the table
+    const previousElements = useRef(new Map<string, HTMLElement>());
+    const previousCount = useRef(sequences?.count ?? 0);
     useLayoutEffect(() => {
         const elements = container.current?.querySelectorAll<HTMLElement>("[data-card-id]") ?? [];
         // a card still flying is seen where it is on screen, then measured where it lands:
@@ -34,8 +46,21 @@ export const useCardFlight = (container: RefObject<HTMLElement | null>, origin: 
         const reduced = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         const before = previous.current;
         previous.current = rects;
+        const beforeElements = previousElements.current;
+        previousElements.current = new Map([...elements].map(element => [element.dataset.cardId ?? "", element]));
+        const count = sequences?.count ?? 0;
+        const countBefore = previousCount.current;
+        previousCount.current = count;
         if (resized || reduced || before.size === 0) return;
-        const originRect = origin.current?.getBoundingClientRect();
+        const slotOf = (index: number) => sequences?.slots.current?.children.item(index) as HTMLElement | null | undefined;
+        if (count > countBefore && container.current) {
+            const left = [...before.keys()].filter(id => !rects.has(id))
+                .map(id => ({rect: before.get(id), element: beforeElements.get(id)}))
+                .filter((card): card is { rect: DOMRect, element: HTMLElement } => card.rect !== undefined && card.element !== undefined && !card.element.isConnected);
+            collect(container.current, left, slotOf(count - 1));
+        }
+        // after an undo, the cards of the sequence come back from its place
+        const originRect = (count === countBefore - 1 ? slotOf(count) : origin.current)?.getBoundingClientRect();
         elements.forEach(element => {
             if (element.classList.contains("spider-card--dragged") || typeof element.animate !== "function") return;
             const now = rects.get(element.dataset.cardId ?? "");
@@ -50,4 +75,40 @@ export const useCardFlight = (container: RefObject<HTMLElement | null>, origin: 
             ], {duration: FLIGHT_MS, easing: EASING}));
         });
     });
+};
+
+// The cards that left the table fly over it to the place of their sequence, then the place shines for a moment
+const collect = (table: HTMLElement, cards: { rect: DOMRect, element: HTMLElement }[], slot: HTMLElement | null | undefined) => {
+    if (!slot || cards.length === 0 || typeof table.animate !== "function") return;
+    const target = slot.getBoundingClientRect();
+    const layer = document.createElement("div");
+    layer.className = "card-flight-layer";
+    table.appendChild(layer);
+    // the sequence shows in its place once its cards have arrived
+    slot.classList.add("spider-slot--waiting");
+    // the ace leaves first and the king last, as when the sequence is picked up from the top
+    const rank = (element: HTMLElement) => Number(element.dataset.rank ?? 0);
+    const aceFirst = [...cards].sort((a, b) => rank(a.element) - rank(b.element) || b.rect.top - a.rect.top);
+    const flights = aceFirst.map(({rect, element}, index) => {
+        element.className = "spider-card";
+        // out of the table, the card is no longer followed from one render to the next
+        element.removeAttribute("data-card-id");
+        Object.assign(element.style, {
+            position: "absolute", left: `${rect.left}px`, top: `${rect.top}px`,
+            width: `${rect.width}px`, height: `${rect.height}px`, transform: "", transformOrigin: "0 0",
+        });
+        layer.appendChild(element);
+        const scale = target.width / rect.width;
+        return element.animate([
+            {transform: "translate(0, 0) scale(1)"},
+            {transform: `translate(${target.left - rect.left}px, ${target.top - rect.top}px) scale(${scale})`},
+        ], {duration: COLLECT_MS, delay: index * COLLECT_STAGGER_MS, easing: "cubic-bezier(.4, 0, .2, 1)", fill: "forwards"});
+    });
+    const landed = () => {
+        layer.remove();
+        slot.classList.remove("spider-slot--waiting");
+        slot.classList.add("spider-slot--won");
+        setTimeout(() => slot.classList.remove("spider-slot--won"), CELEBRATION_MS);
+    };
+    Promise.all(flights.map(flight => flight.finished)).then(landed, landed);
 };
