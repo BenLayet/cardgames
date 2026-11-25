@@ -47,6 +47,7 @@
   "version": "Version",
   "hint": "Indice",
   "useEmptyColumn": "Tu peux déplacer des cartes vers une colonne vide",
+  "chooseDestination": "Touche une colonne bleue pour y poser les cartes",
   "noUsefulMove": "Plus de coup utile",
   "ranks": {
     "A": "A",
