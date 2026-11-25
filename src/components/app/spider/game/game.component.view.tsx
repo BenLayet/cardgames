@@ -8,6 +8,7 @@ import type {GameContract} from "./game.component.ts";
 import {CardView} from "../../../card/CardView.tsx";
 import {CompactCardView} from "../../../card/CompactCardView.tsx";
 import {useMeasure} from "../../../../hooks/useMeasure.ts";
+import {useCardFlight} from "../../../../hooks/useCardFlight.ts";
 import {cardOffsets} from "./game.component.layout.ts";
 import {AppBar} from "../../../navigation/AppBar.tsx";
 import {TableActions} from "../../../navigation/TableActions.tsx";
@@ -72,6 +73,10 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
         };
     }, [columnsRef]);
     const compact = measured?.compact ?? false;
+    // the cards fly to where they go, and the dealt cards come from the stock
+    const tableRef = useRef<HTMLDivElement>(null);
+    const stockRef = useRef<HTMLButtonElement>(null);
+    useCardFlight(tableRef, stockRef);
     const Face = compact ? CompactCardView : CardView;
 
     const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
@@ -115,7 +120,7 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
         hintedMove !== null && hintedMove.from.column === column && index >= hintedMove.from.index;
     const isHintedTarget = (column: number) => hintedMove?.to === column;
 
-    return <div className="spider-table vstack gap-3" style={{"--spider-columns": v.columns.length} as CSSProperties}>
+    return <div ref={tableRef} className="spider-table vstack gap-3" style={{"--spider-columns": v.columns.length} as CSSProperties}>
         <AppBar title={t("games.spider")} level={2} onBack={onBack}/>
         <div className="spider-top-bar d-flex justify-content-between align-items-start gap-2">
             <div className="spider-completed" aria-label={t("completedSequences", {count: v.completed.length})}>
@@ -123,7 +128,7 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
                     {v.completed[i] && <div className="spider-card"><Face card={`K${v.completed[i]}`}/></div>}
                 </div>)}
             </div>
-                <button className={`spider-stock ${v.isDealBlocked ? "spider-stock--blocked" : ""} ${v.hint?.kind === "deal" ? "spider-hint" : ""}`}
+                <button ref={stockRef} className={`spider-stock ${v.isDealBlocked ? "spider-stock--blocked" : ""} ${v.hint?.kind === "deal" ? "spider-hint" : ""}`}
                         disabled={!v.canDealRow}
                         title={v.isDealBlocked ? t("dealBlocked") : t("dealRow", {count: v.stockRowCount})}
                         aria-label={v.isDealBlocked ? t("dealBlocked") : t("dealRow", {count: v.stockRowCount})}
@@ -158,7 +163,7 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
                             dragged ? "spider-card--dragged" : "",
                             isHinted(columnIndex, index) ? "spider-card--hint" : "",
                         ].join(" ");
-                        return <div key={card.id} data-index={index} className={classes}
+                        return <div key={card.id} data-index={index} data-card-id={card.id} className={classes}
                                     style={{
                                         top: `calc(var(--spider-card-h) * ${offsets[index]})`,
                                         transform: dragged ? `translate(${press?.dx ?? 0}px, ${press?.dy ?? 0}px)` : undefined,
@@ -175,9 +180,10 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
             <p className="fs-4">{t("moves", {count: v.moveCount})}</p>
         </div>}
         <TableActions status={<>
+            {v.selected !== null && <span>{t("chooseDestination")}</span>}
             {v.hint?.kind === "none" && <span className="fst-italic">{t("noUsefulMove")}</span>}
             {v.hint?.kind === "emptyColumn" && <span className="fst-italic">{t("useEmptyColumn")}</span>}
-            {v.hint?.kind !== "none" && v.hint?.kind !== "emptyColumn" &&
+            {v.selected === null && v.hint?.kind !== "none" && v.hint?.kind !== "emptyColumn" &&
                 <span className="text-nowrap">{t("moves", {count: v.moveCount})}</span>}
         </>}>
             <button className="btn table-action" disabled={v.hasGameEnded}
