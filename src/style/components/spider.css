@@ -125,8 +125,13 @@
     filter: drop-shadow(0 0 5px var(--spider-highlight)) drop-shadow(0 0 2px var(--spider-highlight));
 }
 
-.spider-column--destination:empty,
-.spider-column--hint:empty {
+/* an empty column: only the place of its first card */
+.spider-column--destination:empty::before,
+.spider-column--hint:empty::before {
+    content: "";
+    display: block;
+    height: var(--spider-card-h);
+    border-radius: 5px;
     box-shadow: inset 0 0 0 2px var(--spider-highlight);
 }
 

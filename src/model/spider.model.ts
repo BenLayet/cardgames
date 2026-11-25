@@ -139,6 +139,14 @@ export const isWon = (table: Table): boolean => table.completed.length === SEQUE
 export const destinationsOf = (table: Table, from: CardPosition): number[] =>
     table.columns.flatMap((_, to) => canMoveCards(table, from, to) ? [to] : []);
 
+// The columns offered when the cards are clicked: the cards that can take them, else the leftmost empty column.
+// Dropping the cards on any empty column remains possible.
+export const clickDestinationsOf = (table: Table, from: CardPosition): number[] => {
+    const destinations = destinationsOf(table, from);
+    const onCards = destinations.filter(to => table.columns[to].length > 0);
+    return onCards.length > 0 ? onCards : destinations.slice(0, 1);
+};
+
 export type Move = { from: CardPosition, to: number };
 export type Hint = { kind: "move", move: Move } | { kind: "deal" } | { kind: "none" };
 

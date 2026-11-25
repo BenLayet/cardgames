@@ -5,6 +5,7 @@ import {
     canDealRow,
     canMoveCards,
     canPickCards,
+    clickDestinationsOf,
     collectCompletedSequences,
     COLUMN_COUNT,
     createSpiderDeck,
@@ -171,6 +172,18 @@ describe("destinations", () => {
         const t = table([cards("8S"), cards("9H"), cards("9D"), cards("TS")]);
         expect(destinationsOf(t, {column: 0, index: 0})).toEqual([1, 2, 4, 5, 6, 7, 8, 9]);
         expect(destinationsOf(t, {column: 3, index: 0})).toEqual([4, 5, 6, 7, 8, 9]);
+    });
+});
+
+describe("click destinations", () => {
+    it("keeps the columns ending with a card, and drops the empty ones", () => {
+        const t = table([cards("8S"), cards("9H"), [], cards("9D")]);
+        expect(clickDestinationsOf(t, {column: 0, index: 0})).toEqual([1, 3]);
+    });
+
+    it("keeps only the leftmost empty column when no card can take the cards", () => {
+        const t = table([cards("_4D", "8S"), cards("KH")]);
+        expect(clickDestinationsOf(t, {column: 0, index: 1})).toEqual([2]);
     });
 });
 
