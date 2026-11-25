@@ -6,6 +6,7 @@ import {useMeasure} from "../../../../hooks/useMeasure.ts";
 import {AnimatedCardView, type LayoutState} from "../../../card/AnimatedCardView.tsx";
 import {Fireworks} from "../../../fireworks/Fireworks.tsx";
 import {Tomatoes} from "../../../tomatoes/Tomatoes.tsx";
+import {EndMessage} from "../../../end-message/EndMessage.tsx";
 import {useTranslation} from "react-i18next";
 
 export const View = ({path = ""}) => {
@@ -76,7 +77,7 @@ export const View = ({path = ""}) => {
                 {seatLabel(v.player1Name, 1)}
             </div>
         </div>
-        {v.hasGameEnded && <div className="end-message-overlay" onClick={() => d.playAgainRequested()}>
+        {v.hasGameEnded && <EndMessage onPlayAgain={() => d.playAgainRequested()}>
             {v.isPlayer2Computer && v.hasPlayer1WonGame && <>
                 <Fireworks/>
                 <h1>{t("victory")}</h1>
@@ -93,7 +94,7 @@ export const View = ({path = ""}) => {
             </>
             }
             {v.isTiedGame && <h1>{t("tie")}</h1>}
-        </div>
+        </EndMessage>
         }
     </>
 };

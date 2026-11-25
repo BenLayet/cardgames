@@ -13,6 +13,7 @@ import {cardOffsets} from "./game.component.layout.ts";
 import {AppBar} from "../../../navigation/AppBar.tsx";
 import {TableActions} from "../../../navigation/TableActions.tsx";
 import {Fireworks} from "../../../fireworks/Fireworks.tsx";
+import {EndMessage} from "../../../end-message/EndMessage.tsx";
 import type {CardPosition} from "../../../../model/spider.model.ts";
 
 // a press that moves less than this is a click, not a drag
@@ -174,11 +175,11 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
                 </div>;
             })}
         </div>
-        {v.hasGameEnded && <div className="end-message-overlay" onClick={() => d.playAgainRequested()}>
+        {v.hasGameEnded && <EndMessage onPlayAgain={() => d.playAgainRequested()}>
             <Fireworks/>
             <h1>{t("victory")}</h1>
             <p className="fs-4">{t("moves", {count: v.moveCount})}</p>
-        </div>}
+        </EndMessage>}
         <TableActions status={<>
             {v.selected !== null && <span>{t("chooseDestination")}</span>}
             {v.hint?.kind === "none" && <span className="fst-italic">{t("noUsefulMove")}</span>}
