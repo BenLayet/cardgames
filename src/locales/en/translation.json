@@ -69,10 +69,9 @@
   "about": {
     "button": "About",
     "title": "About",
-    "intro_one": "Card Games brings together card games to play alone, against the computer or with others on the same device. For now there is one game: {{games}}. More will come.",
-    "intro_other": "Card Games brings together card games to play alone, against the computer or with others on the same device. For now there are {{count}} games: {{games}}. More will come.",
-    "free": "Everything is free, with no ads.",
-    "donations": "Soon, a button will let you make a donation to support the application."
+    "intro_one": "Card Games brings together card games to play alone, against the computer or with others on the same device. There is one game: {{games}}.",
+    "intro_other": "Card Games brings together card games to play alone, against the computer or with others on the same device. There are {{count}} games: {{games}}.",
+    "free": "Everything is free, with no ads."
   },
   "rules": {
     "read": "Read the rules",

@@ -10,7 +10,6 @@ export const About = ({onClose}: { onClose: () => void }) => {
     return <Modal title={t("about.title")} onClose={onClose}>
         <p>{t("about.intro", {count: games.length, games: new Intl.ListFormat(i18n.language).format(games)})}</p>
         <p>{t("about.free")}</p>
-        <p>{t("about.donations")}</p>
         {/* what was deployed: version, commit and build date */}
         <div className="modal-footnote">
             {t("version")} {__APP_VERSION__.version} · {__APP_VERSION__.commit} · {new Date(__APP_VERSION__.builtAt).toLocaleDateString(i18n.language)}
