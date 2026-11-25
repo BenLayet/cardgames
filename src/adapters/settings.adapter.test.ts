@@ -47,4 +47,29 @@ describe("settings stored in the browser", () => {
         expect(saved).not.toHaveProperty("musicEnabled");
         expect(adapter.load()).toMatchObject({musicVolume: 40, soundsVolume: 0});
     });
+
+    it("keeps the card count of the battle chosen when there was a single one", () => {
+        storeRaw({cardCount: 16});
+        expect(new LocalStorageSettingsAdapter().load().cardCounts).toEqual({bataille: 16});
+    });
+
+    it("writes the migrated settings back once, with their version", () => {
+        storeRaw({cardCount: 16, musicEnabled: true, soundsEnabled: false});
+        new LocalStorageSettingsAdapter().load();
+        const saved = JSON.parse(stored[STORAGE_KEY]) as Record<string, unknown>;
+        expect(saved).toMatchObject({schemaVersion: 3, cardCounts: {bataille: 16}, soundsVolume: 0});
+        expect(saved).not.toHaveProperty("cardCount");
+    });
+
+    it("reads the settings of the current version as they are", () => {
+        storeRaw({schemaVersion: 3, musicVolume: 70, soundsEnabled: false});
+        const settings = new LocalStorageSettingsAdapter().load();
+        expect(settings.musicVolume).toBe(70);
+        expect(settings.soundsVolume).toBe(50);
+    });
+
+    it("starts from the defaults with settings written by a newer version", () => {
+        storeRaw({schemaVersion: 99, musicVolume: 70});
+        expect(new LocalStorageSettingsAdapter().load().musicVolume).toBe(0);
+    });
 });
