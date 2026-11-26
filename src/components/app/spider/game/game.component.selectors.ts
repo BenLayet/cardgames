@@ -33,6 +33,19 @@ export const selectors = {
         const hints = findHints(state.table);
         return hints[state.hintIndex % hints.length];
     },
+    // the move shown by the hint, while its cards are still selected
+    hintedMove: (state: State) => {
+        if (state.hintIndex === null || state.selected === null) return null;
+        const hints = findHints(state.table);
+        const hint = hints[state.hintIndex % hints.length];
+        if (hint.kind !== "move" || hint.from.column !== state.selected.column || hint.from.index !== state.selected.index) return null;
+        const target = state.table.columns[hint.to];
+        return {
+            card: state.table.columns[hint.from.column][hint.from.index].card,
+            target: target[target.length - 1].card,
+            to: hint.to,
+        };
+    },
     moveCount: (state: State) => state.moveCount,
     canUndo: (state: State) => state.history.length > 0 && !state.gameEnded,
     hasGameEnded: (state: State) => state.gameEnded,
