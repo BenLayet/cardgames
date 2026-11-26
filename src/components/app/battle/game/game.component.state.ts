@@ -17,6 +17,10 @@ export const initialState = {
     player2: initialPlayerState,
     gameEnded: false,
     roundWinner: null as PlayerId | null,
+    // who won the last round, kept until the next one is won, to be said on the status line
+    lastRoundWinner: null as PlayerId | null,
+    // whether a card was played since the deal, the first one is announced on the status line
+    hasPlayed: false,
     // otherwise a second human plays from the other side of the screen
     isPlayer2Computer: true,
     // the names typed on the setup screen, null for a player named after their number

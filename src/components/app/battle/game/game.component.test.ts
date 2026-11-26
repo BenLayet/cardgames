@@ -40,6 +40,19 @@ const playRound = async () => {
 };
 
 describe("game", () => {
+    it("says who won the last round and how many cards each player holds", async () => {
+        await deal(["2S", "KS"], ["3H", "QH"]);
+        expect(values().hasPlayed()).toBe(false);
+        expect(values().lastRoundWinner()).toBe(null);
+
+        await playRound();
+
+        expect(values().hasPlayed()).toBe(true);
+        expect(values().lastRoundWinner()).toBe("player1");
+        expect(values().player1CardCount()).toBe(3);
+        expect(values().player2CardCount()).toBe(1);
+    });
+
     it("deals half of the requested cards to each player", async () => {
         await store.when(event("dealRequested", {cardCount: 12, isPlayer2Computer: true, playerNames: [null, null]}));
         await vi.runAllTimersAsync();

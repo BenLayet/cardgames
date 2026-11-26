@@ -30,7 +30,10 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
         state.player1.remainingCards = payload.player1Cards;
         state.player2.remainingCards = payload.player2Cards;
     },
-    player1Played: ({state}) => playTopCard(state.player1),
+    player1Played: ({state}) => {
+        playTopCard(state.player1);
+        state.hasPlayed = true;
+    },
     player2Played: ({state}) => playTopCard(state.player2),
     readyForNextCards: ({state}) => {
         PLAYERS.forEach(id => {
@@ -40,9 +43,11 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
     suspenseCompleted: ({state}) => revealTopCards(state),
     player1WonRound: ({state}) => {
         state.roundWinner = "player1";
+        state.lastRoundWinner = "player1";
     },
     player2WonRound: ({state}) => {
         state.roundWinner = "player2";
+        state.lastRoundWinner = "player2";
     },
     // The played cards go to the round winner pair by pair, starting from the top of the stacks
     hiddenPairRevealed: ({state}) => revealTopCards(state),

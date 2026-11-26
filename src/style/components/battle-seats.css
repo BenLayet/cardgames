@@ -1,15 +1,40 @@
-/* between two humans, the name of the player who taps each half of the table */
-.battle-seat-name {
+/* the player who taps each half of the table: name, and how many cards they hold */
+.battle-seat {
     min-width: 0;
-    padding: var(--app-space-2) var(--app-space-3);
+    padding: var(--app-space-2) var(--app-space-1);
+}
+
+.battle-seat--player2 {
+    margin-right: auto;
+}
+
+.battle-seat--player1 {
+    margin-left: auto;
+    text-align: right;
+}
+
+.battle-seat-name {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     color: var(--app-gold);
     font-family: var(--app-font-display), serif;
-    font-size: 1.4rem;
+    font-size: clamp(0.9rem, 3.4vw, 1.4rem);
+    line-height: 1.2;
 }
 
-.battle-seat-name--player2 {
-    margin-right: auto;
+.battle-seat-count {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--app-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+/* a game without actions: the status line goes down to the bottom of the table */
+body:has(.table-status):not(:has(.table-actions)) {
+    --table-reserve-bottom: 1.75rem;
+}
+
+body:not(:has(.table-actions)) .table-status {
+    bottom: calc(var(--app-frame) + var(--app-space-2) + env(safe-area-inset-bottom, 0px));
 }

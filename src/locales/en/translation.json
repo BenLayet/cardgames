@@ -110,6 +110,17 @@
       "C": "clubs"
     }
   },
+  "cardCountShort_one": "{{count}} card",
+  "cardCountShort_other": "{{count}} cards",
+  "battleStatus": {
+    "you": "You",
+    "tapYourPile": "Tap your pile to play",
+    "tapYourPiles": "Each player taps their pile to play",
+    "battle": "Battle! One card face down, then one face up",
+    "youWonRound": "You take the cards",
+    "computerWonRound": "The computer takes the cards",
+    "playerWonRound": "{{name}} takes the cards"
+  },
   "newGame": "New game",
   "resumeGame": "Resume the game",
   "close": "Close",
