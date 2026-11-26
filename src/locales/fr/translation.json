@@ -49,7 +49,7 @@
   "version": "Version",
   "hint": "Indice",
   "useEmptyColumn": "Tu peux déplacer des cartes vers une colonne vide",
-  "chooseDestination": "Touche une colonne bleue pour y poser les cartes",
+  "chooseDestination": "Il y a plusieurs destinations possibles, choisis-en une.",
   "noUsefulMove": "Plus de coup utile",
   "ranks": {
     "A": "A",

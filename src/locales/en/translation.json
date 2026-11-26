@@ -49,7 +49,7 @@
   "version": "Version",
   "hint": "Hint",
   "useEmptyColumn": "You can move cards to an empty column",
-  "chooseDestination": "Tap a blue column to put the cards there",
+  "chooseDestination": "There are several possible destinations, choose one.",
   "noUsefulMove": "No useful move left",
   "ranks": {
     "A": "A",
