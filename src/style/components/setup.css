@@ -21,6 +21,8 @@
     max-width: 22rem;
     /* .vstack stretches itself, which would hold the narrower block against the left edge */
     align-self: center;
+    /* .vstack also grows, which would leave the buttons at the top of the free space: they sit at the bottom */
+    flex: 0 0 auto;
     margin-top: auto;
     padding-bottom: var(--app-space-4);
 }
