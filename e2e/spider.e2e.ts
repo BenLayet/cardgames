@@ -164,6 +164,22 @@ test("the victory shows once the last sequence has reached its place", async ({p
     expect(frames.some(frame => frame.flying && frame.victory)).toBe(false);
 });
 
+test("the victory comes on screen once, so that the applause plays once", async ({page}) => {
+    await resume(page, ALMOST_WON);
+    // each time a victory message is put on the page
+    await page.evaluate(() => {
+        const counted = {victories: 0};
+        (window as unknown as { counted: typeof counted }).counted = counted;
+        new MutationObserver(mutations => mutations.forEach(mutation => mutation.addedNodes.forEach(node => {
+            if (node instanceof HTMLElement && Array.from(node.querySelectorAll("h1"), (h: HTMLElement) => h.textContent).includes("Victoire")) counted.victories++;
+        }))).observe(document.body, {childList: true, subtree: true});
+    });
+    await card(page, 1, 0).click();
+    await expect(page.getByRole("heading", {name: "Victoire"})).toBeVisible();
+    await page.waitForTimeout(500);
+    expect(await page.evaluate(() => (window as unknown as { counted: { victories: number } }).counted.victories)).toBe(1);
+});
+
 test.describe("on a touch screen", () => {
     test.use({hasTouch: true});
 
