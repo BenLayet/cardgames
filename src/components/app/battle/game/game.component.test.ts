@@ -6,6 +6,7 @@ import {gameDef, type GameContract} from "./game.component.ts";
 import type {Card, StackLocation} from "../../../../model/deck.model.ts";
 import {fakeAudioService, fakeBattleSaveService} from "../../../../test/fakes.ts";
 import {TimeoutSchedulerAdapter} from "../../../../adapters/scheduler.adapter.ts";
+import {dealPiles} from "./game.component.effects.ts";
 
 const event = <N extends ExtractEventNameUnion<GameContract>>(name: N, payload?: ExtractPayload<GameContract, N>) =>
     ({name, payload, statePath: []});
@@ -28,14 +29,26 @@ const stack = (location: StackLocation): Card[] => (values().cardsWithLocation()
     .filter(c => c.placement.stackLocation === location)
     .sort((a, b) => a.placement.index - b.placement.index)
     .map(c => c.card);
+const pile = (seat: number) => stack(`seat${seat}Pile`);
+const played = (seat: number) => stack(`seat${seat}Played`);
 
-// the last card of each list is on top of the stack, so it is played first
-const deal = (player1Cards: Card[], player2Cards: Card[]) =>
-    store.when(event("dealCompleted", {player1Cards, player2Cards}));
+// the last card of each list is on top of the pile, so it is played first
+const deal = (...piles: Card[][]) => store.when(event("dealCompleted", {piles, setAsideCount: 0}));
+const dealToHumans = async (...piles: Card[][]) => {
+    await store.when(event("dealRequested", {cardCount: 12, playerCount: piles.length, isSolo: false, playerNames: piles.map(() => null)}));
+    await vi.runAllTimersAsync();
+    await deal(...piles);
+};
+const click = (seat: number) => store.when(event("playerClicked", seat));
 
-// player 1 clicks, player 2 answers and the game runs until it waits for the next click
+// the player clicks, the computer answers and the game runs until it waits for the next click
 const playRound = async () => {
-    await store.when(event("player1Clicked"));
+    await click(0);
+    await vi.runAllTimersAsync();
+};
+// each human plays in turn, then the game runs until it waits for the next clicks
+const everyonePlays = async (...seats: number[]) => {
+    for (const seat of seats) await click(seat);
     await vi.runAllTimersAsync();
 };
 
@@ -48,133 +61,126 @@ describe("game", () => {
         await playRound();
 
         expect(values().hasPlayed()).toBe(true);
-        expect(values().lastRoundWinner()).toBe("player1");
-        expect(values().player1CardCount()).toBe(3);
-        expect(values().player2CardCount()).toBe(1);
+        expect(values().lastRoundWinner()).toBe(0);
+        expect(values().lastWonCount()).toBe(2);
+        expect(values().seats().map(seat => seat.cardCount)).toEqual([3, 1]);
     });
 
-    it("deals half of the requested cards to each player", async () => {
-        await store.when(event("dealRequested", {cardCount: 12, isPlayer2Computer: true, playerNames: [null, null]}));
+    it("deals the same number of cards to each player and sets the others aside", async () => {
+        await store.when(event("dealRequested", {cardCount: 32, playerCount: 5, isSolo: false, playerNames: [null, null, null, null, null]}));
         await vi.runAllTimersAsync();
 
-        expect(stack("player1RemainingCards")).toHaveLength(6);
-        expect(stack("player2RemainingCards")).toHaveLength(6);
-        expect(values().canPlayer1Play()).toBe(true);
+        expect([0, 1, 2, 3, 4].map(seat => pile(seat).length)).toEqual([6, 6, 6, 6, 6]);
+        expect(values().canPlay()).toEqual([true, true, true, true, true]);
     });
 
-    it("gives both cards to the player with the highest card", async () => {
+    it("splits a deck into equal piles", () => {
+        expect(dealPiles([1, 2, 3, 4, 5, 6, 7], 3)).toEqual([[1, 2], [3, 4], [5, 6]]);
+    });
+
+    it("puts the cards of the round under the pile of the player with the highest card", async () => {
         await deal(["2S", "KS"], ["3H", "QH"]);
 
         await playRound();
 
-        expect(stack("player1WonCards")).toEqual(["QH", "KS"]);
-        expect(stack("player1RemainingCards")).toEqual(["2S"]);
-        expect(stack("player2RemainingCards")).toEqual(["3H"]);
-        expect(stack("player1BeingPlayedCards")).toEqual([]);
-        expect(values().canPlayer1Play()).toBe(true);
+        expect(pile(0)).toEqual(["KS", "QH", "2S"]);
+        expect(pile(1)).toEqual(["3H"]);
+        expect(played(0)).toEqual([]);
+        expect(values().canPlay()).toEqual([true, true]);
     });
 
-    it("plays a battle with a hidden card when both cards have the same value", async () => {
+    it("plays a battle with a face down card when both cards have the same value", async () => {
         await deal(["2S", "3S", "AS", "9S"], ["4H", "5H", "AH", "8H"]);
         await playRound(); // player 1 wins 9S/8H
 
         await playRound(); // AS vs AH
         expect(values().battleCount()).toBe(1);
+        expect(values().seats().map(seat => seat.isTied)).toEqual([true, true]);
 
-        await playRound(); // hidden cards
+        await playRound(); // face down cards
         expect(values().battleCount()).toBe(1);
-        expect(stack("player1BeingPlayedCards")).toEqual(["AS", "3S"]);
+        expect(played(0)).toEqual(["AS", "3S"]);
 
         await playRound(); // 2S vs 4H: player 2 wins the whole battle
         expect(values().battleCount()).toBe(0);
-        // player 2 had no card left, so the won cards were restacked right away
-        expect(stack("player2RemainingCards")).toEqual(["2S", "4H", "3S", "5H", "AS", "AH"]);
-        expect(stack("player1RemainingCards")).toEqual(["8H", "9S"]);
-        expect(stack("player1BeingPlayedCards")).toEqual([]);
-        expect(stack("player2BeingPlayedCards")).toEqual([]);
+        expect(pile(1)).toEqual(["AS", "3S", "2S", "AH", "5H", "4H"]);
+        expect(pile(0)).toEqual(["9S", "8H"]);
+        expect(played(0)).toEqual([]);
+        expect(played(1)).toEqual([]);
     });
 
     it("counts successive battles", async () => {
         await deal(["2S", "KS", "3S", "AS"], ["4H", "KH", "5H", "AH"]);
         await playRound(); // AS vs AH
-        await playRound(); // hidden cards
+        await playRound(); // face down cards
         await playRound(); // KS vs KH
         expect(values().battleCount()).toBe(2);
-    });
-
-    it("restacks the won cards when a player has no remaining cards", async () => {
-        await deal(["KS"], ["QH", "2H"]);
-
-        await playRound(); // KS vs 2H
-
-        expect(stack("player1WonCards")).toEqual([]);
-        expect(stack("player1RemainingCards")).toEqual(["2H", "KS"]);
-        expect(values().canPlayer1Play()).toBe(true);
     });
 
     it("ignores the clicks while a round is being resolved", async () => {
         await deal(["2S", "3S", "KS"], ["4H", "5H", "QH"]);
 
-        await store.when(event("player1Clicked"));
-        await store.when(event("player1Clicked"));
+        await click(0);
+        await click(0);
         await vi.runAllTimersAsync();
 
-        expect(stack("player1RemainingCards")).toEqual(["2S", "3S"]);
-        expect(stack("player1WonCards")).toEqual(["QH", "KS"]);
+        expect(pile(0)).toEqual(["KS", "QH", "2S", "3S"]);
     });
 
-    describe("player 2 never plays before player 1", () => {
-        it("when player 1 double clicks on a hidden card of a battle", async () => {
+    describe("the computer never plays before the player", () => {
+        it("when the player double clicks on a face down card of a battle", async () => {
             await deal(["2S", "3S", "KS"], ["5H", "4H", "KH"]);
             await playRound(); // KS vs KH: battle
 
-            await store.when(event("player1Clicked")); // plays the hidden card
+            await click(0); // plays the face down card
             await vi.advanceTimersByTimeAsync(50);
-            await store.when(event("player1Clicked")); // ignored
+            await click(0); // ignored
             await vi.advanceTimersByTimeAsync(200);
 
-            expect(stack("player1BeingPlayedCards")).toEqual(["KS", "3S"]);
-            expect(stack("player2BeingPlayedCards")).toEqual(["KH", "4H"]);
+            expect(played(0)).toEqual(["KS", "3S"]);
+            expect(played(1)).toEqual(["KH", "4H"]);
         });
 
-        it("when player 1 clicks just before the cards are dealt", async () => {
-            await store.when(event("dealRequested", {cardCount: 12, isPlayer2Computer: true, playerNames: [null, null]}));
+        it("when the player clicks just before the cards are dealt", async () => {
+            await store.when(event("dealRequested", {cardCount: 12, playerCount: 2, isSolo: true, playerNames: [null, null]}));
             await vi.advanceTimersByTimeAsync(450);
-            await store.when(event("player1Clicked")); // ignored
+            await click(0); // ignored
             await vi.advanceTimersByTimeAsync(200);
 
-            expect(stack("player1BeingPlayedCards")).toEqual([]);
-            expect(stack("player2BeingPlayedCards")).toEqual([]);
-        });
-
-        it("when player 1 clicks just before the round is completed", async () => {
-            await deal(["2S", "KS"], ["3H", "QH"]);
-            await store.when(event("player1Clicked"));
-            await vi.advanceTimersByTimeAsync(1650);
-            await store.when(event("player1Clicked")); // ignored
-            await vi.advanceTimersByTimeAsync(200);
-
-            expect(stack("player1BeingPlayedCards")).toEqual([]);
-            expect(stack("player2BeingPlayedCards")).toEqual([]);
+            expect(played(0)).toEqual([]);
+            expect(played(1)).toEqual([]);
         });
     });
 
-    it("ends the game with a victory when player 2 has no card left", async () => {
+    it("lets the computer lay its face down card when the player has a single card left for the battle", async () => {
+        await deal(["2S", "KS"], ["4H", "3H", "KH"]);
+        await playRound(); // KS vs KH: battle, the player has one card left
+
+        expect(played(0)).toEqual(["KS"]);
+        expect(played(1)).toEqual(["KH", "3H"]);
+        expect(values().canPlay()).toEqual([true, true]);
+        // the single card of the player is played face up
+        await playRound();
+        expect(pile(1)).toEqual(["KS", "2S", "KH", "3H", "4H"]);
+        expect(values().hasGameEnded()).toBe(true);
+    });
+
+    it("ends the game with a victory when the computer has no card left", async () => {
         await deal(["KS"], ["QH"]);
 
         await playRound();
 
         expect(values().hasGameEnded()).toBe(true);
-        expect(values().hasPlayer1WonGame()).toBe(true);
+        expect(values().gameWinner()).toBe(0);
         expect(audioService.playApplause).toHaveBeenCalled();
     });
 
-    it("ends the game with a defeat when player 1 has no card left", async () => {
+    it("ends the game with a defeat when the player has no card left", async () => {
         await deal(["QS"], ["KH"]);
 
         await playRound();
 
-        expect(values().hasPlayer2WonGame()).toBe(true);
+        expect(values().gameWinner()).toBe(1);
         expect(audioService.playCrowdDisappointment).toHaveBeenCalled();
     });
 
@@ -187,51 +193,99 @@ describe("game", () => {
         expect(values().isTiedGame()).toBe(true);
     });
 
-    describe("between two humans", () => {
-        const dealToHumans = async (player1Cards: Card[], player2Cards: Card[]) => {
-            await store.when(event("dealRequested", {cardCount: 12, isPlayer2Computer: false, playerNames: [null, null]}));
-            await vi.runAllTimersAsync();
-            await deal(player1Cards, player2Cards);
-        };
-
+    describe("between humans", () => {
         it("waits for player 2 to play instead of answering for them", async () => {
             await dealToHumans(["2S", "KS"], ["3H", "QH"]);
 
             await playRound();
-            expect(stack("player1BeingPlayedCards")).toEqual(["KS"]);
-            expect(stack("player2BeingPlayedCards")).toEqual([]);
+            expect(played(0)).toEqual(["KS"]);
+            expect(played(1)).toEqual([]);
 
-            await store.when(event("player2Clicked"));
-            await vi.runAllTimersAsync();
-            expect(stack("player1WonCards")).toEqual(["QH", "KS"]);
+            await everyonePlays(1);
+            expect(pile(0)).toEqual(["KS", "QH", "2S"]);
         });
 
         it("lets player 2 play first", async () => {
             await dealToHumans(["2S", "KS"], ["3H", "QH"]);
 
-            await store.when(event("player2Clicked"));
-            await playRound();
+            await everyonePlays(1, 0);
 
-            expect(stack("player1WonCards")).toEqual(["QH", "KS"]);
+            expect(pile(0)).toEqual(["KS", "QH", "2S"]);
         });
 
         it("applauds player 2 when they win", async () => {
             await dealToHumans(["QS"], ["KH"]);
 
-            await store.when(event("player2Clicked"));
-            await playRound();
+            await everyonePlays(1, 0);
 
-            expect(values().hasPlayer2WonGame()).toBe(true);
+            expect(values().gameWinner()).toBe(1);
             expect(audioService.playApplause).toHaveBeenCalled();
             expect(audioService.playCrowdDisappointment).not.toHaveBeenCalled();
         });
 
-        it("keeps two humans when playing again", async () => {
+        it("keeps the same players when playing again", async () => {
             await dealToHumans(["KS"], ["QH"]);
 
             await store.when(event("playAgainRequested"));
 
-            expect(values().isPlayer2Computer()).toBe(false);
+            expect(values().isSolo()).toBe(false);
+        });
+    });
+
+    describe("with more than two players", () => {
+        it("gives every card of the round to the highest one", async () => {
+            await dealToHumans(["2S", "7C"], ["3H", "KH"], ["4D", "TD"]);
+
+            await everyonePlays(0, 1, 2);
+
+            expect(pile(1)).toEqual(["7C", "KH", "TD", "3H"]);
+            expect(values().lastWonCount()).toBe(3);
+        });
+
+        it("plays the battle between the tied players only, and gives them the cards of the others", async () => {
+            await dealToHumans(["2S", "3S", "KS"], ["4H", "5H", "KH"], ["6D", "8D", "7C", "TD"], ["9C", "8C", "7D"]);
+
+            await everyonePlays(0, 1, 2, 3); // KS, KH, TD, 7D: battle between seats 0 and 1
+            expect(values().seats().map(seat => [seat.isTied, seat.isDimmed])).toEqual([[true, false], [true, false], [false, true], [false, true]]);
+            expect(values().canPlay()).toEqual([true, true, false, false]);
+
+            await click(2); // a dimmed player does not play
+            expect(played(2)).toEqual(["TD"]);
+
+            await everyonePlays(0, 1); // face down cards
+            await everyonePlays(0, 1); // 2S vs 4H
+            expect(pile(1)).toEqual(["KS", "3S", "2S", "KH", "5H", "4H", "TD", "7D"]);
+            expect(values().canPlay()).toEqual([false, true, true, true]);
+        });
+
+        it("lets a tied player without any card left lose the battle", async () => {
+            await dealToHumans(["KS"], ["2H", "3H", "KH"], ["4D", "5D"]);
+
+            await everyonePlays(0, 1, 2); // KS vs KH: player 1 has no card left
+
+            expect(values().roundWinner()).toBe(null);
+            expect(pile(1)).toEqual(["KS", "KH", "5D", "2H", "3H"]);
+            expect(values().seats()[0].rank).toBe(3);
+            expect(values().seats()[0].eliminatedRound).toBe(1);
+        });
+
+        it("ends the game when one player has all the cards, with a place for each player", async () => {
+            await dealToHumans(["KS"], ["3H", "AH"], ["4D"]);
+
+            await everyonePlays(0, 1, 2);
+
+            expect(values().hasGameEnded()).toBe(true);
+            expect(values().seats().map(seat => seat.rank)).toEqual([2, 1, 2]);
+            expect(values().ranking()).toEqual([1, 0, 2]);
+        });
+
+        it("sets aside the cards of a battle that no tied player can go on with", async () => {
+            await dealToHumans(["KS"], ["KH"], ["4D", "5D"]);
+
+            await everyonePlays(0, 1, 2);
+
+            expect(values().gameWinner()).toBe(2);
+            expect(pile(2)).toEqual(["4D"]);
         });
     });
 

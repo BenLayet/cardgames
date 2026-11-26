@@ -4,8 +4,11 @@ import type {Card} from "../../../../model/deck.model.ts";
 import type {Values} from "./game.component.selectors.ts";
 import type {SavedBattleGame} from "../../../../services/battle-save.service.ts";
 
-// the end of a game: a new game with the same options, or the menu of the game
-export const uiEvents = ["player1Clicked", "player2Clicked", "playAgainRequested", "menuRequested"] as const;
+// the players: one human against the computer, or 2 to 6 humans, with the names typed on the setup screen
+export type BattlePlayers = { isSolo: boolean, playerNames: (string | null)[] };
+
+// a tap or a key plays the pile of a seat; the end of a game: a new game with the same options, or the menu of the game
+export const uiEvents = ["playerClicked", "playAgainRequested", "menuRequested"] as const;
 export const allEvents = [
     ...uiEvents,
     "gameStarted",
@@ -15,29 +18,31 @@ export const allEvents = [
     "restoreRequested",
     "gameRestored",
     "readyForNextCards",
-    "bothPlayersPlayed",
+    "playerPlayed",
+    "allPlayed",
+    "stepCompleted",
     "suspenseStarted",
     "suspenseCompleted",
     "reviewWinnerStarted",
     "reviewWinnerCompleted",
-    "checkWinnerRequested",
     "tieOccurred",
-    "player1WonRound",
-    "player2WonRound",
+    "roundWon",
+    "hiddenCardsRevealed",
+    "cardsCollected",
+    "cardsSetAside",
     "roundCompleted",
-    "pairTransferRequested",
-    "hiddenPairRevealed",
-    "pairTransferred",
-    "pairTransferPaused",
-    "player1Played",
-    "player2Played",
-    "player1RestackedRemainingCards",
-    "player2RestackedRemainingCards",
-    "player1WonGame",
-    "player2WonGame",
+    "gameWon",
+    "gameTied",
 ] as const;
 export type Events = EventsContract<
-    typeof allEvents, { dealRequested: { cardCount: number, isPlayer2Computer: boolean, playerNames: (string | null)[] }, restoreRequested: { isPlayer2Computer: boolean, playerNames: (string | null)[] }, dealCompleted: { player1Cards: Card[], player2Cards: Card[] }, gameRestored: SavedBattleGame }, typeof uiEvents
+    typeof allEvents, {
+        playerClicked: number,
+        playerPlayed: number,
+        dealRequested: BattlePlayers & { cardCount: number, playerCount: number },
+        restoreRequested: BattlePlayers,
+        dealCompleted: { piles: Card[][], setAsideCount: number },
+        gameRestored: SavedBattleGame,
+    }, typeof uiEvents
 >;
 
 export type Contract = {

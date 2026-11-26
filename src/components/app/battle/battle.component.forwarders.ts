@@ -9,12 +9,12 @@ export const eventForwarders = {
                 {
                     from: "startGameRequested",
                     to: "dealRequested",
-                    withPayload: ({values}) => ({cardCount: values.cardCount(), isPlayer2Computer: values.isPlayer2Computer(), playerNames: values.playerNames()}),
+                    withPayload: ({values}) => ({cardCount: values.cardCount(), playerCount: values.playerCount(), isSolo: values.isSolo(), playerNames: values.playerNames()}),
                 },
                 {
                     from: "resumeRequested",
                     to: "restoreRequested",
-                    withPayload: ({values}) => ({isPlayer2Computer: values.isPlayer2Computer(), playerNames: values.playerNames()}),
+                    withPayload: ({values}) => ({isSolo: values.isSolo(), playerNames: values.playerNames()}),
                 },
             ],
             listeners: [

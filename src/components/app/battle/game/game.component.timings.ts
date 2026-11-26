@@ -2,14 +2,14 @@
 export const DELAYS_MS = {
     // between the deal request and the cards being on the table
     deal: 500,
-    // player 2 plays a little after player 1, to give the impression of an answer
-    player2Answer: 100,
+    // the computer plays a little after the player, to give the impression of an answer
+    computerAnswer: 100,
     // before the played cards are turned over
     suspense: 600,
     // to look at the turned over cards before the round is resolved
     reviewWinner: 1000,
-    // to see a revealed hidden pair before it goes to the winner's stack
-    revealedPair: 1500,
-    // between two pairs going to the winner's stack
-    pairTransferPause: 300,
+    // to see the face down cards of a battle before they go to the winner
+    revealedCards: 1500,
+    // the cards fly to the pile of the winner before the next round
+    collected: 600,
 } as const;

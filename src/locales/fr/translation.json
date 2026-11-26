@@ -51,8 +51,8 @@
   "victory": "Victoire",
   "defeat": "Perdu...",
   "namedPlayerWins": "{{name}} gagne\u00a0!",
-  "playerWins": "Le joueur {{number}} gagne !",
-  "battle": "Bataille !",
+  "playerWins": "Le joueur {{number}} gagne\u00a0!",
+  "battle": "Bataille\u00a0!",
   "tie": "Match nul !",
   "playAgain": "Rejouer",
   "menu": "Menu",
@@ -117,7 +117,6 @@
   "battleStatus": {
     "playPile": "Jouer : retourner la carte du dessus",
     "playPileWithKey": "Jouer : retourner la carte du dessus (touche {{key}})",
-    "wonPile": "Cartes gagnées",
     "you": "Toi",
     "tapYourPile": "Touche ton paquet pour jouer",
     "tapYourPiles": "Chacun touche son paquet pour jouer",
@@ -132,8 +131,8 @@
   "about": {
     "button": "À propos",
     "title": "À propos",
-    "intro_one": "«\u00a0Jeux de cartes\u00a0» réunit des jeux de cartes à jouer seul, contre l'ordinateur ou à plusieurs sur le même appareil. Il y a actuellement un jeu : {{games}}.",
-    "intro_other": "«\u00a0Jeux de cartes\u00a0» réunit des jeux de cartes à jouer seul, contre l'ordinateur ou à plusieurs sur le même appareil. Il y a actuellement {{count}} jeux : {{games}}.",
+    "intro_one": "«\u00a0Jeux de cartes\u00a0» réunit des jeux de cartes à jouer seul, contre l'ordinateur ou à plusieurs sur le même appareil. Il y a actuellement un jeu\u00a0: {{games}}.",
+    "intro_other": "«\u00a0Jeux de cartes\u00a0» réunit des jeux de cartes à jouer seul, contre l'ordinateur ou à plusieurs sur le même appareil. Il y a actuellement {{count}} jeux\u00a0: {{games}}.",
     "free": "Jeux gratuits et sans publicité pour toujours, et autant que possible hors ligne.",
     "sourceCode": "Code source sur GitHub"
   },
@@ -142,15 +141,19 @@
     "bataille": [
       {
         "title": "But",
-        "text": "Gagner toutes les cartes de l'autre joueur."
+        "text": "Gagner toutes les cartes. Seul contre l'ordinateur, ou de 2 à 6 joueurs."
       },
       {
         "title": "Un tour",
-        "text": "Chacun retourne sa carte du dessus. La plus forte prend les deux. L'as est la plus forte, le 2 la plus faible."
+        "text": "Chacun retourne sa carte du dessus. La plus forte prend toutes les cartes du tour et les met sous son paquet. L'as est la plus forte, le 2 la plus faible."
       },
       {
         "title": "Bataille",
-        "text": "En cas d'égalité, chacun pose une carte cachée puis une visible. La plus forte prend tout."
+        "text": "Si plusieurs joueurs ont la plus forte carte, eux seuls posent une carte cachée puis une visible. La plus forte prend tout, y compris les cartes des autres joueurs. S'il te reste une seule carte, elle sert de carte visible. Sans carte, tu perds la bataille."
+      },
+      {
+        "title": "Éliminé",
+        "text": "Sans carte, tu es éliminé. Le dernier joueur avec des cartes gagne."
       },
       {
         "title": "Au clavier",

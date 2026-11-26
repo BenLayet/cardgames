@@ -1,28 +1,73 @@
 import {DECK} from "../model/deck.model.ts";
-import type {BattleSaveService, SavedBattleGame, SavedBattlePlayer} from "../services/battle-save.service.ts";
+import type {BattleSaveService, SavedBattleGame} from "../services/battle-save.service.ts";
 
 const STORAGE_KEY = "cardgames.bataille.game";
+// version 1, without a version number, was a game between two players with a pile of won cards each
+const VERSION = 2;
 
 const isObject = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null;
 const isCardList = (value: unknown) => Array.isArray(value) && value.every(card => (DECK as unknown[]).includes(card));
-const isPlayer = (value: unknown): value is SavedBattlePlayer => isObject(value)
-    && isCardList(value.remainingCards) && isCardList(value.wonCards) && isCardList(value.beingPlayedCards)
-    && Array.isArray(value.beingPlayedCardsUpStates) && value.beingPlayedCardsUpStates.every(up => typeof up === "boolean");
+const isBooleanList = (value: unknown) => Array.isArray(value) && value.every(up => typeof up === "boolean");
 const isName = (value: unknown) => value === null || typeof value === "string";
+const isCount = (value: unknown): value is number => typeof value === "number" && Number.isInteger(value) && value >= 0;
+const isCountOrNull = (value: unknown) => value === null || isCount(value);
+
+const isSeat = (value: unknown) => isObject(value)
+    && isCardList(value.pile) && isCardList(value.played) && isBooleanList(value.playedUp)
+    && isCountOrNull(value.rank) && isCountOrNull(value.eliminatedRound);
+
+const isGame = (game: Record<string, unknown>, seatCount: number) =>
+    Array.isArray(game.contenders) && game.contenders.every(index => isCount(index) && index < seatCount)
+    && (game.step === "up" || game.step === "down")
+    && isCount(game.battleCount) && isCount(game.roundNumber) && isCount(game.lastWonCount) && isCount(game.setAsideCount)
+    && (game.lastRoundWinner === null || (isCount(game.lastRoundWinner) && game.lastRoundWinner < seatCount))
+    && typeof game.hasPlayed === "boolean" && typeof game.isSolo === "boolean"
+    && Array.isArray(game.playerNames) && game.playerNames.every(isName);
+
+// a game saved by version 1: the cards on the table and those won go back under the pile of their player
+const isOldPlayer = (value: unknown): value is { remainingCards: string[], wonCards: string[], beingPlayedCards: string[] } =>
+    isObject(value) && isCardList(value.remainingCards) && isCardList(value.wonCards) && isCardList(value.beingPlayedCards);
+const fromVersion1 = (game: Record<string, unknown>): SavedBattleGame | null => {
+    const {player1, player2} = game;
+    if (!isOldPlayer(player1) || !isOldPlayer(player2) || typeof game.isPlayer2Computer !== "boolean") return null;
+    if (!Array.isArray(game.playerNames) || !game.playerNames.every(isName)) return null;
+    const seat = (player: typeof player1) => ({
+        pile: [...player.beingPlayedCards, ...player.wonCards, ...player.remainingCards] as SavedBattleGame["seats"][number]["pile"],
+        played: [], playedUp: [], rank: null, eliminatedRound: null,
+    });
+    const lastRoundWinner = game.lastRoundWinner === "player1" ? 0 : game.lastRoundWinner === "player2" ? 1 : null;
+    return {
+        seats: [seat(player1), seat(player2)],
+        contenders: [0, 1],
+        step: "up",
+        battleCount: 0,
+        roundNumber: 1,
+        lastRoundWinner,
+        lastWonCount: 0,
+        setAsideCount: 0,
+        hasPlayed: game.hasPlayed === true,
+        isSolo: game.isPlayer2Computer,
+        playerNames: game.playerNames,
+    };
+};
 
 // a stored game that does not have this shape is ignored, as if there was none
 export const decodeSavedBattleGame = (text: string): SavedBattleGame | null => {
     try {
         const game: unknown = JSON.parse(text);
-        if (!isObject(game) || !isPlayer(game.player1) || !isPlayer(game.player2)) return null;
-        if (typeof game.isPlayer2Computer !== "boolean" || typeof game.hasPlayed !== "boolean") return null;
-        if (!Array.isArray(game.playerNames) || !game.playerNames.every(isName)) return null;
-        if (![null, "player1", "player2"].includes(game.lastRoundWinner as string | null)) return null;
-        return game as SavedBattleGame;
+        if (!isObject(game)) return null;
+        if (game.version === undefined) return fromVersion1(game);
+        if (game.version !== VERSION || !Array.isArray(game.seats) || game.seats.length < 2 || !game.seats.every(isSeat)) return null;
+        if (!isGame(game, game.seats.length)) return null;
+        const saved: Record<string, unknown> = {...game};
+        delete saved.version;
+        return saved as SavedBattleGame;
     } catch {
         return null;
     }
 };
+
+export const encodeSavedBattleGame = (game: SavedBattleGame): string => JSON.stringify({version: VERSION, ...game});
 
 // Stores the game in the browser; without storage (private mode, blocked...) the game is simply not kept
 export class LocalStorageBattleSaveAdapter implements BattleSaveService {
@@ -41,7 +86,7 @@ export class LocalStorageBattleSaveAdapter implements BattleSaveService {
 
     save(game: SavedBattleGame): void {
         try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(game));
+            localStorage.setItem(STORAGE_KEY, encodeSavedBattleGame(game));
         } catch (error) {
             console.error("Failed to save the Bataille game:", error);
         }

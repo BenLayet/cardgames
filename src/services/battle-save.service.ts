@@ -1,19 +1,25 @@
 import type {Card} from "../model/deck.model.ts";
 
-// the stacks of a player between two rounds: in a battle, the cards on the table stay there
-export type SavedBattlePlayer = {
-    remainingCards: Card[],
-    wonCards: Card[],
-    beingPlayedCards: Card[],
-    beingPlayedCardsUpStates: boolean[],
+// the cards of a seat between two rounds: in a battle, the cards on the table stay there
+export type SavedBattleSeat = {
+    pile: Card[],
+    played: Card[],
+    playedUp: boolean[],
+    rank: number | null,
+    eliminatedRound: number | null,
 };
 export type SavedBattleGame = {
-    player1: SavedBattlePlayer,
-    player2: SavedBattlePlayer,
-    isPlayer2Computer: boolean,
-    playerNames: (string | null)[],
+    seats: SavedBattleSeat[],
+    contenders: number[],
+    step: "up" | "down",
+    battleCount: number,
+    roundNumber: number,
+    lastRoundWinner: number | null,
+    lastWonCount: number,
+    setAsideCount: number,
     hasPlayed: boolean,
-    lastRoundWinner: "player1" | "player2" | null,
+    isSolo: boolean,
+    playerNames: (string | null)[],
 };
 
 // Keeps the Bataille game in progress so that it can be resumed after going back or closing the application

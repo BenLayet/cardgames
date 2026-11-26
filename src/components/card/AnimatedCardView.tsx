@@ -13,7 +13,7 @@ interface CardProps {
 type Coordinates = { top: number, left: number };
 export type LayoutState = {
     table?: Coordinates;
-    stackLocations: Record<StackLocation, Coordinates | undefined>
+    stackLocations: Partial<Record<StackLocation, Coordinates>>
 };
 
 function fakeRandom(seed: number) {
