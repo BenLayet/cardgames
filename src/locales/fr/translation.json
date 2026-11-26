@@ -96,11 +96,11 @@
     "spider": [
       {
         "title": "But",
-        "text": "Faire des suites du roi à l'as dans la même couleur."
+        "text": "Faire des suites du roi à l'as dans la même couleur. Une suite complète part dans les emplacements en haut à gauche\u00a0; remplis-les tous pour gagner."
       },
       {
         "title": "Déplacer",
-        "text": "Une carte va sur la valeur juste au-dessus : un 6 sur un 7. Une suite de même couleur bouge d'un bloc. Une rangée vide accepte tout."
+        "text": "Une carte va sur la valeur juste au-dessus : un 6 sur un 7. Une suite de même couleur bouge d'un bloc. Une rangée vide accepte tout. Une carte grisée ne peut pas bouger pour l'instant."
       },
       {
         "title": "Pioche",

@@ -96,11 +96,11 @@
     "spider": [
       {
         "title": "Goal",
-        "text": "Build sequences from king down to ace in one suit."
+        "text": "Build sequences from king down to ace in one suit. A complete sequence goes to the places at the top left; fill them all to win."
       },
       {
         "title": "Moving",
-        "text": "A card goes on the rank just above: a 6 on a 7. A same-suit run moves as one. An empty column takes anything."
+        "text": "A card goes on the rank just above: a 6 on a 7. A same-suit run moves as one. An empty column takes anything. A greyed card cannot move for now."
       },
       {
         "title": "Stock",
