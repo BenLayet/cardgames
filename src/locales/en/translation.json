@@ -68,6 +68,7 @@
   "version": "Version",
   "hint": "Hint",
   "useEmptyColumn": "You can move cards to an empty column",
+  "emptyColumn": "Empty column {{number}}",
   "hintMove": "Move {{card}} onto {{target}} in column {{column}}",
   "chooseDestination": "There are several possible destinations, choose one.",
   "noUsefulMove": "No useful move left",
@@ -129,6 +130,8 @@
   "cardCountShort_one": "{{count}} card",
   "cardCountShort_other": "{{count}} cards",
   "battleStatus": {
+    "playPile": "Play: turn over the top card",
+    "playPileWithKey": "Play: turn over the top card (key {{key}})",
     "wonPile": "Cards won",
     "you": "You",
     "tapYourPile": "Tap your pile to play",
@@ -163,6 +166,10 @@
       {
         "title": "Battle",
         "text": "On a tie, each player lays one card face down, then one face up. The higher card takes them all."
+      },
+      {
+        "title": "With a keyboard",
+        "text": "Enter or Space on your pile plays a card. Between two players, the top player plays with the A key and the bottom one with the L key."
       }
     ],
     "spider": [
@@ -181,6 +188,10 @@
       {
         "title": "Help",
         "text": "The light bulb suggests a move, the arrow undoes the last move. Each undo counts as a move."
+      },
+      {
+        "title": "With a keyboard",
+        "text": "Tab goes from card to card, Enter or Space plays the card as a tap would, then picks the column. Escape puts the raised cards down."
       }
     ]
   }

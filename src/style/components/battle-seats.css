@@ -54,3 +54,8 @@ body:not(:has(.table-actions)) .table-status {
     font-size: 0.8rem;
     color: var(--app-muted);
 }
+
+/* the cards lie over the pile: its focus outline is drawn around them */
+.battle-pile:focus-visible {
+    outline-offset: 8px;
+}

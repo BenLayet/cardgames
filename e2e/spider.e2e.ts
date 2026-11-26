@@ -77,6 +77,22 @@ test("a clicked card that can only go to one column goes there right away", asyn
     await expect(cardsIn(page, 4)).toHaveCount(1);
 });
 
+test("the keyboard plays a card as a tap would, and Escape puts raised cards down", async ({page}) => {
+    await resume(page, PLAYING);
+    await card(page, 4, 1).focus();
+    await page.keyboard.press("Enter");
+    await expect(cardsIn(page, 5)).toHaveCount(2);
+    await card(page, 0, 1).focus();
+    await page.keyboard.press(" ");
+    await expect(card(page, 0, 1)).toHaveClass(/spider-card--selected/);
+    await page.keyboard.press("Escape");
+    await expect(card(page, 0, 1)).not.toHaveClass(/spider-card--selected/);
+    // the empty column takes the focus once cards are raised
+    await page.keyboard.press("Enter");
+    await page.getByRole("button", {name: "Rangée 4 vide"}).press("Enter");
+    await expect(cardsIn(page, 3)).toHaveCount(1);
+});
+
 test("a clicked card that can go to several columns waits for one of them, an empty one too", async ({page}) => {
     await resume(page, PLAYING);
     await card(page, 0, 1).click();

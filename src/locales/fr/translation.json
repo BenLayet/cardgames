@@ -68,6 +68,7 @@
   "version": "Version",
   "hint": "Indice",
   "useEmptyColumn": "Tu peux déplacer des cartes vers une rangée vide",
+  "emptyColumn": "Rangée {{number}} vide",
   "hintMove": "Mets {{card}} sur {{target}} de la rangée {{column}}",
   "chooseDestination": "Il y a plusieurs destinations possibles, choisis-en une.",
   "noUsefulMove": "Plus de coup utile",
@@ -129,6 +130,8 @@
   "cardCountShort_one": "{{count}} carte",
   "cardCountShort_other": "{{count}} cartes",
   "battleStatus": {
+    "playPile": "Jouer : retourner la carte du dessus",
+    "playPileWithKey": "Jouer : retourner la carte du dessus (touche {{key}})",
     "wonPile": "Cartes gagnées",
     "you": "Toi",
     "tapYourPile": "Touche ton paquet pour jouer",
@@ -163,6 +166,10 @@
       {
         "title": "Bataille",
         "text": "En cas d'égalité, chacun pose une carte cachée puis une visible. La plus forte prend tout."
+      },
+      {
+        "title": "Au clavier",
+        "text": "Entrée ou Espace sur ton paquet joue une carte. À deux, le joueur du haut joue avec la touche A et celui du bas avec la touche L."
       }
     ],
     "spider": [
@@ -181,6 +188,10 @@
       {
         "title": "Aide",
         "text": "L'ampoule propose un coup, la flèche annule le dernier coup. Annuler compte comme un coup."
+      },
+      {
+        "title": "Au clavier",
+        "text": "Tab passe d'une carte à l'autre, Entrée ou Espace joue la carte comme un toucher, puis choisit la rangée. Échap repose les cartes levées."
       }
     ]
   }
