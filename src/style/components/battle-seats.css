@@ -56,7 +56,7 @@
     outline-offset: 8px;
 }
 
-/* the outline of a pile: its colour while it waits for its player, ruby in a battle, gold for the round winner */
+/* the outline of a pile: ruby in a battle, gold for the round winner */
 .battle-pile::after {
     content: "";
     position: absolute;
@@ -67,45 +67,17 @@
     pointer-events: none;
 }
 
-.battle-seat--waiting .battle-pile::after {
-    opacity: 1;
-    animation: battle-pile-pulse 1.4s ease-in-out infinite;
-}
-
 .battle-seat--tied .battle-pile::after {
     opacity: 1;
-    animation: none;
     border-color: #d9475c;
     border-width: 3px;
 }
 
-.battle-seat--tied.battle-seat--waiting .battle-pile::after {
-    animation: battle-pile-pulse 1.4s ease-in-out infinite;
-}
-
 .battle-seat--winner .battle-pile::after {
     opacity: 1;
-    animation: none;
     border-color: var(--app-gold);
     border-width: 3px;
     box-shadow: 0 0 18px var(--app-gold);
-}
-
-@keyframes battle-pile-pulse {
-    0%, 100% {
-        opacity: .25;
-        scale: .98;
-    }
-    50% {
-        opacity: 1;
-        scale: 1.03;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .battle-seat--waiting .battle-pile::after {
-        animation: none;
-    }
 }
 
 /* out of the battle: a veil of felt over the pile and the cards played, which stay there for the winner */

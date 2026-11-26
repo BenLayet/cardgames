@@ -124,7 +124,6 @@ const Table = ({path}: { path: string }) => {
 
     const seatClass = (seat: SeatView) => [
         "battle-seat",
-        seat.canPlay && !seat.isComputer && "battle-seat--waiting",
         seat.isTied && "battle-seat--tied",
         seat.isDimmed && "battle-seat--dimmed",
         seat.isRoundWinner && "battle-seat--winner",
