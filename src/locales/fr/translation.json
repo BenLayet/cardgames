@@ -49,9 +49,6 @@
   "soundsOff": "Coupés",
   "start": "Commencer",
   "victory": "Victoire",
-  "defeat": "Perdu...",
-  "namedPlayerWins": "{{name}} gagne\u00a0!",
-  "playerWins": "Le joueur {{number}} gagne\u00a0!",
   "battle": "Bataille\u00a0!",
   "tie": "Match nul !",
   "playAgain": "Rejouer",
@@ -210,5 +207,11 @@
   "cardsEach_one": "{{count}} carte chacun",
   "cardsEach_other": "{{count}} cartes chacun",
   "setAside_one": "{{count}} mise de côté",
-  "setAside_other": "{{count}} mises de côté"
+  "setAside_other": "{{count}} mises de côté",
+  "battleEnd": {
+    "youWon": "Tu as gagné\u00a0!",
+    "computerWon": "L'ordinateur a gagné",
+    "playerWon": "{{name}} a gagné\u00a0!",
+    "outInRound": "éliminé au tour {{round}}"
+  }
 }

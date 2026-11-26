@@ -20,32 +20,34 @@ The `cardsWithLocation` selector lists every card on the table with a `CardPlace
 
 | Field           | Meaning                                                                        |
 |-----------------|--------------------------------------------------------------------------------|
-| `stackLocation` | The stack the card is in, e.g. `player1RemainingCards`, `player2WonCards`      |
+| `stackLocation` | The stack the card is in: `seat0Pile`, `seat3Played`… (a pile and the cards played for each seat) |
 | `index`         | Position of the card in its stack, 0 being the bottom card                     |
-| `stackIndex`    | Order of the stack, used for the z-index (remaining 1, won 2, being played 3)  |
+| `stackIndex`    | Order of the stack, used for the z-index (pile 1, played 3)                    |
 | `faceUp`        | Whether the card shows its face                                                |
-| `messyLevel`    | How much the cards of the stack are rotated (2 for most stacks, 10 for won cards) |
+| `messyLevel`    | How much the cards of the stack are rotated                                    |
+| `fan`           | How far the card is moved aside, so that the cards of a battle stay in view    |
 
-The stacks and their settings are declared in the `STACKS` array of the same file.
+The cards won go under the pile of the winner, at the lowest indexes.
 
-### 2. Where each stack is on screen: `useMeasure`
+### 2. Where each stack is on screen: `tableLayout`
 
-`src/components/app/battle/game/game.component.view.tsx` and `src/hooks/useMeasure.ts`
+`src/components/app/battle/game/game.component.layout.ts`, `game.component.view.tsx` and `src/hooks/useMeasure.ts`
 
-The view renders an empty `div.card-stack-container` for each stack, with a ref.
-`useMeasure` reads their `getBoundingClientRect()` once they are laid out, and again when the
-window or the game container is resized. The result is a `LayoutState`:
+`useMeasure` reads the size of the table once it is laid out, and again when the window or the
+table is resized. `tableLayout` places the seats for the number of players (seat 0 at the bottom,
+the others clockwise), the cards played between each pile and the centre, and chooses the card size.
+The view turns it into a `LayoutState`, the top left corner of each stack from the top left corner of the table:
 
 ```ts
 type LayoutState = {
-    table?: Coordinates;                                     // origin, the deck container
-    stackLocations: Record<StackLocation, Coordinates | undefined>;
+    table?: Coordinates;                                     // origin, the top left corner of the table
+    stackLocations: Partial<Record<StackLocation, Coordinates>>;
 };
 ```
 
-All cards are rendered in the deck container (`deckRef`), with `position: absolute`, so the
-coordinates of a stack are relative to that container. The cards are only rendered once the
-first measure is available.
+All cards are rendered in one container at the top left corner of the table, with `position: absolute`.
+The cards are only rendered once the first measure is available. The table is rendered again from
+scratch for another number of players.
 
 ### 3. Moving the card: `AnimatedCardView`
 
@@ -66,7 +68,7 @@ movement.current = element.animate([{transform: current}, {transform: target}], 
 
 `computeFinalPosition`:
 - starts from the stack coordinates minus the table coordinates;
-- offsets each card by `index / 2` to the right and `index` up, so a stack looks thick;
+- offsets each card by `index / 2` to the right and `index` up, so a stack looks thick, and by `fan` times part of its size to the right and down;
 - adds a rotation from a pseudo-random value seeded by `index`, multiplied by `messyLevel`.
   The rotation is the same for a given index on every render, so cards do not jitter.
 
@@ -101,11 +103,11 @@ The pauses between the steps of a round are delays in effects, not animation cal
 | Delay               | Value   | Between                                                      |
 |---------------------|---------|--------------------------------------------------------------|
 | `deal`              | 500 ms  | the deal request and the cards being on the table            |
-| `player2Answer`     | 100 ms  | player 1 playing and player 2 playing                         |
-| `suspense`          | 600 ms  | both cards played and the cards being turned over            |
+| `computerAnswer`    | 100 ms  | the player playing and the computer playing                  |
+| `suspense`          | 600 ms  | every card played and the cards being turned over            |
 | `reviewWinner`      | 1000 ms | the cards being turned over and the round being resolved     |
-| `revealedPair`      | 1500 ms | a hidden pair being revealed and it going to the winner      |
-| `pairTransferPause` | 300 ms  | two pairs going to the winner's stack                        |
+| `revealedCards`     | 1500 ms | the face down cards being shown and going to the winner      |
+| `collected`         | 600 ms  | the cards going to the winner's pile and the next round      |
 
 Effects schedule the next action through `SchedulerService`
 (`src/services/scheduler.service.ts`, implemented with `setTimeout` by
@@ -128,8 +130,8 @@ These do not depend on the card positions. They play when their element is rende
 | Animation                  | Files                                                           | Shown when                         |
 |----------------------------|-----------------------------------------------------------------|------------------------------------|
 | Battle message pop / pulse | `src/style/components/battle-message.css`                       | `battleCount > 0`                  |
-| Tomatoes thrown            | `src/components/tomatoes/Tomatoes.tsx`, `src/style/components/tomatoes.css` | player 2 wins the game |
-| Fireworks (SVG `<animate>`) | `src/components/fireworks/Fireworks.tsx`                       | player 1 wins the game             |
+| Tomatoes thrown            | `src/components/tomatoes/Tomatoes.tsx`, `src/style/components/tomatoes.css` | the computer wins the game |
+| Fireworks (SVG `<animate>`) | `src/components/fireworks/Fireworks.tsx`                       | a human wins the game              |
 | Settings menu opening      | `src/style/components/settings-menu.css`                        | the settings menu opens            |
 
 The battle message is rendered with `key={v.battleCount}`, so React creates a new element
@@ -139,8 +141,8 @@ for each new battle and the keyframes play again.
 
 1. Change the state so the card is in another stack (or at another index) in an updater.
    `cardsWithLocation` and `AnimatedCardView` move it with no other change.
-2. For a new stack: add it to `StackLocation` (`deck.model.ts`), to `STACKS` (selectors),
-   and add a ref, a `card-stack-container` and an entry in the `useMeasure` callback in the view.
+2. For a new stack: add it to `StackLocation` (`deck.model.ts`) and to `cardsWithLocation` (selectors),
+   and give it a place in `tableLayout` and in the `LayoutState` built by the view.
 3. If the next step must wait for the movement, schedule it in an effect with a new entry
    in `DELAYS_MS`.
 
