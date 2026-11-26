@@ -115,10 +115,7 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
                                     style={{
                                         top: `calc(var(--spider-card-h) * ${offsets[index]})`,
                                         transform: dragged ? `translate(${pointer.dragOffset.dx}px, ${pointer.dragOffset.dy}px)` : undefined,
-                                        // the selected cards sway together, around the middle of the first one
-                                        "--sway-origin-y": v.selected?.column === columnIndex
-                                            ? `calc(var(--spider-card-h) * ${0.5 - (offsets[index] - offsets[v.selected.index])})` : undefined,
-                                    } as CSSProperties}>
+                                    }}>
                             <Face card={card.card} faceUp={card.faceUp}/>
                         </div>;
                     })}
