@@ -76,6 +76,8 @@ A pull request does not change the version. It carries one label instead, which 
 - `minor` (`1.1.0`, `1.2.0`…): a new feature or a visible change.
 - `patch` (`1.0.1`…): nothing changes visually.
 
+The check skips draft pull requests. Open a pull request as a draft, add its label, then mark it ready for review: the check then runs once, with the label already there.
+
 Once the pull request is merged into `main`, the *Version* workflow (`.github/workflows/version.yml`) raises the version in `package.json` as the label says, commits it on `main` and tags it `vX.Y.Z`. Pull requests opened at the same time therefore never conflict on the version, and their titles carry no version number.
 
 ## Deployment
