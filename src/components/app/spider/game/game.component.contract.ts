@@ -11,6 +11,8 @@ export const uiEvents = [
     "undoRequested",
     "hintRequested",
     "playAgainRequested",
+    // the victory message is on screen, once the last sequence has reached its place
+    "victoryShown",
 ] as const;
 export const allEvents = [
     ...uiEvents,

@@ -45,6 +45,7 @@ export const effects = ({audioService, spiderSaveService}: Dependencies): Effect
             audioService.playCardSlide();
             save(values);
         },
-        gameWon: () => audioService.playApplause(),
+        // the applause goes with the victory message, not with the winning move
+        victoryShown: () => audioService.playApplause(),
     };
 };

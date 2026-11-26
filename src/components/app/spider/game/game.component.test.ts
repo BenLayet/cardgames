@@ -203,6 +203,10 @@ describe("spider game", () => {
         expect(column(0)).toEqual([]);
         expect(values().completed()).toHaveLength(8);
         expect(values().hasGameEnded()).toBe(true);
+        // the applause waits for the victory message
+        expect(audioService.playApplause).not.toHaveBeenCalled();
+
+        await store.when(event("victoryShown"));
         expect(audioService.playApplause).toHaveBeenCalled();
     });
 
