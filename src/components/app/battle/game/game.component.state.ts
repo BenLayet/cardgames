@@ -45,6 +45,9 @@ export const initialState = {
     playerNames: [] as (string | null)[],
     // a resumed game shows its cards where they are, without dealing them
     isRestored: false,
+    // the cards collected in a round are shuffled from this seed and the round number, as when picked up by hand,
+    // so that a deal can be played in memory before it is dealt; null: collected in seat order
+    dealSeed: null as number | null,
 };
 
 export type State = typeof initialState;

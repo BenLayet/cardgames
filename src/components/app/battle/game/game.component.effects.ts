@@ -6,7 +6,7 @@ import type {SchedulerService} from "../../../../services/scheduler.service.ts";
 import {DELAYS_MS} from "./game.component.timings.ts";
 import type {BattleSaveService} from "../../../../services/battle-save.service.ts";
 import {COMPUTER_SEAT} from "./game.component.state.ts";
-import {maxRounds, simulateGame} from "./game.component.simulation.ts";
+import {simulateGame} from "./game.component.simulation.ts";
 
 export type Dependencies = {
     audioService: AudioService,
@@ -20,15 +20,19 @@ export const dealPiles = <T>(deck: T[], playerCount: number): T[][] => {
     return Array.from({length: playerCount}, (_, seat) => deck.slice(seat * perPlayer, (seat + 1) * perPlayer));
 };
 
-// a deal is played in memory first: one that would never end, or last too long, is shuffled again
-const MAX_SHUFFLES = 500;
-export const dealPlayablePiles = (cardCount: number, playerCount: number, random: () => number = Math.random): Card[][] => {
-    let piles = dealPiles(shuffleDeck(createDeck(cardCount), random), playerCount);
-    const limit = maxRounds(cardCount, playerCount);
-    for (let shuffle = 1; shuffle < MAX_SHUFFLES && simulateGame(piles, limit).outcome !== "ends"; shuffle++) {
-        piles = dealPiles(shuffleDeck(createDeck(cardCount), random), playerCount);
+// a deal is played in memory first: one that would last too long, or never end, is dealt again
+const MAX_DEALS = 100;
+export type Deal = { piles: Card[][], dealSeed: number };
+const newDeal = (cardCount: number, playerCount: number, random: () => number): Deal => ({
+    piles: dealPiles(shuffleDeck(createDeck(cardCount), random), playerCount),
+    dealSeed: Math.floor(random() * 2 ** 31),
+});
+export const dealPlayableGame = (cardCount: number, playerCount: number, random: () => number = Math.random): Deal => {
+    let deal = newDeal(cardCount, playerCount, random);
+    for (let attempt = 1; attempt < MAX_DEALS && simulateGame(deal.piles, deal.dealSeed).outcome !== "ends"; attempt++) {
+        deal = newDeal(cardCount, playerCount, random);
     }
-    return piles;
+    return deal;
 };
 
 export const effects = ({audioService, schedulerService, battleSaveService}: Dependencies): Effects<Contract> => {
@@ -41,8 +45,8 @@ export const effects = ({audioService, schedulerService, battleSaveService}: Dep
             schedulerService.cancelAll();
             // a new game replaces the one that could be resumed
             battleSaveService.clear();
-            const piles = dealPlayablePiles(cardCount, playerCount);
-            after(DELAYS_MS.deal, () => dealCompleted({piles, setAsideCount: cardCount % playerCount}));
+            const {piles, dealSeed} = dealPlayableGame(cardCount, playerCount);
+            after(DELAYS_MS.deal, () => dealCompleted({piles, setAsideCount: cardCount % playerCount, dealSeed}));
         },
         // the game goes on with the players chosen on the menu, which may have changed since the game was left,
         // as long as the number of players is the same

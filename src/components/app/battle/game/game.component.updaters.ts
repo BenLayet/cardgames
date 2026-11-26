@@ -3,7 +3,7 @@ import type {StateUpdaters} from "@softer-components/types";
 import type {Contract} from "./game.component.contract.ts";
 import {initialSeatState, initialState, type SeatState, type State} from "./game.component.state.ts";
 import {gameWinner, highestContenders, isInGame, mustPlay, roundLeader, seatsInGame} from "./game.component.rules.ts";
-import type {Card} from "../../../../model/deck.model.ts";
+import {type Card, seededRandom, shuffleDeck} from "../../../../model/deck.model.ts";
 import {assertIsNotUndefined} from "../../../../utils/assert.functions.ts";
 
 // The helpers below change the state in place and return nothing,
@@ -34,6 +34,8 @@ const eliminatePlayers = (state: State): void => {
         seat.eliminatedRound = state.roundNumber - 1;
     });
 };
+// a different shuffle for each round of a deal
+const collectSeed = (dealSeed: number, roundNumber: number) => (dealSeed + Math.imul(roundNumber, 0x9e3779b1)) | 0;
 const newSeats = (piles: Card[][]): SeatState[] =>
     piles.map(pile => ({...initialSeatState, pile}));
 const startRound = (state: State): void => {
@@ -45,9 +47,10 @@ const startRound = (state: State): void => {
 
 export const stateUpdaters: StateUpdaters<Contract, State> = {
     dealRequested: ({payload: {isSolo, playerNames}}) => ({...initialState, isSolo, playerNames}),
-    dealCompleted: ({state, payload: {piles, setAsideCount}}) => {
+    dealCompleted: ({state, payload: {piles, setAsideCount, dealSeed}}) => {
         state.seats = newSeats(piles);
         state.setAsideCount = setAsideCount;
+        state.dealSeed = dealSeed ?? null;
         startRound(state);
     },
     gameRestored: ({payload}) => ({
@@ -105,7 +108,8 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
     cardsCollected: ({state}) => {
         const winner = state.roundWinner;
         if (winner === null) throw new Error("The cards can only be collected once the round has a winner");
-        const won = state.seats.flatMap(seat => seat.played);
+        const played = state.seats.flatMap(seat => seat.played);
+        const won = state.dealSeed === null ? played : shuffleDeck(played, seededRandom(collectSeed(state.dealSeed, state.roundNumber)));
         state.seats.forEach(seat => {
             seat.played = [];
             seat.playedUp = [];
