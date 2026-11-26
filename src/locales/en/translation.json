@@ -188,6 +188,7 @@
     "ready": "A new version is ready.",
     "readyVersion": "Version {{version}} is ready.",
     "install": "Update",
+    "later": "Later",
     "failed": "Could not check. Are you connected to the Internet?"
   }
 }

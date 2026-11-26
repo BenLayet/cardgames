@@ -188,6 +188,7 @@
     "ready": "Une nouvelle version est prête.",
     "readyVersion": "La version {{version}} est prête.",
     "install": "Mettre à jour",
+    "later": "Plus tard",
     "failed": "Impossible de vérifier. Es-tu connecté à Internet\u00a0?"
   }
 }

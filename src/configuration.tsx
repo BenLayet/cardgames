@@ -17,6 +17,7 @@ const spiderSaveService = new LocalStorageSpiderSaveAdapter();
 const battleSaveService = new LocalStorageBattleSaveAdapter();
 // the views of the application ask it directly, outside the state of the games
 export const appUpdateService = new PwaAppUpdateAdapter(registerSW);
+appUpdateService.watchForeground(document);
 
 const {musicVolume, soundsVolume, language} = settingsService.load();
 audioService.setMusicVolume(musicVolume);
