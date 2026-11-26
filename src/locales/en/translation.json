@@ -134,7 +134,8 @@
     "title": "About",
     "intro_one": "“Card Games” brings together card games to play alone, against the computer or with others on the same device. There is currently one game: {{games}}.",
     "intro_other": "“Card Games” brings together card games to play alone, against the computer or with others on the same device. There are currently {{count}} games: {{games}}.",
-    "free": "Free games with no ads, forever, and playable offline as much as possible."
+    "free": "Free games with no ads, forever, and playable offline as much as possible.",
+    "sourceCode": "Source code on GitHub"
   },
   "rules": {
     "title": "Rules",
