@@ -32,7 +32,7 @@ test("each player plays with their own key, and the end screen ranks every playe
     await expect(page.getByRole("status")).toHaveText("Léa remporte 3 cartes");
 
     await page.keyboard.press("l");
-    await expect(page.getByRole("status")).toHaveText("À jouer : Léa, Tom");
+    await expect(page.getByRole("status")).toHaveText("Au tour de : Léa, Tom");
     await page.keyboard.press("a");
     await page.keyboard.press("g");
     // Léa wins the round: the cards wait for a tap, or a key, before going to her
