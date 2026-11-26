@@ -21,7 +21,7 @@ export const dealPiles = <T>(deck: T[], playerCount: number): T[][] => {
     return Array.from({length: playerCount}, (_, seat) => deck.slice(seat * perPlayer, (seat + 1) * perPlayer));
 };
 
-// a deal is played in memory first: one that would last too long, or never end, is dealt again
+// a deal is played in memory first: one whose game would never end is dealt again, however long the game
 const MAX_DEALS = 100;
 export type Deal = { piles: Card[][], dealSeed: number };
 const newDeal = (cardCount: number, playerCount: number, random: () => number): Deal => ({
