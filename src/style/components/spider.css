@@ -108,17 +108,20 @@
     content: "";
     position: absolute;
     inset: 0 0 auto;
-    height: calc(var(--spider-card-h) * (1 + var(--selected-run-height, 0)));
+    /* each card grows by 5% from its top: the run grows by 5% of the last card */
+    height: calc(var(--spider-card-h) * (1.05 + var(--selected-run-height, 0)));
     border-radius: 5px;
-    box-shadow: 0 0 4px 1px var(--bs-primary), 0 8px 10px #0006;
+    box-shadow: 0 0 4px 1px var(--bs-primary), 0 14px 18px #0008, 0 4px 6px #0005;
     pointer-events: none;
+    transform-origin: 50% 0;
+    transform: translateY(calc(var(--spider-card-h) * -0.09)) scaleX(1.05);
 }
 
-/* the selected cards are lifted while they wait for a column; the face is lifted, not the card itself,
-   so that the lift is not taken for a move and the card does not fly back down */
-.spider-card--selected > *,
-.spider-card--selected-first::after {
-    transform: translateY(calc(var(--spider-card-h) * -0.07));
+/* the selected cards are picked up while they wait for a column: lifted and slightly enlarged.
+   The face is lifted, not the card itself, so that the lift is not taken for a move and the card does not fly back down */
+.spider-card--selected > * {
+    transform-origin: 50% 0;
+    transform: translateY(calc(var(--spider-card-h) * -0.09)) scale(1.05);
 }
 
 .spider-card--dragged {
