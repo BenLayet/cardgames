@@ -29,10 +29,10 @@ export const AppBar = ({title, level, onBack, rulesOf}: {
             </button>
             : <img className="app-bar-logo" src="/favicon.svg" alt="" aria-hidden="true"/>}
         <h1 className="app-bar-title">{title}</h1>
-        <button className="btn app-bar-button" title={t("about.button")} aria-label={t("about.button")}
-                onClick={() => setAboutOpen(true)}>
+        {level === 0 && <button className="btn app-bar-button" title={t("about.button")} aria-label={t("about.button")}
+                                onClick={() => setAboutOpen(true)}>
             <FontAwesomeIcon icon={faCircleInfo}/>
-        </button>
+        </button>}
         {rulesOf && <button className="btn app-bar-button" title={t("rules.title")} aria-label={t("rules.title")}
                             onClick={() => setRulesOpen(true)}>
             <FontAwesomeIcon icon={faBook}/>
