@@ -1,0 +1,64 @@
+# CLAUDE.md
+
+See `README.md` for the stack, the commands, the structure and the versioning, and `docs/ANIMATIONS.md` for card movements.
+
+## Guideline for a new game
+
+Every new game follows these rules, so that all games look and behave the same way. Spider (`src/components/app/spider/`) and Bataille (`src/components/app/battle/`) are the reference implementations.
+
+### 1. A menu to configure the game
+
+- Before playing, the game shows its setup screen: the shared `Setup` component in `src/components/app/setup/`, not a screen of its own.
+- The options it offers come from the game's `GameDefinition` in `src/model/games.model.ts` (players, `cardCountOptions`, `suitCountOptions`, hints…). Add a field there when a new kind of option is needed, rather than a special case in the setup view.
+- The game is listed on the home page only once it is playable (`available: true`).
+
+### 2. Resume the last game or start a new one
+
+- When a game in progress exists for the chosen options, **Resume** is the main (default) action of the setup screen, and **New game** the second one. The game passes `onResume` to `Setup` when it can resume, as `spider.component.view.tsx` and `battle.component.view.tsx` do.
+- The game in progress is saved after each move, in the browser, and is resumed without the deal animation.
+- Games are saved **per game type**: each combination of options that makes a different game (for example the number of players, or the number of cards) has its own save. Spider does this: `LocalStorageSpiderSaveAdapter` keeps one game per number of cards and of suits, under `cardgames.spider.game.<cardCount>.<suitCount>`, and `savedVariants()` tells which ones can be resumed.
+- Saving goes through a service interface in `src/services/` (`<game>-save.service.ts`) and a `localStorage` adapter in `src/adapters/`, wired in `src/configuration.tsx`. Without storage (private mode, storage full), the game is simply not kept and must not fail.
+- The saved format carries a version number; a saved game of an older shape is migrated or ignored, never a crash (see `battle-save.adapter.ts`).
+- Back from the game goes to the game's setup screen, and the game stays saved.
+
+### 3. Cards use the shared card components
+
+- Cards are drawn only with the components of `src/components/card/`; a game never draws its own cards.
+  - `CompactCardView`: small compact cards, readable at small sizes (value and suit on the top line, pips as on a traditional card, figures in a frame).
+  - `CardView`: the detailed SVG faces, where there is room.
+  - `AnimatedCardView`: a card placed and moved on the table (see `docs/ANIMATIONS.md`).
+- Cards vary by language: in French the figures show V, D, R, in English J, Q, K. This comes from the `ranks` translations and from `src/assets/cards/fr/` (made by `scripts/french-card-faces.ts`); a new game gets it for free by using these components.
+- The card back is `src/assets/cards/back.svg` (ruby back of the "Salon vert" style).
+- Screen readers get the card name from `useCardName`.
+
+### 4. A slightly realistic effect for messy piles
+
+- Piles are not perfectly aligned: each card of a stack is slightly rotated, the stack grows by a pixel per card, up to a few pixels.
+- Cards in play, on the table during a round, look loosely stacked: more disorder than a pile that is put away.
+- Use the `messyLevel` and `fan` fields of `CardPlacement` (`src/model/deck.model.ts`), which `AnimatedCardView` turns into a rotation and an offset. The rotation of a card comes from its index in the stack, not from `Math.random()`, so that a card does not move again when the screen is drawn again.
+- Keep it light: the value and suit of every face-up card must stay readable.
+
+### 5. Status line at the bottom, actions at the bottom right
+
+- Everything the game says to the player (whose turn it is, the move counter, the hint, what to do next) goes in the status line at the bottom centre of the felt; no message elsewhere on the table.
+- The game's actions (Hint, Undo…) sit in the bottom right corner, under the right thumb (in a row upright, in a column sideways).
+- Both come from the shared `TableActions` component (`src/components/navigation/TableActions.tsx`): `status` for the line, its children for the buttons (`btn table-action`, an icon and a label). Its `statusRef` and `actionsRef` let the game measure the room left above them, as Spider does.
+- The top bar is the shared `AppBar` (`src/components/navigation/AppBar.tsx`): Back, title, rules and Settings. No game buttons in it.
+
+### 6. Animations to move cards
+
+- Every card that changes place moves there, so that the eye can follow it: dealing, playing, a move, an undo. A card never jumps.
+- The game state holds no animation flag, only where each card is; the view animates with the Web Animations API, without a library (`docs/ANIMATIONS.md`).
+- Reuse what exists: `AnimatedCardView` (`src/components/card/AnimatedCardView.tsx`) for cards placed on a table by stack, as in Bataille, or `useCardFlight` (`src/hooks/useCardFlight.ts`) for cards laid out by the page, as in Spider (flight from the old place to the new one, deal from the stock).
+- A resumed game appears in place, without the deal animation.
+
+### 7. Victory and defeat screen
+
+- The end of a game uses the shared `EndMessage` component (`src/components/end-message/EndMessage.tsx`), which offers Play again (same options) and Menu, and keeps the top bar usable.
+- Inside it, the game puts its title and details, with the shared effects: `Fireworks` (`src/components/fireworks/`) for a victory, `Tomatoes` (`src/components/tomatoes/`) for a defeat against the computer.
+
+### Also
+
+- All texts in `src/locales/en` and `src/locales/fr`; French texts use "tu", never "vous".
+- The rules of the game, in both languages, open from the book button of the top bar (setup screen and during play).
+- Unit tests next to the code (Vitest), and an end-to-end test in `e2e/` for the main flow.
