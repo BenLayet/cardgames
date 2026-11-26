@@ -28,12 +28,23 @@ describe("spider", () => {
         expect(suits.size).toBe(4);
     });
 
-    it("goes back to the setup screen when the player wants to play again", async () => {
+    it("goes back to the setup screen when the player wants the menu at the end of a game", async () => {
         await store.when({name: "startGameRequested", statePath: setupPath});
+
+        await store.when({name: "menuRequested", statePath: gamePath});
+
+        expect(store.getValues("").isStarted()).toBe(false);
+    });
+
+    it("deals a new game with the same options when the player wants to play again", async () => {
+        await store.when({name: "startGameRequested", statePath: setupPath});
+        await store.when({name: "gameEnded", statePath: gamePath});
 
         await store.when({name: "playAgainRequested", statePath: gamePath});
 
-        expect(store.getValues("").isStarted()).toBe(false);
+        expect(store.getValues("").isStarted()).toBe(true);
+        expect(store.getValues("/game").hasGameEnded()).toBe(false);
+        expect(new Set(store.getValues("/game").columns().flat().map(c => c.card.charAt(1))).size).toBe(4);
     });
 
     it("offers to resume a saved game, and resumes it", async () => {
@@ -56,7 +67,7 @@ describe("spider", () => {
         await store.when({name: "startGameRequested", statePath: setupPath});
         expect(store.getValues("").canResume()).toBe(false);
         await store.when({name: "gameEnded", statePath: gamePath});
-        await store.when({name: "playAgainRequested", statePath: gamePath});
+        await store.when({name: "menuRequested", statePath: gamePath});
 
         expect(store.getValues("").canResume()).toBe(false);
     });
@@ -115,7 +126,7 @@ describe("spider", () => {
         await spider.when({name: "startGameRequested", statePath: setupPath});
 
         await spider.when({name: "gameEnded", statePath: gamePath});
-        await spider.when({name: "playAgainRequested", statePath: gamePath});
+        await spider.when({name: "menuRequested", statePath: gamePath});
 
         expect(spider.getValues("").canResume()).toBe(false);
         await spider.when({name: "setSuitCountRequested", payload: 1, statePath: setupPath});
