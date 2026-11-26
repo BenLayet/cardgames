@@ -47,4 +47,18 @@ describe("card offsets", () => {
     it("lays out an empty column", () => {
         expect(cardOffsets([], 3, false)).toEqual([]);
     });
+
+    it("spreads the face up cards of small cards when the column has room", () => {
+        // a card 50 px high: a covered card shows 44 px, at most 0.8 of a card
+        expect(gaps(cardOffsets(cards("_KS", "9H", "4D"), 10, true, 50))).toEqual([0.12, 0.8]);
+        expect(gaps(cardOffsets(cards("_KS", "9H", "4D"), 10, true, 100))).toEqual([0.12, 0.44]);
+        // large cards already show enough
+        expect(gaps(cardOffsets(cards("9H", "4D"), 10, false, 200))).toEqual([0.28]);
+    });
+
+    it("brings the spread face up cards back to their usual gap before squeezing the face down ones", () => {
+        const offsets = cardOffsets(cards("_KS", "9H", "4D", "2C"), 0.12 + 0.42 * 2, true, 100);
+        expect(gaps(offsets)).toEqual([0.12, 0.42, 0.42]);
+        expect(gaps(cardOffsets(cards("_KS", "9H", "4D", "2C"), 0.12 + 0.32 + 0.32, true, 100))).toEqual([0.12, 0.32, 0.32]);
+    });
 });

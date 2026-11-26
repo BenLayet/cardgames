@@ -4,6 +4,11 @@ import {followsInSequence, type SpiderCard} from "../../../../model/spider.model
 // A compact card shows its value and suit on its top line, so less of it is needed.
 const FACE_DOWN = 0.12;
 const FACE_UP = {regular: 0.28, compact: 0.32};
+// on small cards, a covered face up card shows this many pixels when the column has room for it,
+// a strip large enough to be aimed at with a finger
+const FACE_UP_TARGET_PX = 44;
+// but never more than this part of a card
+const MAX_FACE_UP = 0.8;
 // the least visible part of a card once a column is squeezed
 const MIN_FACE_DOWN = 0.04;
 const MIN_INSIDE_SEQUENCE = 0.07;
@@ -25,19 +30,24 @@ const shrink = (gaps: number[], minimums: number[], indexes: number[], excess: n
     return excess - room * ratio;
 };
 
-// Top of each card, in card heights. When the column is taller than the given room (in card heights,
-// below the top of the first card), the face down cards are squeezed first, then the cards inside a sequence,
-// then every card alike.
-export const cardOffsets = (column: SpiderCard[], room: number, compact: boolean): number[] => {
+// Top of each card, in card heights. Face up cards are spread so that each shows FACE_UP_TARGET_PX
+// when the card height is given. When the column is taller than the given room (in card heights,
+// below the top of the first card), the spread face up cards come back to their usual gap first,
+// then the face down cards are squeezed, then the cards inside a sequence, then every card alike.
+export const cardOffsets = (column: SpiderCard[], room: number, compact: boolean, cardHeightPx?: number): number[] => {
     if (column.length === 0) return [];
+    const faceUp = FACE_UP[compact ? "compact" : "regular"];
+    const spreadFaceUp = cardHeightPx === undefined ? faceUp : Math.min(MAX_FACE_UP, Math.max(faceUp, FACE_UP_TARGET_PX / cardHeightPx));
     // the gap after each card but the last one
-    const gaps = column.slice(0, -1).map(card => card.faceUp ? FACE_UP[compact ? "compact" : "regular"] : FACE_DOWN);
-    const minimums = gaps.map((gap, i) => {
+    const gaps = column.slice(0, -1).map(card => card.faceUp ? spreadFaceUp : FACE_DOWN);
+    const usual = gaps.map(gap => Math.min(gap, faceUp));
+    const minimums = gaps.map((_, i) => {
         if (!column[i].faceUp) return MIN_FACE_DOWN;
-        return isInsideSequence(column, i) ? MIN_INSIDE_SEQUENCE : gap;
+        return isInsideSequence(column, i) ? MIN_INSIDE_SEQUENCE : usual[i];
     });
     const all = gaps.map((_, i) => i);
     let excess = gaps.reduce((sum, gap) => sum + gap, 0) - room;
+    if (excess > 0) excess = shrink(gaps, usual, all.filter(i => column[i].faceUp), excess);
     if (excess > 0) excess = shrink(gaps, minimums, all.filter(i => !column[i].faceUp), excess);
     if (excess > 0) excess = shrink(gaps, minimums, all.filter(i => column[i].faceUp), excess);
     if (excess > 0) {
