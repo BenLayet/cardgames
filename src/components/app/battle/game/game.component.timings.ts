@@ -8,8 +8,6 @@ export const DELAYS_MS = {
     suspense: 500,
     // a short look at all the cards before the winner, or the battle, is shown
     reviewWinner: 300,
-    // to see the face down cards of a battle before they go to the winner
-    revealedCards: 1500,
     // the cards fly to the pile of the winner before the next round
     collected: 600,
 } as const;

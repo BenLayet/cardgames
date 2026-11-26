@@ -27,7 +27,7 @@ export const allEvents = [
     "reviewWinnerCompleted",
     "tieOccurred",
     "roundWon",
-    "hiddenCardsRevealed",
+    "hiddenCardRevealed",
     "cardsCollected",
     "cardsSetAside",
     "roundCompleted",

@@ -41,15 +41,24 @@ const dealToHumans = async (...piles: Card[][]) => {
 };
 const click = (seat: number) => store.when(event("playerClicked", seat));
 
+// once a round is won, the player taps until every hidden card is turned over and the cards are collected
+const collect = async () => {
+    while (values().canRevealHiddenCard() || values().canCollectCards()) {
+        await click(0);
+        await vi.runAllTimersAsync();
+    }
+};
 // the player clicks, the computer answers and the game runs until it waits for the next click
 const playRound = async () => {
     await click(0);
     await vi.runAllTimersAsync();
+    await collect();
 };
 // each human plays in turn, then the game runs until it waits for the next clicks
 const everyonePlays = async (...seats: number[]) => {
     for (const seat of seats) await click(seat);
     await vi.runAllTimersAsync();
+    await collect();
 };
 
 describe("game", () => {
@@ -123,6 +132,36 @@ describe("game", () => {
         expect(faceUp(0)).toEqual([true, false]);
     });
 
+    it("turns the face down cards of a battle over one tap at a time, then sends the cards to the winner on a tap", async () => {
+        await dealToHumans(["2S", "3S", "AS"], ["4H", "5H", "AH"]);
+        await everyonePlays(0, 1); // AS vs AH
+        await everyonePlays(0, 1); // face down cards 3S and 5H
+        await click(0);
+        await click(1); // 2S vs 4H
+        await vi.runAllTimersAsync();
+        const hiddenCount = () => values().cardsWithLocation().filter(c => c.placement.stackLocation.endsWith("Played") && !c.placement.faceUp).length;
+        // the round is won, but nothing moves without a tap
+        expect(values().roundWinner()).toBe(1);
+        expect(hiddenCount()).toBe(2);
+        expect(values().canRevealHiddenCard()).toBe(true);
+
+        // any player taps: one card at a time, player 1's first
+        await click(1);
+        expect(hiddenCount()).toBe(1);
+        expect(values().cardsWithLocation().find(c => c.card === "3S")?.placement.faceUp).toBe(true);
+        await click(0);
+        expect(hiddenCount()).toBe(0);
+        await vi.runAllTimersAsync();
+        expect(played(0)).toHaveLength(3);
+        expect(values().canCollectCards()).toBe(true);
+
+        await click(0);
+        await vi.runAllTimersAsync();
+        expect(played(0)).toEqual([]);
+        expect(pile(1)).toHaveLength(6);
+        expect(values().hasGameEnded()).toBe(true);
+    });
+
     it("counts successive battles", async () => {
         await deal(["2S", "KS", "3S", "AS"], ["4H", "KH", "5H", "AH"]);
         await playRound(); // AS vs AH
@@ -137,6 +176,7 @@ describe("game", () => {
         await click(0);
         await click(0);
         await vi.runAllTimersAsync();
+        await collect();
 
         expect(pile(0)).toEqual(["KS", "QH", "2S", "3S"]);
     });

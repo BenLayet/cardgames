@@ -28,6 +28,9 @@ test("each player plays with their own key, and the end screen ranks every playe
     await expect(page.getByRole("status")).toHaveText("À jouer : Léa, Tom");
     await page.keyboard.press("a");
     await page.keyboard.press("g");
+    // Léa wins the round: the cards wait for a tap, or a key, before going to her
+    await expect(page.getByRole("status")).toHaveText("Léa remporte 3 cartes · touche la table pour ramasser");
+    await page.keyboard.press("Space");
 
     await expect(page.getByRole("heading", {name: "Léa a gagné !"})).toBeVisible();
     await expect(page.locator(".battle-ranking li")).toHaveText([/1er.*Léa/, /2e.*Ben.*tour 12/, /2e.*Tom.*tour 12/, /4e.*Inès.*tour 7/]);

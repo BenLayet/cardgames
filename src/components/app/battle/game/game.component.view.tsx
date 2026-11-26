@@ -76,7 +76,14 @@ const Table = ({path}: { path: string }) => {
         d.playerClicked(seat);
     };
     const onKey = useEffectEvent((event: globalThis.KeyboardEvent) => {
-        if (v.isSolo || v.hasGameEnded || event.repeat || event.target instanceof HTMLInputElement) return;
+        if (v.hasGameEnded || event.repeat || event.defaultPrevented || event.target instanceof HTMLInputElement) return;
+        // once a round is won, Space, Enter or a player's key turns over a hidden card or collects the cards
+        if ((v.canRevealHiddenCard || v.canCollectCards) && (event.key === " " || event.key === "Enter")) {
+            event.preventDefault();
+            d.playerClicked(0);
+            return;
+        }
+        if (v.isSolo) return;
         const seat = PLAYER_KEYS.indexOf(event.key.toLowerCase() as typeof PLAYER_KEYS[number]);
         if (seat >= 0 && seat < v.seatCount) d.playerClicked(seat);
     });
@@ -97,6 +104,9 @@ const Table = ({path}: { path: string }) => {
     // what to do, then who won the last round
     const status = () => {
         if (v.hasGameEnded) return null;
+        // the round is won: the players tap to turn over the hidden cards, then to collect the cards
+        if (v.canRevealHiddenCard) return t("battleStatus.tapToReveal");
+        if (v.canCollectCards && v.roundWinner !== null) return t("battleStatus.tapToCollect", {won: wonCards(v.roundWinner)});
         if (v.roundWinner !== null) return wonCards(v.roundWinner);
         if (v.battleCount > 0) return v.isSolo || waiting.length === 0 ? t("battleStatus.battle") : t("battleStatus.battleToPlay", {names: names(waiting)});
         if (!v.hasPlayed) return v.isSolo ? t("battleStatus.tapYourPile") : t("battleStatus.tapYourPiles");
