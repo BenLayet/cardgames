@@ -3,10 +3,11 @@ import {initTestStore, type TestStore} from "@softer-components/test-utilities";
 import type {ExtractEventNameUnion, ExtractPayload} from "@softer-components/types";
 
 import {gameDef, type GameContract} from "./game.component.ts";
-import type {Card, StackLocation} from "../../../../model/deck.model.ts";
+import {type Card, seededRandom, type StackLocation} from "../../../../model/deck.model.ts";
 import {fakeAudioService, fakeBattleSaveService} from "../../../../test/fakes.ts";
 import {TimeoutSchedulerAdapter} from "../../../../adapters/scheduler.adapter.ts";
-import {dealPiles} from "./game.component.effects.ts";
+import {dealPiles, dealPlayableGame} from "./game.component.effects.ts";
+import {simulateGame} from "./game.component.simulation.ts";
 
 const event = <N extends ExtractEventNameUnion<GameContract>>(name: N, payload?: ExtractPayload<GameContract, N>) =>
     ({name, payload, statePath: []});
@@ -185,6 +186,21 @@ describe("game", () => {
         expect(played(1)).toEqual([]);
         expect(pile(1)).toHaveLength(3);
         expect(values().canPlay()).toEqual([true, true]);
+    });
+
+    it.each([1, 2, 3, 4, 5, 6])("plays the game the way it was played in memory before the deal (seed %i)", async seed => {
+        const {piles, dealSeed} = dealPlayableGame(12, 2, seededRandom(seed));
+        await store.when(event("dealRequested", {cardCount: 12, playerCount: 2, isSolo: false, playerNames: [null, null]}));
+        await vi.runAllTimersAsync();
+        await store.when(event("dealCompleted", {piles: piles.map(p => [...p]), setAsideCount: 0, dealSeed}));
+        let battles = 0;
+        while (!values().hasGameEnded()) {
+            await everyonePlays(0, 1);
+            battles = Math.max(battles, values().battleCount());
+        }
+        expect(values().roundNumber() - 1).toBe(simulateGame(piles, dealSeed).rounds);
+        // each of these deals has at least one battle, collected layer by layer
+        expect(battles).toBeGreaterThan(0);
     });
 
     it("counts successive battles", async () => {
