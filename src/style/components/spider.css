@@ -5,9 +5,6 @@
     --spider-gap: clamp(0.15rem, 0.8vw, 0.6rem);
     --spider-card-w: min(calc((100vw - 2 * var(--app-frame) - var(--table-reserve-right) - 1.5rem) / var(--spider-columns) - var(--spider-gap)), calc((100dvh - var(--app-bar-h) - var(--table-reserve-bottom)) * .15), 140px);
     --spider-card-h: calc(var(--spider-card-w) * 200 / 143);
-    /* the size the cards draw their symbols with */
-    --card-w: var(--spider-card-w);
-    --card-h: var(--spider-card-h);
     user-select: none;
     -webkit-user-select: none;
 }
@@ -39,8 +36,6 @@
 }
 
 .spider-slot {
-    --card-w: calc(var(--spider-card-w) * 0.6);
-    --card-h: calc(var(--spider-card-h) * 0.6);
     position: relative;
     width: calc(var(--spider-card-w) * 0.6);
     height: calc(var(--spider-card-h) * 0.6);
@@ -171,8 +166,89 @@
     }
 }
 
+/* a card drawn with text when the pictures would be too small to read */
+.compact-card {
+    position: relative;
+    display: block;
+    border-radius: 4px;
+    border: 1px solid #0003;
+    box-shadow: 0 1px 2px #0003;
+    background: white;
+    color: #16191c;
+    font-family: var(--app-font-body);
+    font-weight: 700;
+    line-height: 1;
+    overflow: hidden;
+}
+
+.compact-card--red {
+    color: #c8102e;
+}
+
+.compact-card-corner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2px 2px 0;
+    font-size: calc(var(--spider-card-w) * 0.4);
+    letter-spacing: -0.05em;
+}
+
+.compact-card-suit {
+    display: block;
+    width: 0.82em;
+    height: 0.82em;
+    fill: currentColor;
+}
+
+.compact-card-corner .compact-card-suit {
+    width: 0.78em;
+    height: 0.78em;
+}
+
+/* the symbols, placed by their center inside the area below the top line; --pip is their size in card widths */
+.compact-card-pips {
+    position: absolute;
+    top: calc(var(--spider-card-h) * 0.34 + var(--spider-card-w) * var(--pip) * 0.42);
+    bottom: calc(var(--spider-card-h) * 0.03 + var(--spider-card-w) * var(--pip) * 0.42);
+    left: 10%;
+    right: 10%;
+    font-size: calc(var(--spider-card-w) * var(--pip));
+}
+
+.compact-card-pips > span {
+    position: absolute;
+    transform: translate(-50%, -50%);
+}
+
+.compact-card-pips > .compact-card-pip--down {
+    transform: translate(-50%, -50%) rotate(180deg);
+}
+
+/* the head and shoulders of the figure, cut from the detailed picture of the card */
+.compact-card-face {
+    position: absolute;
+    inset: 34% 9% 5%;
+    overflow: hidden;
+    border-radius: calc(var(--spider-card-w) * 0.06);
+}
+
+.compact-card-face img {
+    position: absolute;
+    width: 300%;
+    max-width: none;
+    left: -100%;
+    top: -36%;
+}
+
+/* the same back as the detailed cards */
+.compact-card--back {
+    background: url("../../assets/cards/back.svg") center / 100% 100%;
+    border: 0;
+}
+
 .spider-slot .compact-card-corner {
-    font-size: calc(var(--card-w) * 0.5);
+    font-size: calc(var(--spider-card-w) * 0.3);
 }
 
 
