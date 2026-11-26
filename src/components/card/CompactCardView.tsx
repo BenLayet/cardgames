@@ -2,6 +2,7 @@ import type {CSSProperties} from "react";
 import {useTranslation} from "react-i18next";
 
 import type {Card, Rank, Suit} from "../../model/deck.model.ts";
+import {useCardName} from "./useCardName.ts";
 
 // The suits drawn as on the detailed cards: the four have the same size, whatever the font of the device
 const SUIT_PATHS: Record<Suit, string> = {
@@ -47,12 +48,13 @@ const faceImage = (card: Card) => new URL(`../../assets/cards/${card}.svg`, impo
 // then the symbols laid out as on a traditional card, or the head and shoulders of the figure in a frame
 export const CompactCardView = ({card = "AS" as Card, faceUp = true}) => {
     const {t} = useTranslation();
-    if (!faceUp) return <div className="card-image compact-card compact-card--back" role="img" aria-label="card back"/>;
+    const cardName = useCardName();
+    if (!faceUp) return <div className="card-image compact-card compact-card--back" role="img" aria-label={t("cardNames.faceDown")}/>;
     const rank = card.charAt(0) as Rank;
     const suit = card.charAt(1) as Suit;
     const pips = PIPS[rank] ?? [];
     return <div className={`card-image compact-card ${isRed(suit) ? "compact-card--red" : ""}`}
-                role="img" aria-label={`card ${card}`}>
+                role="img" aria-label={cardName(card)}>
         <div className="compact-card-corner">
             <span>{t(`ranks.${rank}`)}</span><SuitSymbol suit={suit}/>
         </div>

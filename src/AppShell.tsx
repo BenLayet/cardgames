@@ -9,6 +9,8 @@ const AppShell = () => {
   useEffect(() => {
     const appTitle = t('title');
     document.title = appTitle;
+    // screen readers pick their voice from the language of the page
+    document.documentElement.lang = i18n.language;
   }, [t, i18n.language]);
 
   return i18n.isInitialized ? (

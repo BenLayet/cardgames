@@ -85,6 +85,31 @@
     "Q": "D",
     "K": "R"
   },
+  "cardNames": {
+    "card": "{{rank}} de {{suit}}",
+    "faceDown": "Carte face cachée",
+    "ranks": {
+      "A": "As",
+      "2": "Deux",
+      "3": "Trois",
+      "4": "Quatre",
+      "5": "Cinq",
+      "6": "Six",
+      "7": "Sept",
+      "8": "Huit",
+      "9": "Neuf",
+      "T": "Dix",
+      "J": "Valet",
+      "Q": "Dame",
+      "K": "Roi"
+    },
+    "suits": {
+      "S": "pique",
+      "H": "cœur",
+      "D": "carreau",
+      "C": "trèfle"
+    }
+  },
   "newGame": "Nouvelle partie",
   "resumeGame": "Reprendre la partie",
   "close": "Fermer",

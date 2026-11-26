@@ -151,7 +151,7 @@ test("the victory shows once the last sequence has reached its place", async ({p
         const sample = () => {
             frames.push({
                 flying: document.querySelector(".card-flight-layer") !== null,
-                victory: Array.from(document.querySelectorAll("h1"), (h: HTMLElement) => h.textContent).includes("Victoire"),
+                victory: Array.from(document.querySelectorAll("h2"), (h: HTMLElement) => h.textContent).includes("Victoire"),
             });
             if (frames.length < 240) requestAnimationFrame(sample);
         };
@@ -171,7 +171,7 @@ test("the victory comes on screen once, so that the applause plays once", async 
         const counted = {victories: 0};
         (window as unknown as { counted: typeof counted }).counted = counted;
         new MutationObserver(mutations => mutations.forEach(mutation => mutation.addedNodes.forEach(node => {
-            if (node instanceof HTMLElement && Array.from(node.querySelectorAll("h1"), (h: HTMLElement) => h.textContent).includes("Victoire")) counted.victories++;
+            if (node instanceof HTMLElement && Array.from(node.querySelectorAll("h2"), (h: HTMLElement) => h.textContent).includes("Victoire")) counted.victories++;
         }))).observe(document.body, {childList: true, subtree: true});
     });
     await card(page, 1, 0).click();
