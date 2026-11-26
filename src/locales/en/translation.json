@@ -113,6 +113,7 @@
   "cardCountShort_one": "{{count}} card",
   "cardCountShort_other": "{{count}} cards",
   "battleStatus": {
+    "wonPile": "Cards won",
     "you": "You",
     "tapYourPile": "Tap your pile to play",
     "tapYourPiles": "Each player taps their pile to play",

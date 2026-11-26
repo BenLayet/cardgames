@@ -23,14 +23,18 @@ function translateRangeKeeping0(value: number) {
     return (value + 1.5) % 1 - 0.5;
 }
 
+export const MAX_STACK_DEPTH = 8;
+
 function computeFinalPosition(location: Pick<CardPlacement, "stackLocation" | "index" | "messyLevel">, layoutState: LayoutState) {
     const stackCoordinates = {
         top: (layoutState.stackLocations[location.stackLocation]?.top ?? 0) - (layoutState.table?.top ?? 0),
         left: (layoutState.stackLocations[location.stackLocation]?.left ?? 0) - (layoutState.table?.left ?? 0)
     }
     // stack and table coordinates come from the same viewport, so scrolling does not change their difference
-    const x = stackCoordinates.left + location.index / 2;
-    const y = stackCoordinates.top - location.index;
+    // a stack grows up and to the right by one pixel per card, up to a few pixels, so that it stays on its slot
+    const depth = Math.min(location.index, MAX_STACK_DEPTH);
+    const x = stackCoordinates.left + depth / 2;
+    const y = stackCoordinates.top - depth;
 
     return {
         x,
