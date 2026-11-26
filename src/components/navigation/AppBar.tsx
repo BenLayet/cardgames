@@ -1,7 +1,7 @@
 import {useContext, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowLeft, faCircleInfo, faCircleQuestion} from "@fortawesome/free-solid-svg-icons";
+import {faArrowLeft, faBook, faCircleInfo} from "@fortawesome/free-solid-svg-icons";
 
 import {SettingsSlot} from "./settings-slot.ts";
 import {About} from "./About.tsx";
@@ -12,7 +12,7 @@ import type {GameWithRules} from "./rules.ts";
 // The bar at the top of every screen: the way back on the left, the name of the screen, and on the right what
 // concerns the whole application (about, settings).
 // The home page has no way back: it shows the logo of the application instead.
-// During a game, a question mark shows the rules of the game over the table, which stays as it is.
+// During a game, a book (the same icon as the link on the game menu) shows the rules of the game over the table, which stays as it is.
 export const AppBar = ({title, level, onBack, rulesOf}: {
     title: string, level: ScreenLevel, onBack?: () => void, rulesOf?: GameWithRules,
 }) => {
@@ -35,7 +35,7 @@ export const AppBar = ({title, level, onBack, rulesOf}: {
         </button>
         {rulesOf && <button className="btn app-bar-button" title={t("rules.title")} aria-label={t("rules.title")}
                             onClick={() => setRulesOpen(true)}>
-            <FontAwesomeIcon icon={faCircleQuestion}/>
+            <FontAwesomeIcon icon={faBook}/>
         </button>}
         {settings}
         {isAboutOpen && <About onClose={() => setAboutOpen(false)}/>}
