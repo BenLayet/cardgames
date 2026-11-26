@@ -53,6 +53,7 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
         const cardHeight = card.width * 200 / 143;
         return {
             compact: card.width < COMPACT_CARD_MAX_WIDTH_PX,
+            cardHeight,
             // in card heights, below the top of the first card of a column
             room: Math.max(MIN_COLUMN_ROOM, (bottomLimit(columns, [statusRef.current, actionsRef.current]) - columns.top - BOTTOM_MARGIN_PX) / cardHeight - 1),
         };
@@ -96,7 +97,7 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
         <div ref={columnsRef} className={`spider-columns ${v.hintedMove ? "spider-columns--recommending" : ""}`}
              {...pointer.handlers}>
             {v.columns.map((column, columnIndex) => {
-                const offsets = cardOffsets(column, measured?.room ?? MIN_COLUMN_ROOM, compact);
+                const offsets = cardOffsets(column, measured?.room ?? MIN_COLUMN_ROOM, compact, measured?.cardHeight);
                 const columnClasses = [
                     "spider-column",
                     v.destinations.includes(columnIndex) ? "spider-column--destination" : "",
