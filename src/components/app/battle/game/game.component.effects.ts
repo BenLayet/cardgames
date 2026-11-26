@@ -28,10 +28,11 @@ export const effects = ({audioService, schedulerService, battleSaveService}: Dep
             const player2Cards = shuffledDeck.slice(cardsToDeal.length / 2, cardsToDeal.length);
             after(DELAYS_MS.deal, () => dealCompleted({player1Cards, player2Cards}));
         },
-        restoreRequested: ({gameRestored}) => {
+        // the game goes on with the players chosen on the menu, which may have changed since the game was left
+        restoreRequested: ({gameRestored}, {payload: {isPlayer2Computer, playerNames}}) => {
             schedulerService.cancelAll();
             const saved = battleSaveService.load();
-            if (saved !== null) gameRestored(saved);
+            if (saved !== null) gameRestored({...saved, isPlayer2Computer, playerNames});
         },
         // the game is saved between two rounds, so that it can be resumed after going back or closing the application
         readyForNextCards: (_, {values}) => {
