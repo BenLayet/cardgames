@@ -19,36 +19,39 @@ describe("Bataille table layout", () => {
             expect(layout.seats[0].pile.y).toBe(Math.max(...layout.seats.map(seat => seat.pile.y)));
         });
 
-    it("lays the cards played between the pile and the centre of the table", () => {
-        const {seats: [bottom, left, top]} = tableLayout(4, 390, 760);
-        expect(bottom.played.y).toBeLessThan(bottom.pile.y);
-        expect(bottom.played.y).toBeGreaterThan(380);
-        expect(top.played.y).toBeGreaterThan(top.pile.y);
-        expect(top.played.y).toBeLessThan(380);
-        expect(left.played.x).toBeGreaterThan(left.pile.x);
+    it.each(sizes.flatMap(([width, height]) => [2, 3, 4, 5, 6].map(count => [count, width, height])))(
+        "lays the %i slots of a %ix%i table side by side, in seat order, clear of the piles",
+        (count, width, height) => {
+            const {cardWidth, cardHeight, rows, seats} = tableLayout(count, width, height);
+            expect(rows).toBeGreaterThanOrEqual(1);
+            expect(rows).toBeLessThanOrEqual(3);
+            const slots = seats.map(seat => seat.played);
+            // no two slots overlap
+            slots.forEach((a, i) => slots.slice(i + 1).forEach(b =>
+                expect(Math.abs(a.x - b.x) >= cardWidth || Math.abs(a.y - b.y) >= cardHeight).toBe(true)));
+            // in seat order: left to right, row after row
+            slots.slice(1).forEach((slot, i) => expect(slot.y > slots[i].y || (slot.y === slots[i].y && slot.x > slots[i].x)).toBe(true));
+            // no slot on a pile: a slot goes down from its first card, to leave room for the cards of a battle
+            seats.forEach(({pile}) => slots.forEach(slot =>
+                expect(Math.abs(pile.x - slot.x) >= cardWidth || slot.y - pile.y >= cardHeight || pile.y - slot.y >= cardHeight * 1.44).toBe(true)));
+        });
+
+    it("takes the number of rows that gives the largest cards", () => {
+        // six players on an upright phone: more than one row
+        expect(tableLayout(6, 390, 760).rows).toBeGreaterThan(1);
+        expect(tableLayout(2, 1280, 680).rows).toBe(1);
     });
 
-    it.each(sizes)("puts two players in opposite corners, their cards side by side in the middle of a %ix%i table", (width, height) => {
-        const {cardWidth, cardHeight, seats: [first, second]} = tableLayout(2, width, height);
-        // player 1 at the bottom left, player 2 at the top right
-        expect(first.pile.x).toBeLessThan(width / 2);
-        expect(first.pile.y).toBeGreaterThan(height / 2);
-        expect(second.pile.x).toBeGreaterThan(width / 2);
-        expect(second.pile.y).toBeLessThan(height / 2);
-        // the cards played on the same line, player 1's on the left, not over each other
-        expect(first.played.y).toBe(second.played.y);
-        expect(second.played.x - first.played.x).toBeGreaterThanOrEqual(cardWidth);
-        // the cards of a battle are spread away from the other player's
-        const isWide = width > height;
-        expect(first.fan.x).toBeLessThanOrEqual(0);
-        expect(second.fan.x).toBeGreaterThanOrEqual(0);
-        if (isWide) expect(-first.fan.x).toBeGreaterThan(cardWidth / 5);
-        else expect(first.fan.y).toBeGreaterThan(cardHeight / 6);
+    it("moves the cards of a long battle closer, so that they stay in their slot", () => {
+        const short = tableLayout(2, 390, 760, 3);
+        const long = tableLayout(2, 390, 760, 9);
+        expect(long.seats[0].fan.y * 8).toBeLessThanOrEqual(long.cardHeight * 0.44 + 0.001);
+        expect(long.seats[0].fan.y).toBeLessThan(short.seats[0].fan.y);
     });
 
-    it("makes the cards smaller for more players", () => {
-        expect(tableLayout(3, 390, 760).cardWidth).toBeLessThan(tableLayout(2, 390, 760).cardWidth);
-        expect(tableLayout(5, 390, 760).cardWidth).toBeLessThan(tableLayout(4, 390, 760).cardWidth);
+    it("makes the cards smaller when more players need room", () => {
+        expect(tableLayout(6, 390, 760).cardWidth).toBeLessThan(tableLayout(2, 390, 760).cardWidth);
+        expect(tableLayout(6, 1280, 680).cardWidth).toBeLessThan(tableLayout(2, 1280, 680).cardWidth);
     });
 
     it("gives a tap to the human whose pile is the nearest", () => {
