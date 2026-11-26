@@ -31,22 +31,15 @@ describe("Bataille table layout", () => {
                 expect(Math.abs(a.x - b.x) >= cardWidth || Math.abs(a.y - b.y) >= cardHeight).toBe(true)));
             // in seat order: left to right, row after row
             slots.slice(1).forEach((slot, i) => expect(slot.y > slots[i].y || (slot.y === slots[i].y && slot.x > slots[i].x)).toBe(true));
-            // no slot on a pile: a slot goes down from its first card, to leave room for the cards of a battle
+            // no slot on a pile
             seats.forEach(({pile}) => slots.forEach(slot =>
-                expect(Math.abs(pile.x - slot.x) >= cardWidth || slot.y - pile.y >= cardHeight || pile.y - slot.y >= cardHeight * 1.44).toBe(true)));
+                expect(Math.abs(pile.x - slot.x) >= cardWidth || Math.abs(pile.y - slot.y) >= cardHeight).toBe(true)));
         });
 
     it("takes the number of rows that gives the largest cards", () => {
         // six players on an upright phone: more than one row
         expect(tableLayout(6, 390, 760).rows).toBeGreaterThan(1);
         expect(tableLayout(2, 1280, 680).rows).toBe(1);
-    });
-
-    it("moves the cards of a long battle closer, so that they stay in their slot", () => {
-        const short = tableLayout(2, 390, 760, 3);
-        const long = tableLayout(2, 390, 760, 9);
-        expect(long.seats[0].fan.y * 8).toBeLessThanOrEqual(long.cardHeight * 0.44 + 0.001);
-        expect(long.seats[0].fan.y).toBeLessThan(short.seats[0].fan.y);
     });
 
     it("makes the cards smaller when more players need room", () => {

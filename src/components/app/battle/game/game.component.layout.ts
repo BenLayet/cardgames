@@ -30,11 +30,9 @@ export type LabelSide = "below" | "above" | "left" | "right";
 type Point = { x: number, y: number };
 type Box = { left: number, top: number, right: number, bottom: number };
 export type SeatLayout = {
-    // the centre of the pile, and of the first card played, in pixels from the top left corner of the table
+    // the centre of the pile, and of the cards played, piled on each other, in pixels from the top left corner of the table
     pile: Point,
     played: Point,
-    // how far each card of a battle is moved down from the card under it, in pixels
-    fan: Point,
     labelSide: LabelSide,
 };
 export type TableLayout = { cardWidth: number, cardHeight: number, rows: number, seats: SeatLayout[] };
@@ -43,10 +41,6 @@ export type TableLayout = { cardWidth: number, cardHeight: number, rows: number,
 const LABEL_HEIGHT = 34;
 const LABEL_WIDTH = 112;
 const GAP = 8;
-// below the first card of a slot, room for the cards of a battle, in part of the card height
-const BATTLE_ROOM = 0.44;
-// a card of a battle shows this part of the card under it, as long as the slot has room for it
-const FAN_STEP = 0.22;
 
 const labelSide = (count: number, isWide: boolean, x: number, y: number): LabelSide => {
     // two players: each name is written beside the pile, towards the middle of the table
@@ -77,14 +71,13 @@ const placePile = (px: number, py: number, side: LabelSide, width: number, heigh
 // the grid of slots, centred on the table
 const slotGrid = (count: number, rows: number, width: number, height: number, cardWidth: number, cardHeight: number) => {
     const columns = Math.ceil(count / rows);
-    const slotHeight = cardHeight * (1 + BATTLE_ROOM);
     const gridWidth = columns * cardWidth + (columns - 1) * GAP;
-    const gridHeight = rows * slotHeight + (rows - 1) * GAP;
+    const gridHeight = rows * cardHeight + (rows - 1) * GAP;
     const box: Box = {
         left: (width - gridWidth) / 2, top: (height - gridHeight) / 2,
         right: (width + gridWidth) / 2, bottom: (height + gridHeight) / 2,
     };
-    // the centre of the first card of each slot, row after row; a last row with fewer slots is centred
+    // the centre of each slot, row after row; a last row with fewer slots is centred
     const slots = Array.from({length: count}, (_, index): Point => {
         const row = Math.floor(index / columns);
         const inRow = Math.min(columns, count - row * columns);
@@ -92,7 +85,7 @@ const slotGrid = (count: number, rows: number, width: number, height: number, ca
         const column = index - row * columns;
         return {
             x: (width - rowWidth) / 2 + column * (cardWidth + GAP) + cardWidth / 2,
-            y: box.top + row * (slotHeight + GAP) + cardHeight / 2,
+            y: box.top + row * (cardHeight + GAP) + cardHeight / 2,
         };
     });
     return {box, slots};
@@ -124,8 +117,7 @@ const largestCardWidth = (count: number, rows: number, isWide: boolean, width: n
     return low;
 };
 
-// playedCount: the most cards a player has laid in the round, so that the cards of a long battle stay in their slot
-export const tableLayout = (playerCount: number, width: number, height: number, playedCount = 1): TableLayout => {
+export const tableLayout = (playerCount: number, width: number, height: number): TableLayout => {
     const isWide = width > height;
     const count = clamp(Math.round(playerCount), 2, 6);
     const [widthPart, heightPart] = isWide ? MAX_CARD_WIDE : MAX_CARD_UPRIGHT;
@@ -138,12 +130,10 @@ export const tableLayout = (playerCount: number, width: number, height: number, 
     const rows = best.cardWidth > 0 ? best.rows : Math.min(3, count);
     const cardHeight = cardWidth * CARD_RATIO;
     const {slots} = slotGrid(count, rows, width, height, cardWidth, cardHeight);
-    const room = cardHeight * BATTLE_ROOM;
-    const fanStep = Math.min(cardHeight * FAN_STEP, room / Math.max(1, playedCount - 1));
     const seats = (isWide ? WIDE : UPRIGHT)[count].map(([px, py], index): SeatLayout => {
         const side = labelSide(count, isWide, px, py);
         const {centre} = placePile(px, py, side, width, height, cardWidth, cardHeight);
-        return {pile: centre, played: slots[index], fan: {x: 0, y: fanStep}, labelSide: side};
+        return {pile: centre, played: slots[index], labelSide: side};
     });
     return {cardWidth, cardHeight, rows, seats};
 };

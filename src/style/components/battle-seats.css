@@ -42,11 +42,8 @@
     z-index: 2;
 }
 
-/* the slot of each player in the middle of the table, in the player's colour: from its first card down,
-   with room for the cards of a battle (BATTLE_ROOM in game.component.layout.ts) */
+/* the slot of each player in the middle of the table, in the player's colour */
 .battle-played {
-    height: calc(var(--battle-card-h) * 1.44);
-    translate: -50% 0;
     border: 2px dashed color-mix(in srgb, var(--seat-color) 70%, transparent);
 }
 

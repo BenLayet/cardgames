@@ -17,8 +17,6 @@ type Coordinates = { top: number, left: number };
 export type LayoutState = {
     table?: Coordinates;
     stackLocations: Partial<Record<StackLocation, Coordinates>>
-    // how far a fanned card of a stack moves aside for each step, in pixels; by default to the right and down
-    fanSteps?: Partial<Record<StackLocation, { x: number, y: number }>>
 };
 
 function fakeRandom(seed: number) {
@@ -32,11 +30,7 @@ function translateRangeKeeping0(value: number) {
 
 export const MAX_STACK_DEPTH = 8;
 
-// a fanned card moves aside by part of its size for each step, to the right and down
-const FAN_X = 0.07;
-const FAN_Y = 0.08;
-
-function computeFinalPosition(location: Pick<CardPlacement, "stackLocation" | "index" | "messyLevel" | "fan">, layoutState: LayoutState, size: { width: number, height: number }) {
+function computeFinalPosition(location: Pick<CardPlacement, "stackLocation" | "index" | "messyLevel">, layoutState: LayoutState) {
     const stackCoordinates = {
         top: (layoutState.stackLocations[location.stackLocation]?.top ?? 0) - (layoutState.table?.top ?? 0),
         left: (layoutState.stackLocations[location.stackLocation]?.left ?? 0) - (layoutState.table?.left ?? 0)
@@ -44,10 +38,8 @@ function computeFinalPosition(location: Pick<CardPlacement, "stackLocation" | "i
     // stack and table coordinates come from the same viewport, so scrolling does not change their difference
     // a stack grows up and to the right by one pixel per card, up to a few pixels, so that it stays on its slot
     const depth = Math.min(location.index, MAX_STACK_DEPTH);
-    const fan = location.fan ?? 0;
-    const fanStep = layoutState.fanSteps?.[location.stackLocation] ?? {x: FAN_X * size.width, y: FAN_Y * size.height};
-    const x = stackCoordinates.left + depth / 2 + fan * fanStep.x;
-    const y = stackCoordinates.top - depth + fan * fanStep.y;
+    const x = stackCoordinates.left + depth / 2;
+    const y = stackCoordinates.top - depth;
 
     return {
         x,
@@ -65,12 +57,12 @@ export function AnimatedCardView({card, placement, layoutState, entry = 0, compa
     const movement = useRef<Animation | null>(null);
     // only the first movement of the card is its entry on the table
     const entryRef = useRef<number | "inPlace" | null>(entry);
-    const {stackLocation, index, messyLevel, fan} = placement;
+    const {stackLocation, index, messyLevel} = placement;
     // The card moves from where it is on screen, even in the middle of a previous movement, to where it belongs
     useLayoutEffect(() => {
         const element = ref.current;
         if (!element) return;
-        const {x, y, rotation} = computeFinalPosition({stackLocation, index, messyLevel, fan}, layoutState, {width: element.offsetWidth, height: element.offsetHeight});
+        const {x, y, rotation} = computeFinalPosition({stackLocation, index, messyLevel}, layoutState);
         const target = `translate(${x}px, ${y}px) rotate(${rotation}deg)`;
         // read before the previous movement is stopped, so that it includes where that movement has taken the card
         const current = getComputedStyle(element).transform;
@@ -81,7 +73,7 @@ export function AnimatedCardView({card, placement, layoutState, entry = 0, compa
         if (delay === "inPlace" || typeof element.animate !== "function") return;
         // a dealt card waits on the deck for its turn
         movement.current = element.animate([{transform: current}, {transform: target}], {duration: MOVE_MS, delay, easing: EASE_OUT, fill: "backwards"});
-    }, [stackLocation, index, messyLevel, fan, layoutState]);
+    }, [stackLocation, index, messyLevel, layoutState]);
 
     return (
         <div ref={ref} style={{position: "absolute", zIndex: placement.index + placement.stackIndex * 100}}>

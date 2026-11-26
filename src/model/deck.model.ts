@@ -12,8 +12,6 @@ export type CardPlacement = {
     stackIndex: number;
     index: number;
     messyLevel: number;
-    // how far the card is moved aside from the cards under it, in steps of part of its size; 0 when it is not
-    fan?: number;
 };
 export type CardWithPlacement = {
     card: Card;
