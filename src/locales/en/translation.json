@@ -108,7 +108,7 @@
       },
       {
         "title": "Help",
-        "text": "The light bulb suggests a move, the arrow undoes the last move."
+        "text": "The light bulb suggests a move, the arrow undoes the last move. Each undo counts as a move."
       }
     ]
   }
