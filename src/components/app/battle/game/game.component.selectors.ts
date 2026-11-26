@@ -1,3 +1,4 @@
+import type {SavedBattleGame, SavedBattlePlayer} from "../../../../services/battle-save.service.ts";
 import type {ExtractComponentValuesContract, Selectors,} from "@softer-components/types";
 
 import {opponentOf, type PlayerId, PLAYERS, type PlayerState, type State} from "./game.component.state.ts";
@@ -74,6 +75,9 @@ const cardsWithLocation = (state: State): CardWithPlacement[] =>
         }));
     }));
 
+const savedPlayer = ({remainingCards, wonCards, beingPlayedCards, beingPlayedCardsUpStates}: PlayerState): SavedBattlePlayer =>
+    ({remainingCards, wonCards, beingPlayedCards, beingPlayedCardsUpStates});
+
 export const selectors = {
     canPlayer1Play: (state: State) => canPlay(state.player1),
     canPlayer2Play: (state: State) => canPlay(state.player2),
@@ -98,6 +102,14 @@ export const selectors = {
     player1CardCount: (state: State) => cardCount(state.player1),
     player2CardCount: (state: State) => cardCount(state.player2),
     lastRoundWinner: (state: State) => state.lastRoundWinner,
+    savedGame: (state: State): SavedBattleGame => ({
+        player1: savedPlayer(state.player1),
+        player2: savedPlayer(state.player2),
+        isPlayer2Computer: state.isPlayer2Computer,
+        playerNames: state.playerNames,
+        hasPlayed: state.hasPlayed,
+        lastRoundWinner: state.lastRoundWinner,
+    }),
     hasPlayed: (state: State) => state.hasPlayed,
 } satisfies Selectors<State>;
 export type Values = ExtractComponentValuesContract<typeof selectors>;

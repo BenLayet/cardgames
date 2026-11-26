@@ -11,6 +11,7 @@ const cardCount = ((_, childrenValues) => childrenValues.setup.values.cardCount(
 const isPlayer2Computer = ((_, childrenValues) => childrenValues.setup.values.seats()[1] === "computer") satisfies Selector<State, Children>;
 const playerNames = ((_, childrenValues) => childrenValues.setup.values.seatNames()) satisfies Selector<State, Children>;
 const shouldMenuBeVisible = isStarted;
+const canResume = (state: State) => !state.isStarted && state.hasSavedGame;
 export const selectors = {
     isStarted,
     cardCount,
@@ -18,5 +19,6 @@ export const selectors = {
     playerNames,
     isStartable,
     shouldMenuBeVisible,
+    canResume,
 } satisfies Selectors<State, Children>;
 export type Values = ExtractComponentValuesContract<typeof selectors>;

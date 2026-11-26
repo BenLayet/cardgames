@@ -1,7 +1,7 @@
 import type {StateUpdaters} from "@softer-components/types";
 
 import type {Contract} from "./game.component.contract.ts";
-import {initialState, opponentOf, PLAYERS, type PlayerState, type State} from "./game.component.state.ts";
+import {initialPlayerState, initialState, opponentOf, PLAYERS, type PlayerState, type State} from "./game.component.state.ts";
 import {assertIsNotUndefined} from "../../../../utils/assert.functions.ts";
 
 // The helpers below change the state in place and return nothing,
@@ -30,6 +30,12 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
         state.player1.remainingCards = payload.player1Cards;
         state.player2.remainingCards = payload.player2Cards;
     },
+    gameRestored: ({payload}) => ({
+        ...initialState,
+        ...payload,
+        player1: {...initialPlayerState, ...payload.player1},
+        player2: {...initialPlayerState, ...payload.player2},
+    }),
     player1Played: ({state}) => {
         playTopCard(state.player1);
         state.hasPlayed = true;

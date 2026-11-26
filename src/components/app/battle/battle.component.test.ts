@@ -2,7 +2,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from "vitest";
 import {initTestStore, type TestStore} from "@softer-components/test-utilities";
 
 import {battleDef, type BattleContract} from "./battle.component.ts";
-import {fakeAudioService, fakeSettingsService} from "../../../test/fakes.ts";
+import {fakeAudioService, fakeBattleSaveService, fakeSettingsService} from "../../../test/fakes.ts";
 import {TimeoutSchedulerAdapter} from "../../../adapters/scheduler.adapter.ts";
 
 const setupPath: [string, string][] = [["setup", "0"]];
@@ -16,7 +16,7 @@ beforeEach(() => {
     vi.useFakeTimers();
     audioService = fakeAudioService();
     settingsService = fakeSettingsService({cardCounts: {bataille: 16}});
-    store = initTestStore(battleDef({audioService, settingsService, schedulerService: new TimeoutSchedulerAdapter()}));
+    store = initTestStore(battleDef({audioService, settingsService, schedulerService: new TimeoutSchedulerAdapter(), battleSaveService: fakeBattleSaveService()}));
 });
 afterEach(() => {
     vi.useRealTimers();
@@ -79,5 +79,37 @@ describe("battle", () => {
         expect(store.getValues("/game").player1Name()).toBe("Tom");
         expect(store.getValues("/game").player2Name()).toBe(null);
     });
-});
 
+    it("offers to resume the game left by going back, and resumes it as it was", async () => {
+        const battleSaveService = fakeBattleSaveService();
+        const battle = initTestStore(battleDef({audioService, settingsService, schedulerService: new TimeoutSchedulerAdapter(), battleSaveService}));
+        expect(battle.getValues("").canResume()).toBe(false);
+        await battle.when({name: "startGameRequested", statePath: setupPath});
+        await vi.runAllTimersAsync();
+        await battle.when({name: "player1Clicked", statePath: gamePath});
+        await vi.runAllTimersAsync();
+        const afterOneRound = battle.getValues("/game").cardsWithLocation();
+
+        await battle.when({name: "goHomeRequested", statePath: []});
+        expect(battle.getValues("").canResume()).toBe(true);
+
+        // the application is started again
+        const next = initTestStore(battleDef({audioService, settingsService, schedulerService: new TimeoutSchedulerAdapter(), battleSaveService}));
+        expect(next.getValues("").canResume()).toBe(true);
+        await next.when({name: "resumeRequested", statePath: []});
+        await vi.runAllTimersAsync();
+
+        expect(next.getValues("").isStarted()).toBe(true);
+        expect(next.getValues("/game").cardsWithLocation()).toEqual(afterOneRound);
+        expect(next.getValues("/game").canPlayer1Play()).toBe(true);
+    });
+
+    it("no longer offers to resume a game that has ended", async () => {
+        await store.when({name: "startGameRequested", statePath: setupPath});
+        await vi.runAllTimersAsync();
+        await store.when({name: "gameEnded", statePath: gamePath});
+        await store.when({name: "menuRequested", statePath: gamePath});
+
+        expect(store.getValues("").canResume()).toBe(false);
+    });
+});
