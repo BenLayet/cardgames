@@ -40,11 +40,14 @@ describe("Bataille table layout", () => {
         // six players on an upright phone: more than one row
         expect(tableLayout(6, 390, 760).rows).toBeGreaterThan(1);
         expect(tableLayout(2, 1280, 680).rows).toBe(1);
+        // two players lay their cards side by side, also on an upright phone
+        expect(tableLayout(2, 390, 760).rows).toBe(1);
     });
 
     it("makes the cards smaller when more players need room", () => {
         expect(tableLayout(6, 390, 760).cardWidth).toBeLessThan(tableLayout(2, 390, 760).cardWidth);
-        expect(tableLayout(6, 1280, 680).cardWidth).toBeLessThan(tableLayout(2, 1280, 680).cardWidth);
+        // two players sit in the corners, closer to the middle: compared with three
+        expect(tableLayout(6, 1280, 680).cardWidth).toBeLessThan(tableLayout(3, 1280, 680).cardWidth);
     });
 
     it("gives a tap to the human whose pile is the nearest", () => {
@@ -82,5 +85,22 @@ describe("keys of the players", () => {
         expect(playerKeys(2)).toEqual(["a", "l"]);
         expect(playerKeys(3)).toEqual(["l", "a", "g", "p", "x", "m"]);
         expect(playerKeys(6)).toEqual(["l", "a", "g", "p", "x", "m"]);
+    });
+});
+
+describe("tilted cards in the middle", () => {
+    it.each(sizes)("never overlap the card of the next slot, on %i x %i", (width, height) => {
+        for (const players of [2, 3, 4, 5, 6]) {
+            const layout = tableLayout(players, width, height);
+            const angle = 6 * Math.PI / 180;
+            // the half size of a card tilted by the largest angle; a stack of cards played rises by 8 px and shifts right by 4 px
+            const halfWidth = layout.cardWidth / 2 * Math.cos(angle) + layout.cardHeight / 2 * Math.sin(angle);
+            const halfHeight = layout.cardHeight / 2 * Math.cos(angle) + layout.cardWidth / 2 * Math.sin(angle);
+            const slots = layout.seats.map(seat => seat.played);
+            slots.forEach((a, i) => slots.slice(i + 1).forEach(b => {
+                const apart = Math.abs(a.x - b.x) >= 2 * halfWidth + 4 || Math.abs(a.y - b.y) >= 2 * halfHeight + 8;
+                expect(apart, `${players} players`).toBe(true);
+            }));
+        }
     });
 });

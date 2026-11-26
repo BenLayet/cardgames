@@ -1,5 +1,6 @@
 import {CardView} from "./CardView.tsx";
 import {CompactCardView} from "./CompactCardView.tsx";
+import {cardTilt} from "./card-tilt.ts";
 import {useLayoutEffect, useRef} from "react";
 import type {Card, CardPlacement, StackLocation} from "../../model/deck.model.ts";
 
@@ -19,18 +20,9 @@ export type LayoutState = {
     stackLocations: Partial<Record<StackLocation, Coordinates>>
 };
 
-function fakeRandom(seed: number) {
-    const x = Math.sin(seed) * 10000;
-    return x - Math.floor(x);
-}
-
-function translateRangeKeeping0(value: number) {
-    return (value + 1.5) % 1 - 0.5;
-}
-
 export const MAX_STACK_DEPTH = 8;
 
-function computeFinalPosition(location: Pick<CardPlacement, "stackLocation" | "index" | "messyLevel">, layoutState: LayoutState) {
+function computeFinalPosition(card: Card, location: Pick<CardPlacement, "stackLocation" | "index" | "messyLevel">, layoutState: LayoutState) {
     const stackCoordinates = {
         top: (layoutState.stackLocations[location.stackLocation]?.top ?? 0) - (layoutState.table?.top ?? 0),
         left: (layoutState.stackLocations[location.stackLocation]?.left ?? 0) - (layoutState.table?.left ?? 0)
@@ -44,7 +36,7 @@ function computeFinalPosition(location: Pick<CardPlacement, "stackLocation" | "i
     return {
         x,
         y,
-        rotation: translateRangeKeeping0(fakeRandom(location.index)) * location.messyLevel,
+        rotation: cardTilt(card, location.stackLocation, location.messyLevel),
     };
 }
 
@@ -62,7 +54,7 @@ export function AnimatedCardView({card, placement, layoutState, entry = 0, compa
     useLayoutEffect(() => {
         const element = ref.current;
         if (!element) return;
-        const {x, y, rotation} = computeFinalPosition({stackLocation, index, messyLevel}, layoutState);
+        const {x, y, rotation} = computeFinalPosition(card, {stackLocation, index, messyLevel}, layoutState);
         const target = `translate(${x}px, ${y}px) rotate(${rotation}deg)`;
         // read before the previous movement is stopped, so that it includes where that movement has taken the card
         const current = getComputedStyle(element).transform;
@@ -73,7 +65,7 @@ export function AnimatedCardView({card, placement, layoutState, entry = 0, compa
         if (delay === "inPlace" || typeof element.animate !== "function") return;
         // a dealt card waits on the deck for its turn
         movement.current = element.animate([{transform: current}, {transform: target}], {duration: MOVE_MS, delay, easing: EASE_OUT, fill: "backwards"});
-    }, [stackLocation, index, messyLevel, layoutState]);
+    }, [card, stackLocation, index, messyLevel, layoutState]);
 
     return (
         <div ref={ref} style={{position: "absolute", zIndex: placement.index + placement.stackIndex * 100}}>
