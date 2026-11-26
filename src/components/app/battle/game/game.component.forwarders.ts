@@ -9,9 +9,10 @@ export const eventForwarders = {
         {from: "gameStarted", to: "readyForNextCards"},
         {from: "gameRestored", to: "readyForNextCards"},
         {from: "playerClicked", to: "playerPlayed", onCondition: ({values, payload}) => values.canPlay().at(payload) ?? false},
-        // once a round is won, any tap turns over the next face down card of a battle, then sends the cards to the winner
-        {from: "playerClicked", to: "hiddenCardRevealed", onCondition: ({values}) => values.canRevealHiddenCard()},
-        {from: "playerClicked", to: "cardsCollected", onCondition: ({values}) => values.canCollectCards()},
+        // once a round is won, each tap sends the top layer of the cards played to the winner,
+        // or turns it over first when its cards are face down
+        {from: "playerClicked", to: "hiddenCardsRevealed", onCondition: ({values}) => values.canRevealHiddenCards()},
+        {from: "playerClicked", to: "layerCollected", onCondition: ({values}) => values.canCollectCards()},
         {from: "playerPlayed", to: "allPlayed", onCondition: ({values}) => values.haveAllPlayed()},
         // between two rounds or two steps of a battle
         {from: "readyForNextCards", to: "gameWon", onCondition: ({values}) => values.hasGameWinner()},

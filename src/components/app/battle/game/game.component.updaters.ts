@@ -2,7 +2,7 @@ import type {StateUpdaters} from "@softer-components/types";
 
 import type {Contract} from "./game.component.contract.ts";
 import {initialSeatState, initialState, type SeatState, type State} from "./game.component.state.ts";
-import {gameWinner, highestContenders, isInGame, mustPlay, roundLeader, seatsInGame} from "./game.component.rules.ts";
+import {gameWinner, highestContenders, isInGame, mustPlay, roundLeader, seatsInGame, topLayerDepth} from "./game.component.rules.ts";
 import {type Card, seededRandom, shuffleDeck} from "../../../../model/deck.model.ts";
 import {assertIsNotUndefined} from "../../../../utils/assert.functions.ts";
 import {battleVariant} from "../../../../services/battle-save.service.ts";
@@ -35,8 +35,9 @@ const eliminatePlayers = (state: State): void => {
         seat.eliminatedRound = state.roundNumber - 1;
     });
 };
-// a different shuffle for each round of a deal
-const collectSeed = (dealSeed: number, roundNumber: number) => (dealSeed + Math.imul(roundNumber, 0x9e3779b1)) | 0;
+// a different shuffle for each layer of each round of a deal
+const layerSeed = (dealSeed: number, roundNumber: number, depth: number) =>
+    (dealSeed + Math.imul(roundNumber, 0x9e3779b1) + Math.imul(depth, 0x85ebca6b)) | 0;
 const newSeats = (piles: Card[][]): SeatState[] =>
     piles.map(pile => ({...initialSeatState, pile}));
 const startRound = (state: State): void => {
@@ -98,28 +99,26 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
         state.lastRoundWinner = winner;
         state.lastWonCount = state.seats.reduce((count, seat) => count + seat.played.length, 0);
     },
-    // the face down cards are shown before they go to the winner, one at a time:
-    // in the order they were laid, the first battle first, and for each battle from seat 0 clockwise
-    hiddenCardRevealed: ({state}) => {
-        const depth = Math.max(...state.seats.map(seat => seat.played.length));
-        for (let index = 0; index < depth; index++) {
-            const seat = state.seats.find(seat => index < seat.playedUp.length && !seat.playedUp[index]);
-            if (seat) {
-                seat.playedUp[index] = true;
-                return;
-            }
-        }
+    // the cards of the round are collected layer by layer, from the top;
+    // a layer of face down cards is turned over first, all at once
+    hiddenCardsRevealed: ({state}) => {
+        const depth = topLayerDepth(state);
+        state.seats.forEach(seat => {
+            if (seat.playedUp.length === depth) seat.playedUp[depth - 1] = true;
+        });
     },
-    // every card of the round goes under the pile of the winner
-    cardsCollected: ({state}) => {
+    // the top layer goes under the pile of the winner, shuffled
+    layerCollected: ({state}) => {
         const winner = state.roundWinner;
         if (winner === null) throw new Error("The cards can only be collected once the round has a winner");
-        const played = state.seats.flatMap(seat => seat.played);
-        const won = state.dealSeed === null ? played : shuffleDeck(played, seededRandom(collectSeed(state.dealSeed, state.roundNumber)));
-        state.seats.forEach(seat => {
-            seat.played = [];
-            seat.playedUp = [];
+        const depth = topLayerDepth(state);
+        const layer = state.seats.flatMap(seat => {
+            if (seat.played.length !== depth) return [];
+            const card = seat.played.pop();
+            seat.playedUp.pop();
+            return card ? [card] : [];
         });
+        const won = state.dealSeed === null ? layer : shuffleDeck(layer, seededRandom(layerSeed(state.dealSeed, state.roundNumber, depth)));
         state.seats[winner].pile = [...won, ...state.seats[winner].pile];
     },
     // no player of the battle has a card left: nobody can win the cards of the round

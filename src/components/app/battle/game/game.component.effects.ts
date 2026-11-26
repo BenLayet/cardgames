@@ -84,10 +84,11 @@ export const effects = ({audioService, schedulerService, battleSaveService}: Dep
         // Card flips
         suspenseStarted: ({suspenseCompleted}) => after(DELAYS_MS.suspense, suspenseCompleted),
         reviewWinnerStarted: ({reviewWinnerCompleted}) => after(DELAYS_MS.reviewWinner, reviewWinnerCompleted),
-        hiddenCardRevealed: () => audioService.playCardSlide(),
-        cardsCollected: ({roundCompleted}) => {
+        hiddenCardsRevealed: () => audioService.playCardSlide(),
+        // the round is over once its last layer is collected
+        layerCollected: ({roundCompleted}, {values}) => {
             audioService.playCardSlide();
-            after(DELAYS_MS.collected, roundCompleted);
+            if (!values.areCardsOnTable()) after(DELAYS_MS.collected, roundCompleted);
         },
         // against the computer, the crowd is disappointed when the computer wins; any human deserves applause
         gameWon: (_, {values}) => {

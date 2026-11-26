@@ -9,6 +9,13 @@ export const cardCount = (seat: SeatState) => seat.pile.length;
 export const isInGame = (seat: SeatState) => seat.rank === null;
 export const seatsInGame = (state: State) => state.seats.flatMap((seat, index) => isInGame(seat) ? [index] : []);
 export const areCardsOnTable = (state: State) => state.seats.some(seat => seat.played.length > 0);
+// The cards played in a round lie in layers: the first card of each player, then the face down cards of a battle,
+// then its face up cards… The top layer is the deepest one still on the table: the cards laid last
+export const topLayerDepth = (state: State) => Math.max(0, ...state.seats.map(seat => seat.played.length));
+export const isTopLayerHidden = (state: State) => {
+    const depth = topLayerDepth(state);
+    return depth > 0 && state.seats.some(seat => seat.playedUp.length === depth && !seat.playedUp[depth - 1]);
+};
 
 // a player with a single card left in a battle plays it face up, without a face down card before it
 export const mustPlay = (state: State, index: number) => {
