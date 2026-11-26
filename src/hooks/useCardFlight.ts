@@ -6,6 +6,8 @@ const EASING = "cubic-bezier(.2, .8, .2, 1)";
 // the cards of a completed sequence leave one after the other
 const COLLECT_MS = 420;
 const COLLECT_STAGGER_MS = 35;
+// the dealt cards leave the stock one after the other, in the same rhythm
+const DEAL_STAGGER_MS = COLLECT_STAGGER_MS;
 const CELEBRATION_MS = 1100;
 // the completed sequence rests a moment in its column before it leaves
 const JOIN_PAUSE_MS = 120;
@@ -81,19 +83,23 @@ export const useCardFlight = (
         }
         // after an undo, the cards of the sequence come back from its place
         const originRect = (count === countBefore - 1 ? slotOf(count) : origin.current)?.getBoundingClientRect();
+        let dealt = 0;
         elements.forEach(element => {
             if (isGrounded(element) || typeof element.animate !== "function") return;
             const now = rects.get(element.dataset.cardId ?? "");
-            const from = onScreen.get(element) ?? before.get(element.dataset.cardId ?? "") ?? originRect;
+            const known = onScreen.get(element) ?? before.get(element.dataset.cardId ?? "");
+            const from = known ?? originRect;
             if (!now || !from) return;
             const dx = from.left - now.left;
             const dy = from.top - now.top;
             // a few pixels are jitter, not a move
             if (Math.abs(dx) < JITTER_PX && Math.abs(dy) < JITTER_PX) return;
+            // the cards that come from the stock are dealt column after column, each waiting on the stock for its turn
+            const delay = known ? 0 : dealt++ * DEAL_STAGGER_MS;
             flights.current.set(element, element.animate([
                 {transform: `translate(${dx}px, ${dy}px)`, zIndex: 50},
                 {transform: "translate(0, 0)", zIndex: 50},
-            ], {duration: FLIGHT_MS, easing: EASING}));
+            ], {duration: FLIGHT_MS, delay, easing: EASING, fill: "backwards"}));
         });
     });
     return isCollecting;
