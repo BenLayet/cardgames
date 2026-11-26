@@ -69,7 +69,7 @@
   "hint": "Hint",
   "useEmptyColumn": "You can move cards to an empty column",
   "emptyColumn": "Empty column {{number}}",
-  "hintMove": "Move {{card}} onto {{target}} in column {{column}}",
+  "hintMove": "Move this card.",
   "chooseDestination": "There are several possible destinations, choose one.",
   "noUsefulMove": "No useful move left",
   "ranks": {
@@ -110,21 +110,6 @@
       "H": "hearts",
       "D": "diamonds",
       "C": "clubs"
-    },
-    "ranksWithArticle": {
-      "A": "the ace",
-      "2": "the 2",
-      "3": "the 3",
-      "4": "the 4",
-      "5": "the 5",
-      "6": "the 6",
-      "7": "the 7",
-      "8": "the 8",
-      "9": "the 9",
-      "T": "the 10",
-      "J": "the jack",
-      "Q": "the queen",
-      "K": "the king"
     }
   },
   "cardCountShort_one": "{{count}} card",
