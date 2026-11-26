@@ -20,11 +20,30 @@ describe("Bataille table layout", () => {
         });
 
     it("lays the cards played between the pile and the centre of the table", () => {
-        const {seats: [bottom, top]} = tableLayout(2, 390, 760);
+        const {seats: [bottom, left, top]} = tableLayout(4, 390, 760);
         expect(bottom.played.y).toBeLessThan(bottom.pile.y);
         expect(bottom.played.y).toBeGreaterThan(380);
         expect(top.played.y).toBeGreaterThan(top.pile.y);
         expect(top.played.y).toBeLessThan(380);
+        expect(left.played.x).toBeGreaterThan(left.pile.x);
+    });
+
+    it.each(sizes)("puts two players in opposite corners, their cards side by side in the middle of a %ix%i table", (width, height) => {
+        const {cardWidth, cardHeight, seats: [first, second]} = tableLayout(2, width, height);
+        // player 1 at the bottom left, player 2 at the top right
+        expect(first.pile.x).toBeLessThan(width / 2);
+        expect(first.pile.y).toBeGreaterThan(height / 2);
+        expect(second.pile.x).toBeGreaterThan(width / 2);
+        expect(second.pile.y).toBeLessThan(height / 2);
+        // the cards played on the same line, player 1's on the left, not over each other
+        expect(first.played.y).toBe(second.played.y);
+        expect(second.played.x - first.played.x).toBeGreaterThanOrEqual(cardWidth);
+        // the cards of a battle are spread away from the other player's
+        const isWide = width > height;
+        expect(first.fan.x).toBeLessThanOrEqual(0);
+        expect(second.fan.x).toBeGreaterThanOrEqual(0);
+        if (isWide) expect(-first.fan.x).toBeGreaterThan(cardWidth / 5);
+        else expect(first.fan.y).toBeGreaterThan(cardHeight / 6);
     });
 
     it("makes the cards smaller for more players", () => {
