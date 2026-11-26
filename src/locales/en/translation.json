@@ -178,5 +178,16 @@
         "text": "Tab goes from card to card, Enter or Space plays the card as a tap would, then picks the column. Escape puts the raised cards down."
       }
     ]
+  },
+  "update": {
+    "check": "Check for updates",
+    "checking": "Checking…",
+    "upToDate": "You have the latest version.",
+    "downloading": "Downloading the new version…",
+    "downloadingVersion": "Downloading version {{version}}…",
+    "ready": "A new version is ready.",
+    "readyVersion": "Version {{version}} is ready.",
+    "install": "Update",
+    "failed": "Could not check. Are you connected to the Internet?"
   }
 }

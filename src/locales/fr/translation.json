@@ -178,5 +178,16 @@
         "text": "Tab passe d'une carte à l'autre, Entrée ou Espace joue la carte comme un toucher, puis choisit la rangée. Échap repose les cartes levées."
       }
     ]
+  },
+  "update": {
+    "check": "Vérifier les mises à jour",
+    "checking": "Vérification…",
+    "upToDate": "Tu as la dernière version.",
+    "downloading": "Téléchargement de la nouvelle version…",
+    "downloadingVersion": "Téléchargement de la version {{version}}…",
+    "ready": "Une nouvelle version est prête.",
+    "readyVersion": "La version {{version}} est prête.",
+    "install": "Mettre à jour",
+    "failed": "Impossible de vérifier. Es-tu connecté à Internet\u00a0?"
   }
 }
