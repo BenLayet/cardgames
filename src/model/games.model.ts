@@ -32,8 +32,8 @@ export const GAMES: readonly GameDefinition[] = [
     // the current battle engine has exactly two players
     {id: "bataille", minPlayers: 2, maxPlayers: 2, computerOpponents: true, available: true, cardCountOptions: [12, 16, 32, 52], suitCountOptions: []},
     {id: "batailleCorse", minPlayers: 2, maxPlayers: 6, computerOpponents: true, available: false, cardCountOptions: [], suitCountOptions: []},
-    {id: "spider", minPlayers: 1, maxPlayers: 1, computerOpponents: false, available: true, cardCountOptions: [104, 52, 26], suitCountOptions: [1, 2, 4], unavailableSuitCounts: {26: [4]},
-        cardCountHints: {104: "long", 52: "medium", 26: "short"}, suitCountHints: {1: "easy", 2: "normal", 4: "hard"}},
+    {id: "spider", minPlayers: 1, maxPlayers: 1, computerOpponents: false, available: true, cardCountOptions: [26, 52, 104], suitCountOptions: [1, 2, 4], unavailableSuitCounts: {26: [4]},
+        cardCountHints: {26: "short", 52: "medium", 104: "long"}, suitCountHints: {1: "easy", 2: "normal", 4: "hard"}},
     {id: "crapette", minPlayers: 2, maxPlayers: 2, computerOpponents: true, available: false, cardCountOptions: [], suitCountOptions: []},
     {id: "pouilleux", minPlayers: 2, maxPlayers: 6, computerOpponents: true, available: false, cardCountOptions: [], suitCountOptions: []},
 ];

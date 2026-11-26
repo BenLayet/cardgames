@@ -19,7 +19,8 @@ const setup = (settings: Partial<Settings> = {}, game = gameDefinition("bataille
 describe("setup screen", () => {
     it("says what each number of cards and of suits changes in Spider", () => {
         const {values} = setup({}, gameDefinition("spider"));
-        expect(values().cardCountHints()).toEqual(["long", "medium", "short"]);
+        expect(values().cardCountOptions()).toEqual([26, 52, 104]);
+        expect(values().cardCountHints()).toEqual(["short", "medium", "long"]);
         expect(values().suitCountHints()).toEqual(["easy", "normal", "hard"]);
     });
 
