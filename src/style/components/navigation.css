@@ -166,3 +166,35 @@ body:has(.table-status) #root {
         right: calc(var(--app-frame) + var(--table-reserve-right));
     }
 }
+
+/* ---- a newer version is ready (UpdateBanner.tsx): at the bottom, over the actions of a game until it is answered ---- */
+
+.update-banner {
+    position: fixed;
+    z-index: 1100;
+    left: 50%;
+    bottom: calc(var(--app-frame) + max(var(--app-space-2), env(safe-area-inset-bottom, 0px)));
+    transform: translateX(-50%);
+    width: max-content;
+    max-width: calc(100% - 2 * var(--app-frame) - 2 * var(--app-space-2));
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--app-space-2) var(--app-space-3);
+    padding: var(--app-space-2) var(--app-space-3);
+    color: var(--app-ink);
+    /* opaque: the status line and the actions of a game lie below it */
+    background: var(--app-felt-dark);
+    border: 1px solid var(--app-muted);
+    border-radius: var(--app-radius-sm);
+    box-shadow: 0 0.25rem 1rem rgb(0 0 0 / 40%);
+    font-size: 0.875rem;
+}
+
+/* the buttons go below the message when they do not fit beside it */
+.update-banner-actions {
+    display: flex;
+    gap: var(--app-space-2);
+    margin-left: auto;
+}

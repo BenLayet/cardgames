@@ -11,6 +11,9 @@ export type RegisterServiceWorker = (options: {
 // The part of a ServiceWorkerRegistration used here
 export type UpdatableRegistration = Pick<ServiceWorkerRegistration, "update" | "installing" | "waiting">;
 
+// The check when the application comes back to the foreground waits at least this long after the previous one
+export const BACKGROUND_CHECK_INTERVAL_MS = 60_000;
+
 // The version.json written by the build next to the application
 export const fetchDeployedVersion = async (): Promise<string | undefined> => {
     const response = await fetch("/version.json", {cache: "no-store"});
@@ -28,9 +31,12 @@ export class PwaAppUpdateAdapter implements AppUpdateService {
     private registration: UpdatableRegistration | undefined;
     private readonly switchToWaitingVersion: (reloadPage?: boolean) => Promise<void>;
     private readonly deployedVersion: () => Promise<string | undefined>;
+    private readonly now: () => number;
+    private lastBackgroundCheck = -Infinity;
 
-    constructor(registerServiceWorker: RegisterServiceWorker, deployedVersion = fetchDeployedVersion) {
+    constructor(registerServiceWorker: RegisterServiceWorker, deployedVersion = fetchDeployedVersion, now = Date.now) {
         this.deployedVersion = deployedVersion;
+        this.now = now;
         this.switchToWaitingVersion = registerServiceWorker({
             immediate: true,
             // a newer version is installed and waits: at start, or after a check
@@ -74,11 +80,30 @@ export class PwaAppUpdateAdapter implements AppUpdateService {
             this.setState({status: "upToDate"});
             return;
         }
-        this.setState({status: "downloading"});
-        void this.learnNewVersion();
-        installing.addEventListener("statechange", () => {
-            if (installing.state === "installed") this.becomeReady();
-            if (installing.state === "redundant") this.setState({status: "failed"});
+        this.followDownload(installing);
+    };
+
+    // Asks the server without showing anything, unless a newer version is found; at most once a minute
+    checkInBackground = async (): Promise<void> => {
+        const registration = this.registration;
+        if (!registration || this.state.status === "ready" || this.state.status === "checking"
+            || this.state.status === "downloading") return;
+        if (this.now() - this.lastBackgroundCheck < BACKGROUND_CHECK_INTERVAL_MS) return;
+        this.lastBackgroundCheck = this.now();
+        try {
+            await registration.update();
+        } catch {
+            // offline: the next return to the foreground will try again
+            return;
+        }
+        if (registration.waiting) this.becomeReady();
+        else if (registration.installing) this.followDownload(registration.installing);
+    };
+
+    // Checks each time the installed application comes back to the foreground, which does not reload it
+    watchForeground = (target: Pick<Document, "addEventListener" | "visibilityState">): void => {
+        target.addEventListener("visibilitychange", () => {
+            if (target.visibilityState === "visible") void this.checkInBackground();
         });
     };
 
@@ -86,6 +111,15 @@ export class PwaAppUpdateAdapter implements AppUpdateService {
         // the waiting service worker takes control, then the page reloads
         void this.switchToWaitingVersion(true);
     };
+
+    private followDownload(installing: ServiceWorker) {
+        this.setState({status: "downloading"});
+        void this.learnNewVersion();
+        installing.addEventListener("statechange", () => {
+            if (installing.state === "installed") this.becomeReady();
+            if (installing.state === "redundant") this.setState({status: "failed"});
+        });
+    }
 
     private becomeReady() {
         if (this.state.status === "ready") return;
