@@ -4,7 +4,8 @@ import { VitePWA } from 'vite-plugin-pwa'
 import { execSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 
-// what was deployed, shown in the About window: the version of package.json, the commit and the build date
+// what was deployed, shown in the About window: the version of package.json and the build date,
+// and the commit, which the About link to the source code points to
 const commitOf = (): string => {
   // AWS Amplify gives the commit it builds; otherwise ask git
   if (process.env.AWS_COMMIT_ID) return process.env.AWS_COMMIT_ID.slice(0, 7)
