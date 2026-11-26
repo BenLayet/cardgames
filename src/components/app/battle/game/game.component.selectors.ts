@@ -20,17 +20,21 @@ const areHiddenCardsOnTable = (state: State) => state.seats.some(seat => seat.pl
 // the round is won and its cards are still on the table
 const isWaitingForCollection = (state: State) => state.roundWinner !== null && areCardsOnTable(state) && !state.gameEnded;
 
+// the cards lie a little askew, as when put down by hand: up to 3° on the piles, 6° in the middle of the table
+const PILE_MESSY_LEVEL = 6;
+const PLAYED_MESSY_LEVEL = 12;
+
 // How each stack of a seat is drawn on the table: the cards played lie over the piles
 const cardsWithLocation = (state: State): CardWithPlacement[] =>
     state.seats.flatMap((seat, seatIndex) => [
         ...seat.pile.map((card, index) => ({
             card,
-            placement: {stackLocation: `seat${seatIndex}Pile` as const, stackIndex: 1, index, faceUp: false, messyLevel: 2},
+            placement: {stackLocation: `seat${seatIndex}Pile` as const, stackIndex: 1, index, faceUp: false, messyLevel: PILE_MESSY_LEVEL},
         })),
         ...seat.played.map((card, index) => ({
             card,
-            // the cards of a battle are moved aside, so that the tied card stays in view (the layout says how far)
-            placement: {stackLocation: `seat${seatIndex}Played` as const, stackIndex: 3, index, faceUp: seat.playedUp[index], messyLevel: 2, fan: index},
+            // the cards of a battle are piled on each other
+            placement: {stackLocation: `seat${seatIndex}Played` as const, stackIndex: 3, index, faceUp: seat.playedUp[index], messyLevel: PLAYED_MESSY_LEVEL},
         })),
     ]);
 
