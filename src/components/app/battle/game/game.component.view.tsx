@@ -77,7 +77,7 @@ export const View = ({path = ""}) => {
                 {seatLabel(v.player1Name, 1)}
             </div>
         </div>
-        {v.hasGameEnded && <EndMessage onPlayAgain={() => d.playAgainRequested()}>
+        {v.hasGameEnded && <EndMessage onPlayAgain={() => d.playAgainRequested()} onMenu={() => d.menuRequested()}>
             {v.isPlayer2Computer && v.hasPlayer1WonGame && <>
                 <Fireworks/>
                 <h1>{t("victory")}</h1>

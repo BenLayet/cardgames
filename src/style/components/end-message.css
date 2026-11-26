@@ -1,24 +1,44 @@
+/* over the table, below the bar at the top, which stays usable */
 .end-message-overlay {
     position: fixed;
+    top: calc(var(--app-frame) + var(--app-bar-h) + env(safe-area-inset-top, 0px));
     bottom: 0;
     right: 0;
     left: 0;
-    top: 0;
     z-index: 10000;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: var(--app-space-3);
     background-color: #0a2a1fa6;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
 }
 
-.end-message-overlay h1 {
+.end-message-overlay h1,
+.end-message-overlay h2 {
     text-align: center;
     text-wrap: balance;
     padding: 0 var(--app-space-3);
     color: var(--app-gold);
+    font-family: var(--app-font-display);
     font-size: 4em;
     text-shadow: 0 0 20px rgba(0, 0, 0, 0.8), 0 0 40px rgba(242, 212, 138, 0.5), 4px 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* what to do next, above the fireworks */
+.end-message-actions {
+    position: relative;
+    z-index: 10000;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--app-space-3);
+    margin-top: var(--app-space-4);
+}
+
+.end-message-actions .btn-outline-primary {
+    --bs-btn-bg: var(--app-panel);
+    --bs-btn-hover-bg: var(--app-felt-dark);
 }

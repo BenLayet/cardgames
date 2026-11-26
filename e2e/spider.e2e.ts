@@ -184,14 +184,14 @@ test.describe("on a touch screen", () => {
     test.use({hasTouch: true});
 
     // on a touch screen, the click that follows a tap lands on what is under the finger once the tap is handled
-    test("the tap that wins the game leaves the victory on screen, the next one closes it", async ({page}) => {
+    test("the tap that wins the game leaves the victory on screen, a tap on Menu closes it", async ({page}) => {
         await resume(page, ALMOST_WON);
         await card(page, 1, 0).tap();
         const victory = page.getByRole("heading", {name: "Victoire"});
         await expect(victory).toBeVisible();
         await page.waitForTimeout(500);
         await expect(victory).toBeVisible();
-        await victory.tap();
+        await page.getByRole("button", {name: "Menu"}).tap();
         await expect(victory).toBeHidden();
     });
 });

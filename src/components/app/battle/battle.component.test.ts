@@ -31,14 +31,25 @@ describe("battle", () => {
         expect(store.getValues("/game").cardsWithLocation()).toHaveLength(16);
     });
 
-    it("goes back home and stops all sounds when the player wants to play again", async () => {
+    it("goes back to the menu and stops all sounds when the player wants the menu at the end of a game", async () => {
+        await store.when({name: "startGameRequested", statePath: setupPath});
+        await vi.runAllTimersAsync();
+
+        await store.when({name: "menuRequested", statePath: gamePath});
+
+        expect(store.getValues("").isStarted()).toBe(false);
+        expect(audioService.stopAll).toHaveBeenCalled();
+    });
+
+    it("deals a new game with the same options when the player wants to play again", async () => {
         await store.when({name: "startGameRequested", statePath: setupPath});
         await vi.runAllTimersAsync();
 
         await store.when({name: "playAgainRequested", statePath: gamePath});
+        await vi.runAllTimersAsync();
 
-        expect(store.getValues("").isStarted()).toBe(false);
-        expect(audioService.stopAll).toHaveBeenCalled();
+        expect(store.getValues("").isStarted()).toBe(true);
+        expect(store.getValues("/game").cardsWithLocation()).toHaveLength(16);
     });
 
     it("forgets the pending steps of a round when going home in the middle of it", async () => {

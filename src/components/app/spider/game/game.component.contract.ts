@@ -10,7 +10,9 @@ export const uiEvents = [
     "stockClicked",
     "undoRequested",
     "hintRequested",
+    // the end of a game: a new game with the same options, or the menu of the game
     "playAgainRequested",
+    "menuRequested",
     // the victory message is on screen, once the last sequence has reached its place
     "victoryShown",
 ] as const;

@@ -3,7 +3,8 @@ import type {EventsContract} from "@softer-components/types";
 import type {Card} from "../../../../model/deck.model.ts";
 import type {Values} from "./game.component.selectors.ts";
 
-export const uiEvents = ["player1Clicked", "player2Clicked", "playAgainRequested"] as const;
+// the end of a game: a new game with the same options, or the menu of the game
+export const uiEvents = ["player1Clicked", "player2Clicked", "playAgainRequested", "menuRequested"] as const;
 export const allEvents = [
     ...uiEvents,
     "gameStarted",

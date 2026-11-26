@@ -125,7 +125,7 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
                 </div>;
             })}
         </div>
-        {isVictoryShown && <EndMessage onPlayAgain={() => d.playAgainRequested()}>
+        {isVictoryShown && <EndMessage onPlayAgain={() => d.playAgainRequested()} onMenu={() => d.menuRequested()}>
             <Fireworks/>
             <h1>{t("victory")}</h1>
             <p className="fs-4">{t("moves", {count: v.moveCount})}</p>
