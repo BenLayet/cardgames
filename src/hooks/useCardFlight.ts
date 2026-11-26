@@ -106,7 +106,8 @@ const collect = (table: HTMLElement, cards: { rect: DOMRect, element: HTMLElemen
             position: "absolute", left: `${rect.left}px`, top: `${rect.top}px`,
             width: `${rect.width}px`, height: `${rect.height}px`, transform: "", transformOrigin: "0 0",
         });
-        layer.appendChild(element);
+        // each card goes under the ones before it: the ace lies on the two, ..., the queen on the king
+        layer.prepend(element);
     });
     // the cards that completed the sequence first land on the rest of it, in its column
     const landings = landingsOf(aceFirst);

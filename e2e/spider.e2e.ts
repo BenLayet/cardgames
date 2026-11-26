@@ -120,6 +120,16 @@ test("a moved card flies straight from where it was to where it goes", async ({p
     expect(onTheWay.length).toBeGreaterThan(2);
 });
 
+test("a completed sequence flies away with the ace on top and the king beneath", async ({page}) => {
+    await resume(page, ALMOST_WON);
+    await card(page, 1, 0).click();
+    const flying = page.locator(".card-flight-layer > *");
+    await expect(flying).toHaveCount(13);
+    // later in the layer is drawn above: from the king (12) at the bottom to the ace (0) on top
+    const ranks = await flying.evaluateAll(elements => elements.map(element => Number((element as HTMLElement).dataset.rank)));
+    expect(ranks).toEqual([12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
+});
+
 test.describe("on a touch screen", () => {
     test.use({hasTouch: true});
 
