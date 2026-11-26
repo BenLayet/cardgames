@@ -5,6 +5,7 @@ import {initialSeatState, initialState, type SeatState, type State} from "./game
 import {gameWinner, highestContenders, isInGame, mustPlay, roundLeader, seatsInGame} from "./game.component.rules.ts";
 import {type Card, seededRandom, shuffleDeck} from "../../../../model/deck.model.ts";
 import {assertIsNotUndefined} from "../../../../utils/assert.functions.ts";
+import {battleVariant} from "../../../../services/battle-save.service.ts";
 
 // The helpers below change the state in place and return nothing,
 // because a value returned by an updater would replace the whole state.
@@ -46,16 +47,21 @@ const startRound = (state: State): void => {
 };
 
 export const stateUpdaters: StateUpdaters<Contract, State> = {
-    dealRequested: ({payload: {isSolo, playerNames}}) => ({...initialState, isSolo, playerNames}),
+    dealRequested: ({payload: {isSolo, playerNames, playerCount, cardCount}}) =>
+        ({...initialState, isSolo, playerNames, variant: battleVariant(isSolo, playerCount, cardCount)}),
+    restoreRequested: ({state, payload: {isSolo, playerNames, cardCount}}) => {
+        state.variant = battleVariant(isSolo, isSolo ? 2 : playerNames.length, cardCount);
+    },
     dealCompleted: ({state, payload: {piles, setAsideCount, dealSeed}}) => {
         state.seats = newSeats(piles);
         state.setAsideCount = setAsideCount;
         state.dealSeed = dealSeed ?? null;
         startRound(state);
     },
-    gameRestored: ({payload}) => ({
+    gameRestored: ({state, payload}) => ({
         ...initialState,
         ...payload,
+        variant: state.variant,
         seats: payload.seats.map(seat => ({...initialSeatState, ...seat, canPlay: false})),
         isRestored: true,
     }),
@@ -138,5 +144,5 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
             seat.canPlay = false;
         });
     },
-    playAgainRequested: ({state}) => ({...initialState, isSolo: state.isSolo, playerNames: state.playerNames}),
+    playAgainRequested: ({state}) => ({...initialState, isSolo: state.isSolo, playerNames: state.playerNames, variant: state.variant}),
 };

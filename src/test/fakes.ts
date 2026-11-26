@@ -3,7 +3,7 @@ import type {AudioService} from "../services/audio.service.ts";
 import {DEFAULT_SETTINGS, type Settings, type SettingsService} from "../services/settings.service.ts";
 import type {SpiderSaveService} from "../services/spider-save.service.ts";
 import type {SavedSpiderGame, SpiderVariant} from "../model/spider.model.ts";
-import type {BattleSaveService, SavedBattleGame} from "../services/battle-save.service.ts";
+import type {BattleSaveService, BattleVariant, SavedBattleGame} from "../services/battle-save.service.ts";
 
 export const fakeAudioService = () => ({
     stopAll: vi.fn(),
@@ -41,17 +41,18 @@ export const fakeSpiderSaveService = () => {
     } satisfies SpiderSaveService;
 };
 
-// Keeps the Bataille game in memory so tests can check what was saved
+// Keeps the Bataille games in memory so tests can check what was saved, one for each kind of game
 export const fakeBattleSaveService = () => {
-    let saved: SavedBattleGame | null = null;
+    const saved = new Map<string, { variant: BattleVariant, game: SavedBattleGame }>();
+    const key = ({players, cardCount}: BattleVariant) => `${players}.${cardCount}`;
     return {
-        load: () => saved,
-        save: vi.fn((game: SavedBattleGame) => {
-            saved = structuredClone(game);
+        load: (variant: BattleVariant) => saved.get(key(variant))?.game ?? null,
+        save: vi.fn((variant: BattleVariant, game: SavedBattleGame) => {
+            saved.set(key(variant), {variant, game: structuredClone(game)});
         }),
-        clear: vi.fn(() => {
-            saved = null;
+        clear: vi.fn((variant: BattleVariant) => {
+            saved.delete(key(variant));
         }),
-        hasSavedGame: () => saved !== null,
+        savedVariants: () => [...saved.values()].map(({variant}) => variant),
     } satisfies BattleSaveService;
 };

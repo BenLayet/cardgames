@@ -117,7 +117,7 @@ describe("battle", () => {
         expect(next.getValues("/game").canPlay()).toEqual([true, true]);
     });
 
-    it("resumes the game with the players chosen on the menu, so that a human plays only their own pile", async () => {
+    it("keeps one game for each kind of game: a game with other players does not replace it", async () => {
         const battleSaveService = fakeBattleSaveService();
         const battle = initTestStore(battleDef({audioService, settingsService, schedulerService: new TimeoutSchedulerAdapter(), battleSaveService}));
         // a game against the computer is left after one round
@@ -125,18 +125,27 @@ describe("battle", () => {
         await vi.runAllTimersAsync();
         await battle.when({name: "playerClicked", payload: 0, statePath: gamePath});
         await vi.runAllTimersAsync();
-        await battle.when({name: "goHomeRequested", statePath: []});
-
-        // a second human takes the other seat, then the game is resumed
-        await battle.when({name: "toggleSeatRequested", payload: 1, statePath: setupPath});
-        await battle.when({name: "resumeRequested", statePath: []});
-        await vi.runAllTimersAsync();
-        expect(battle.getValues("/game").isSolo()).toBe(false);
-
-        // the pile of player 1 plays for player 1 only
         await battle.when({name: "playerClicked", payload: 0, statePath: gamePath});
         await vi.runAllTimersAsync();
-        expect(battle.getValues("/game").canPlay()).toEqual([false, true]);
+        const soloGame = battle.getValues("/game").cardsWithLocation();
+        await battle.when({name: "goHomeRequested", statePath: []});
+
+        // with two humans, there is no game to resume; a new one is started and left
+        await battle.when({name: "toggleSeatRequested", payload: 1, statePath: setupPath});
+        expect(battle.getValues("").canResume()).toBe(false);
+        await battle.when({name: "startGameRequested", statePath: setupPath});
+        await vi.runAllTimersAsync();
+        await battle.when({name: "goHomeRequested", statePath: []});
+        expect(battle.getValues("").canResume()).toBe(true);
+        expect(battleSaveService.savedVariants()).toHaveLength(2);
+
+        // back to Solo: the game against the computer is still there
+        await battle.when({name: "toggleSeatRequested", payload: 1, statePath: setupPath});
+        expect(battle.getValues("").canResume()).toBe(true);
+        await battle.when({name: "resumeRequested", statePath: []});
+        await vi.runAllTimersAsync();
+        expect(battle.getValues("/game").isSolo()).toBe(true);
+        expect(battle.getValues("/game").cardsWithLocation()).toEqual(soloGame);
     });
 
     it("no longer offers to resume a game that has ended", async () => {

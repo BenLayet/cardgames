@@ -116,5 +116,6 @@ export const selectors = {
     areCardsOnTable,
     hasPlayed: (state: State) => state.hasPlayed,
     savedGame,
+    variant: (state: State) => state.variant,
 } satisfies Selectors<State>;
 export type Values = ExtractComponentValuesContract<typeof selectors>;

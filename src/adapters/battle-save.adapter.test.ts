@@ -1,6 +1,6 @@
-import {describe, expect, it} from "vitest";
+import {afterEach, beforeEach, describe, expect, it, vi} from "vitest";
 
-import {decodeSavedBattleGame, encodeSavedBattleGame} from "./battle-save.adapter.ts";
+import {decodeSavedBattleGame, encodeSavedBattleGame, LocalStorageBattleSaveAdapter} from "./battle-save.adapter.ts";
 import type {SavedBattleGame} from "../services/battle-save.service.ts";
 
 const seat = {pile: ["AS", "2H"], played: ["KD"], playedUp: [true], rank: null, eliminatedRound: null};
@@ -39,5 +39,47 @@ describe("saved Bataille game", () => {
         const older: Partial<SavedBattleGame> = {...game};
         delete older.dealSeed;
         expect(decodeSavedBattleGame(JSON.stringify({version: 2, ...older}))).toEqual({...game, dealSeed: null});
+    });
+});
+
+describe("saved Bataille games in the browser", () => {
+    let stored: Map<string, string>;
+    beforeEach(() => {
+        stored = new Map();
+        vi.stubGlobal("localStorage", {
+            getItem: (key: string) => stored.get(key) ?? null,
+            setItem: (key: string, value: string) => stored.set(key, value),
+            removeItem: (key: string) => stored.delete(key),
+            key: (index: number) => [...stored.keys()][index] ?? null,
+            get length() {
+                return stored.size;
+            },
+        });
+    });
+    afterEach(() => {
+        vi.unstubAllGlobals();
+    });
+
+    it("keeps one game for each kind of game", () => {
+        const adapter = new LocalStorageBattleSaveAdapter();
+        adapter.save({players: "solo", cardCount: 32}, {...game, isSolo: true});
+        adapter.save({players: 3, cardCount: 32}, game);
+        adapter.save({players: 3, cardCount: 52}, game);
+        adapter.clear({players: 3, cardCount: 52});
+
+        expect(adapter.savedVariants()).toEqual([{players: "solo", cardCount: 32}, {players: 3, cardCount: 32}]);
+        expect(adapter.load({players: "solo", cardCount: 32})?.isSolo).toBe(true);
+        expect(adapter.load({players: 2, cardCount: 32})).toBeNull();
+    });
+
+    it("moves the single game saved before to the key of its kind", () => {
+        // three players, 4 + 1 cards each and 1 set aside: 16 cards
+        const seats = [0, 1, 2].map(() => ({pile: ["AS", "2H", "3C", "4D"], played: ["KD"], playedUp: [true], rank: null, eliminatedRound: null}));
+        stored.set("cardgames.bataille.game", encodeSavedBattleGame({...game, seats} as SavedBattleGame));
+
+        const adapter = new LocalStorageBattleSaveAdapter();
+
+        expect(adapter.savedVariants()).toEqual([{players: 3, cardCount: 16}]);
+        expect(stored.has("cardgames.bataille.game")).toBe(false);
     });
 });

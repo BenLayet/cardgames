@@ -1,4 +1,5 @@
 import type {Card} from "../../../../model/deck.model.ts";
+import type {BattleVariant} from "../../../../services/battle-save.service.ts";
 
 // Bataille is played by 2 to 6 players, seated around the table: seat 0 at the bottom, the others clockwise
 export const MAX_SEATS = 6;
@@ -48,6 +49,8 @@ export const initialState = {
     // the cards collected in a round are shuffled from this seed and the round number, as when picked up by hand,
     // so that a deal can be played in memory before it is dealt; null: collected in seat order
     dealSeed: null as number | null,
+    // the kind of game, under which it is saved: the players and the number of cards chosen on the menu
+    variant: null as BattleVariant | null,
 };
 
 export type State = typeof initialState;
