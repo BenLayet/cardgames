@@ -23,6 +23,14 @@
   "suitCount": "Couleurs",
   "suitCountOption_one": "{{count}} couleur",
   "suitCountOption_other": "{{count}} couleurs",
+  "optionHints": {
+    "long": "Longue",
+    "medium": "Moyenne",
+    "short": "Courte",
+    "easy": "Facile",
+    "normal": "Moyen",
+    "hard": "Difficile"
+  },
   "language": "Langue",
   "settings": "Réglages",
   "music": "Musique",

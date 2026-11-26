@@ -17,6 +17,17 @@ const setup = (settings: Partial<Settings> = {}, game = gameDefinition("bataille
 };
 
 describe("setup screen", () => {
+    it("says what each number of cards and of suits changes in Spider", () => {
+        const {values} = setup({}, gameDefinition("spider"));
+        expect(values().cardCountHints()).toEqual(["long", "medium", "short"]);
+        expect(values().suitCountHints()).toEqual(["easy", "normal", "hard"]);
+    });
+
+    it("says nothing about the options of a game without hints", () => {
+        const {values} = setup();
+        expect(values().cardCountHints()).toEqual([null, null, null, null]);
+    });
+
     it("starts with the stored card count", () => {
         const {values} = setup({cardCounts: {bataille: 16}});
         expect(values().cardCount()).toBe(16);

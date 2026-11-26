@@ -23,6 +23,14 @@
   "suitCount": "Suits",
   "suitCountOption_one": "{{count}} suit",
   "suitCountOption_other": "{{count}} suits",
+  "optionHints": {
+    "long": "Long",
+    "medium": "Medium",
+    "short": "Short",
+    "easy": "Easy",
+    "normal": "Medium",
+    "hard": "Hard"
+  },
   "language": "Language",
   "settings": "Settings",
   "music": "Music",
