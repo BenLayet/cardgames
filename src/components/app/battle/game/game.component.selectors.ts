@@ -3,6 +3,7 @@ import type {ExtractComponentValuesContract, Selectors} from "@softer-components
 
 import type {State} from "./game.component.state.ts";
 import type {CardWithPlacement} from "../../../../model/deck.model.ts";
+import {PILE_TILT_DEG, PLAYED_TILT_DEG} from "./game.component.layout.ts";
 import {
     areCardsOnTable,
     cardCount,
@@ -20,9 +21,9 @@ const isBattleGoingOn = (state: State) => state.battleCount > 0 && state.roundWi
 // the round is won and its cards are still on the table
 const isWaitingForCollection = (state: State) => state.roundWinner !== null && areCardsOnTable(state) && !state.gameEnded;
 
-// the cards lie a little askew, as when put down by hand: up to 3° on the piles, 6° in the middle of the table
-const PILE_MESSY_LEVEL = 6;
-const PLAYED_MESSY_LEVEL = 12;
+// a messy level is the full range of the tilt, from one side to the other
+const PILE_MESSY_LEVEL = 2 * PILE_TILT_DEG;
+const PLAYED_MESSY_LEVEL = 2 * PLAYED_TILT_DEG;
 
 // How each stack of a seat is drawn on the table: the cards played lie over the piles
 const cardsWithLocation = (state: State): CardWithPlacement[] =>

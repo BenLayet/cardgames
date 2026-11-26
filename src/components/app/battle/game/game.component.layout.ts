@@ -1,3 +1,5 @@
+import {MAX_STACK_DEPTH} from "../../../card/AnimatedCardView.tsx";
+
 // Where the piles and the cards played of a Bataille game lie on the table, for 2 to 6 players.
 // The piles sit around the table: seat 0 at the bottom, the others clockwise, as in the "Bataille à six" mockup;
 // two players sit in opposite corners, player 1 at the bottom left and player 2 at the top right.
@@ -45,6 +47,23 @@ const LABEL_HEIGHT = 34;
 const LABEL_WIDTH = 112;
 const GAP = 8;
 
+// the cards lie a little askew, as when put down by hand: up to 3° on the piles, 6° in the middle of the table
+export const PILE_TILT_DEG = 3;
+export const PLAYED_TILT_DEG = 6;
+// how far a card tilted by the largest angle goes past its slot, on each side
+const tiltOverhang = (cardWidth: number, cardHeight: number) => {
+    const angle = PLAYED_TILT_DEG * Math.PI / 180;
+    return {
+        x: cardWidth / 2 * (Math.cos(angle) - 1) + cardHeight / 2 * Math.sin(angle),
+        y: cardHeight / 2 * (Math.cos(angle) - 1) + cardWidth / 2 * Math.sin(angle),
+    };
+};
+// the room between two slots: a gap, plus what two tilted cards and a stack of cards played go past their slots
+const slotGaps = (cardWidth: number, cardHeight: number) => {
+    const overhang = tiltOverhang(cardWidth, cardHeight);
+    return {x: GAP + 2 * overhang.x + MAX_STACK_DEPTH / 2, y: GAP + 2 * overhang.y + MAX_STACK_DEPTH};
+};
+
 const labelSide = (count: number, isWide: boolean, x: number, y: number): LabelSide => {
     // two players: each name is written beside the pile, towards the middle of the table
     if (count === 2) return x < 50 ? "right" : "left";
@@ -55,7 +74,6 @@ const labelSide = (count: number, isWide: boolean, x: number, y: number): LabelS
 
 const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), Math.max(min, max));
 const overlap = (a: Box, b: Box) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
-const grow = (box: Box, by: number): Box => ({left: box.left - by, top: box.top - by, right: box.right + by, bottom: box.bottom + by});
 
 type Pile = { centre: Point, side: LabelSide, box: Box };
 // a pile, with its name and its outline, kept on the table
@@ -74,8 +92,9 @@ const placePile = (px: number, py: number, side: LabelSide, width: number, heigh
 // the grid of slots, centred on the table
 const slotGrid = (count: number, rows: number, width: number, height: number, cardWidth: number, cardHeight: number) => {
     const columns = Math.ceil(count / rows);
-    const gridWidth = columns * cardWidth + (columns - 1) * GAP;
-    const gridHeight = rows * cardHeight + (rows - 1) * GAP;
+    const gap = slotGaps(cardWidth, cardHeight);
+    const gridWidth = columns * cardWidth + (columns - 1) * gap.x;
+    const gridHeight = rows * cardHeight + (rows - 1) * gap.y;
     const box: Box = {
         left: (width - gridWidth) / 2, top: (height - gridHeight) / 2,
         right: (width + gridWidth) / 2, bottom: (height + gridHeight) / 2,
@@ -84,11 +103,11 @@ const slotGrid = (count: number, rows: number, width: number, height: number, ca
     const slots = Array.from({length: count}, (_, index): Point => {
         const row = Math.floor(index / columns);
         const inRow = Math.min(columns, count - row * columns);
-        const rowWidth = inRow * cardWidth + (inRow - 1) * GAP;
+        const rowWidth = inRow * cardWidth + (inRow - 1) * gap.x;
         const column = index - row * columns;
         return {
-            x: (width - rowWidth) / 2 + column * (cardWidth + GAP) + cardWidth / 2,
-            y: box.top + row * (cardHeight + GAP) + cardHeight / 2,
+            x: (width - rowWidth) / 2 + column * (cardWidth + gap.x) + cardWidth / 2,
+            y: box.top + row * (cardHeight + gap.y) + cardHeight / 2,
         };
     });
     return {box, slots};
@@ -102,7 +121,13 @@ const fits = (count: number, slotCount: number, rows: number, isWide: boolean, w
         placePile(px, py, labelSide(count, isWide, px, py), width, height, cardWidth, cardHeight));
     // a pile pushed against an edge of a too small table goes over it
     if (piles.some(({box}) => box.left < 0 || box.top < 0 || box.right > width || box.bottom > height)) return false;
-    const grid = grow(box, GAP);
+    // the tilted cards and the stack of cards played go past the grid of slots
+    const overhang = tiltOverhang(cardWidth, cardHeight);
+    // (a stack of cards played rises and shifts right)
+    const grid: Box = {
+        left: box.left - GAP - overhang.x, right: box.right + GAP + overhang.x + MAX_STACK_DEPTH / 2,
+        top: box.top - GAP - overhang.y - MAX_STACK_DEPTH, bottom: box.bottom + GAP + overhang.y,
+    };
     return piles.every((pile, index) => !overlap(pile.box, grid)
         && piles.slice(index + 1).every(other => !overlap(pile.box, other.box)));
 };
@@ -130,8 +155,9 @@ export const tableLayout = (playerCount: number, width: number, height: number, 
     const slotCount = Math.max(1, withSlot.length);
     const [widthPart, heightPart] = isWide ? MAX_CARD_WIDE : MAX_CARD_UPRIGHT;
     const maxWidth = Math.min(width * widthPart, height * heightPart);
-    // the fewest rows win a tie
-    const best = [1, 2, 3].filter(rows => rows <= slotCount)
+    // the fewest rows win a tie;
+    // two slots always lie side by side
+    const best = [1, 2, 3].filter(rows => rows <= slotCount && (slotCount > 2 || rows === 1))
         .map(rows => ({rows, cardWidth: largestCardWidth(count, slotCount, rows, isWide, width, height, maxWidth)}))
         .reduce((a, b) => b.cardWidth > a.cardWidth ? b : a);
     const cardWidth = Math.max(MIN_CARD_WIDTH, best.cardWidth);
