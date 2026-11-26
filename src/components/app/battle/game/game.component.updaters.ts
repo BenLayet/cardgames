@@ -35,6 +35,7 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
         ...payload,
         player1: {...initialPlayerState, ...payload.player1},
         player2: {...initialPlayerState, ...payload.player2},
+        isRestored: true,
     }),
     player1Played: ({state}) => {
         playTopCard(state.player1);
