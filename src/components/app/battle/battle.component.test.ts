@@ -104,6 +104,29 @@ describe("battle", () => {
         expect(next.getValues("/game").canPlayer1Play()).toBe(true);
     });
 
+    it("resumes the game with the players chosen on the menu, so that a human plays only their own pile", async () => {
+        const battleSaveService = fakeBattleSaveService();
+        const battle = initTestStore(battleDef({audioService, settingsService, schedulerService: new TimeoutSchedulerAdapter(), battleSaveService}));
+        // a game against the computer is left after one round
+        await battle.when({name: "startGameRequested", statePath: setupPath});
+        await vi.runAllTimersAsync();
+        await battle.when({name: "player1Clicked", statePath: gamePath});
+        await vi.runAllTimersAsync();
+        await battle.when({name: "goHomeRequested", statePath: []});
+
+        // a second human takes the other seat, then the game is resumed
+        await battle.when({name: "toggleSeatRequested", payload: 1, statePath: setupPath});
+        await battle.when({name: "resumeRequested", statePath: []});
+        await vi.runAllTimersAsync();
+        expect(battle.getValues("/game").isPlayer2Computer()).toBe(false);
+
+        // the pile of player 1 plays for player 1 only
+        await battle.when({name: "player1Clicked", statePath: gamePath});
+        await vi.runAllTimersAsync();
+        expect(battle.getValues("/game").canPlayer1Play()).toBe(false);
+        expect(battle.getValues("/game").canPlayer2Play()).toBe(true);
+    });
+
     it("no longer offers to resume a game that has ended", async () => {
         await store.when({name: "startGameRequested", statePath: setupPath});
         await vi.runAllTimersAsync();
