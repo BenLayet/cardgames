@@ -81,6 +81,8 @@ test("a clicked card that can go to several columns waits for one of them, an em
     await resume(page, PLAYING);
     await card(page, 0, 1).click();
     await expect(page.getByText("Touche une colonne bleue")).toBeVisible();
+    // the shadow of the raised cards is drawn once, around the group, by its first card
+    await expect(card(page, 0, 1)).toHaveClass(/spider-card--selected-first/);
     for (const destination of [1, 2]) await expect(column(page, destination)).toHaveClass(/spider-column--destination/);
     await column(page, 3).click();
     await expect(cardsIn(page, 3)).toHaveCount(1);

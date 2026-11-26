@@ -102,8 +102,16 @@
     filter: brightness(0.84) grayscale(0.2);
 }
 
-.spider-card--selected .card-image {
-    filter: drop-shadow(0 0 4px var(--bs-primary)) drop-shadow(0 8px 8px #0006);
+/* the selected cards cast one shadow as a group: it is drawn around the whole run by its first card,
+   the next cards are drawn over it, so that no card casts a shadow on the one beneath */
+.spider-card--selected-first::after {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: calc(var(--spider-card-h) * (1 + var(--selected-run-height, 0)));
+    border-radius: 5px;
+    box-shadow: 0 0 4px 1px var(--bs-primary), 0 8px 10px #0006;
+    pointer-events: none;
 }
 
 /* the selected cards are lifted while they wait for a column */
