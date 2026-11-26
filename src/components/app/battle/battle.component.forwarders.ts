@@ -11,10 +11,13 @@ export const eventForwarders = {
                     to: "dealRequested",
                     withPayload: ({values}) => ({cardCount: values.cardCount(), isPlayer2Computer: values.isPlayer2Computer(), playerNames: values.playerNames()}),
                 },
+                {from: "resumeRequested", to: "restoreRequested"},
             ],
             listeners: [
                 {from: "playAgainRequested", to: "startGameRequested"},
                 {from: "menuRequested", to: "goHomeRequested"},
+                {from: "gameStarted", to: "gameSaved"},
+                {from: "gameEnded", to: "gameFinished"},
             ]
         },
         setup: {

@@ -4,13 +4,15 @@ import {createDeck, shuffleDeck} from "../../../../model/deck.model.ts";
 import type {AudioService} from "../../../../services/audio.service.ts";
 import type {SchedulerService} from "../../../../services/scheduler.service.ts";
 import {DELAYS_MS} from "./game.component.timings.ts";
+import type {BattleSaveService} from "../../../../services/battle-save.service.ts";
 
 
 export type Dependencies = {
     audioService: AudioService,
     schedulerService: SchedulerService,
+    battleSaveService: BattleSaveService,
 };
-export const effects = ({audioService, schedulerService}: Dependencies): Effects<Contract> => {
+export const effects = ({audioService, schedulerService, battleSaveService}: Dependencies): Effects<Contract> => {
     const after = (delayMs: number, callback: () => void) => {
         schedulerService.schedule(callback, delayMs);
     };
@@ -18,12 +20,27 @@ export const effects = ({audioService, schedulerService}: Dependencies): Effects
         dealRequested: ({dealCompleted}, {payload: {cardCount}}) => {
             // forget whatever was still pending from a previous game
             schedulerService.cancelAll();
+            // a new game replaces the one that could be resumed
+            battleSaveService.clear();
             const cardsToDeal = createDeck(cardCount);
             const shuffledDeck = shuffleDeck(cardsToDeal);
             const player1Cards = shuffledDeck.slice(0, cardsToDeal.length / 2);
             const player2Cards = shuffledDeck.slice(cardsToDeal.length / 2, cardsToDeal.length);
             after(DELAYS_MS.deal, () => dealCompleted({player1Cards, player2Cards}));
         },
+        restoreRequested: ({gameRestored}) => {
+            schedulerService.cancelAll();
+            const saved = battleSaveService.load();
+            if (saved !== null) gameRestored(saved);
+        },
+        // the game is saved between two rounds, so that it can be resumed after going back or closing the application
+        readyForNextCards: (_, {values}) => {
+            if (!values.hasGameEnded() && !values.hasPlayer1WonGame() && !values.hasPlayer2WonGame() && !values.isTiedGame()) {
+                battleSaveService.save(values.savedGame());
+            }
+        },
+        // an ended game is not kept
+        gameEnded: () => battleSaveService.clear(),
         player1Clicked: () => audioService.stopAll(),
         // the computer answers only when the click of player 1 played a card,
         // otherwise an ignored click would make player 2 play alone once the next cards can be played

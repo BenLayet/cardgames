@@ -12,7 +12,7 @@ export const View = ({path = ""}) => {
     return (
         <main className="vstack p-2 justify-content-between position-relative">
 
-            {v.isStartable && <Setup path={c.setup}/>}
+            {v.isStartable && <Setup path={c.setup} onResume={v.canResume ? () => d.resumeRequested() : undefined}/>}
             {v.shouldMenuBeVisible && <AppBar title={t("games.bataille")} level={2} onBack={() => d.goHomeRequested()} rulesOf="bataille"/>}
             {v.isStarted && <Game path={c.game}/>}
         </main>

@@ -3,6 +3,7 @@ import type {AudioService} from "../services/audio.service.ts";
 import {DEFAULT_SETTINGS, type Settings, type SettingsService} from "../services/settings.service.ts";
 import type {SpiderSaveService} from "../services/spider-save.service.ts";
 import type {SavedSpiderGame, SpiderVariant} from "../model/spider.model.ts";
+import type {BattleSaveService, SavedBattleGame} from "../services/battle-save.service.ts";
 
 export const fakeAudioService = () => ({
     stopAll: vi.fn(),
@@ -38,4 +39,19 @@ export const fakeSpiderSaveService = () => {
         }),
         savedVariants: () => [...saved.values()].map(({variant}) => variant),
     } satisfies SpiderSaveService;
+};
+
+// Keeps the Bataille game in memory so tests can check what was saved
+export const fakeBattleSaveService = () => {
+    let saved: SavedBattleGame | null = null;
+    return {
+        load: () => saved,
+        save: vi.fn((game: SavedBattleGame) => {
+            saved = structuredClone(game);
+        }),
+        clear: vi.fn(() => {
+            saved = null;
+        }),
+        hasSavedGame: () => saved !== null,
+    } satisfies BattleSaveService;
 };

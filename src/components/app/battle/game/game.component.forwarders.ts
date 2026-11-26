@@ -7,6 +7,7 @@ export const eventForwarders = {
     internal: [
         {from: "dealCompleted", to: "gameStarted"},
         {from: "gameStarted", to: "readyForNextCards"},
+        {from: "gameRestored", to: "readyForNextCards"},
         {from: "player1Clicked", to: "player1Played", onCondition: ({values}) => values.canPlayer1Play()},
         {from: "player2Clicked", to: "player2Played", onCondition: ({values}) => values.canPlayer2Play()},
         {from: "player2Played", to: "bothPlayersPlayed", onCondition: ({values}) => values.haveBothPlayerPlayed()},

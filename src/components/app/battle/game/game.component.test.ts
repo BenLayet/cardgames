@@ -4,7 +4,7 @@ import type {ExtractEventNameUnion, ExtractPayload} from "@softer-components/typ
 
 import {gameDef, type GameContract} from "./game.component.ts";
 import type {Card, StackLocation} from "../../../../model/deck.model.ts";
-import {fakeAudioService} from "../../../../test/fakes.ts";
+import {fakeAudioService, fakeBattleSaveService} from "../../../../test/fakes.ts";
 import {TimeoutSchedulerAdapter} from "../../../../adapters/scheduler.adapter.ts";
 
 const event = <N extends ExtractEventNameUnion<GameContract>>(name: N, payload?: ExtractPayload<GameContract, N>) =>
@@ -16,7 +16,7 @@ let store: TestStore<GameContract>;
 beforeEach(() => {
     vi.useFakeTimers();
     audioService = fakeAudioService();
-    store = initTestStore(gameDef({audioService, schedulerService: new TimeoutSchedulerAdapter()}));
+    store = initTestStore(gameDef({audioService, schedulerService: new TimeoutSchedulerAdapter(), battleSaveService: fakeBattleSaveService()}));
 });
 afterEach(() => {
     vi.useRealTimers();
