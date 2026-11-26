@@ -126,7 +126,7 @@ const Table = ({path}: { path: string }) => {
                 const {pile, played, labelSide} = layout.seats[index];
                 const key = v.isSolo ? null : PLAYER_KEYS[index];
                 const isPlayable = !seat.isComputer && seat.rank === null;
-                return <div key={index} className={seatClass(seat)} style={{"--seat-color": `var(--battle-seat-${index})`} as CSSProperties}>
+                return <div key={index} className={seatClass(seat)} style={{"--seat-color": `var(--app-seat-${index})`} as CSSProperties}>
                     <div className="battle-played" style={{left: played.x, top: played.y}}/>
                     <div className={`battle-pile battle-pile--label-${labelSide}`} style={{left: pile.x, top: pile.y}}
                          {...(isPlayable ? {

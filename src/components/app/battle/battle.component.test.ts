@@ -70,6 +70,17 @@ describe("battle", () => {
         expect(store.getValues("/game").isSolo()).toBe(false);
     });
 
+    it("deals the same number of cards to 6 players, the others set aside", async () => {
+        await store.when({name: "setPlayersRequested", payload: 6, statePath: setupPath});
+        await store.when({name: "startGameRequested", statePath: setupPath});
+        await vi.runAllTimersAsync();
+
+        expect(store.getValues("/game").seatCount()).toBe(6);
+        // 16 cards give fewer than 4 cards to each player: 32 cards are played
+        expect(store.getValues("/game").seats().map(seat => seat.cardCount)).toEqual([5, 5, 5, 5, 5, 5]);
+        expect(store.getValues("/game").isSolo()).toBe(false);
+    });
+
     it("gives the names typed on the setup screen to the game", async () => {
         await store.when({name: "toggleSeatRequested", payload: 1, statePath: setupPath});
         await store.when({name: "renamePlayerRequested", payload: {index: 0, name: "Tom"}, statePath: setupPath});

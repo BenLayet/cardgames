@@ -15,14 +15,19 @@ export const effects = ({settingsService}: Dependencies): Effects<Contract> => {
     };
     return {
         // the card counts of the other games are kept
-        setCardCountRequested: (_, {payload: cardCount, values}) => {
-            settingsService.save({cardCounts: {...settingsService.load().cardCounts, [values.gameId()]: cardCount}});
+        setCardCountRequested: (_, {values}) => {
+            settingsService.save({cardCounts: {...settingsService.load().cardCounts, [values.gameId()]: values.cardCount()}});
         },
         // a number of suits that the number of cards does not allow is not kept
         setSuitCountRequested: (_, {values}) => {
             settingsService.save({suitCount: values.suitCount()});
         },
         addPlayerRequested: (_, {values}) => saveSeats(values.gameId(), values.seats()),
+        // the number of cards may have changed with the players
+        setPlayersRequested: (_, {values}) => {
+            saveSeats(values.gameId(), values.seats());
+            settingsService.save({cardCounts: {...settingsService.load().cardCounts, [values.gameId()]: values.cardCount()}});
+        },
         removePlayerRequested: (_, {values}) => saveSeats(values.gameId(), values.seats()),
         toggleSeatRequested: (_, {values}) => saveSeats(values.gameId(), values.seats()),
         // the names of the seats that this game does not show are kept
