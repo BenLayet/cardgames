@@ -42,14 +42,14 @@
   "undo": "Annuler",
   "dealRow_one": "Distribuer une rangée ({{count}} restante)",
   "dealRow_other": "Distribuer une rangée ({{count}} restantes)",
-  "dealBlocked": "Remplissez chaque colonne avant de distribuer",
+  "dealBlocked": "Remplissez chaque rangée avant de distribuer",
   "completedSequences_one": "{{count}} suite terminée",
   "completedSequences_other": "{{count}} suites terminées",
   "gameActions": "Actions du jeu",
   "version": "Version",
   "hint": "Indice",
-  "useEmptyColumn": "Tu peux déplacer des cartes vers une colonne vide",
-  "chooseDestination": "Touche une colonne bleue pour y poser les cartes",
+  "useEmptyColumn": "Tu peux déplacer des cartes vers une rangée vide",
+  "chooseDestination": "Touche une rangée bleue pour y poser les cartes",
   "noUsefulMove": "Plus de coup utile",
   "ranks": {
     "A": "A",
@@ -100,11 +100,11 @@
       },
       {
         "title": "Déplacer",
-        "text": "Une carte va sur la valeur juste au-dessus : un 6 sur un 7. Une suite de même couleur bouge d'un bloc. Une colonne vide accepte tout."
+        "text": "Une carte va sur la valeur juste au-dessus : un 6 sur un 7. Une suite de même couleur bouge d'un bloc. Une rangée vide accepte tout."
       },
       {
         "title": "Pioche",
-        "text": "Elle pose une carte sur chaque colonne. Elle n'est possible que si toutes les colonnes ont au moins une carte."
+        "text": "Elle pose une carte sur chaque rangée. Elle n'est possible que si toutes les rangées ont au moins une carte."
       },
       {
         "title": "Aide",
