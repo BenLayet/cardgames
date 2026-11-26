@@ -39,9 +39,11 @@ const Table = ({path}: { path: string }) => {
         const rect = tableRef.current?.getBoundingClientRect();
         return rect ? {width: rect.width, height: rect.height} : null;
     }, [tableRef]);
+    // the cards of a long battle are moved closer together, so that they stay in their slot
+    const playedCount = Math.max(1, ...v.cardsWithLocation.map(({placement}) => placement.stackLocation.endsWith("Played") ? placement.index + 1 : 0));
     const layout: TableLayout | null = useMemo(
-        () => size && size.width > 0 && v.seatCount > 0 ? tableLayout(v.seatCount, size.width, size.height) : null,
-        [size, v.seatCount]);
+        () => size && size.width > 0 && v.seatCount > 0 ? tableLayout(v.seatCount, size.width, size.height, playedCount) : null,
+        [size, v.seatCount, playedCount]);
     // the cards are drawn from the top left corner of the table: each stack is where the layout puts it
     const layoutState: LayoutState | null = useMemo(() => {
         if (!layout || !size) return null;
@@ -139,7 +141,7 @@ const Table = ({path}: { path: string }) => {
                 const key = v.isSolo ? null : PLAYER_KEYS[index];
                 const isPlayable = !seat.isComputer && seat.rank === null;
                 return <div key={index} className={seatClass(seat)} style={{"--seat-color": `var(--app-seat-${index})`} as CSSProperties}>
-                    <div className="battle-played" style={{left: played.x, top: played.y}}/>
+                    <div className="battle-played" style={{left: played.x, top: played.y - layout.cardHeight / 2}}/>
                     <div className={`battle-pile battle-pile--label-${labelSide}`} style={{left: pile.x, top: pile.y}}
                          {...(isPlayable ? {
                              tabIndex: 0,
