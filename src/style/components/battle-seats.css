@@ -38,3 +38,19 @@ body:has(.table-status):not(:has(.table-actions)) {
 body:not(:has(.table-actions)) .table-status {
     bottom: calc(var(--app-frame) + var(--app-space-2) + env(safe-area-inset-bottom, 0px));
 }
+
+/* the stack at the top grows upwards: keep it below the app bar */
+.battle-row-top {
+    padding-top: 8px;
+}
+
+/* the empty slot of the cards won, before any round is won */
+.battle-won-pile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--app-space-1);
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--app-muted);
+}

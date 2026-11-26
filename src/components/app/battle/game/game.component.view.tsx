@@ -74,9 +74,9 @@ export const View = ({path = ""}) => {
                         <AnimatedCardView key={c.card} card={c.card} placement={c.placement} layoutState={layoutState}/>)}
                 </div>
             </div>
-            <div className="d-flex justify-content-end align-items-start">
+            <div className="battle-row-top d-flex justify-content-end align-items-start">
                 {seatLabel(v.player2Name, 2, v.player2CardCount)}
-                <div ref={player2WonCardsRef} className="card-stack-container"/>
+                <div ref={player2WonCardsRef} className="card-stack-container battle-won-pile">{t("battleStatus.wonPile")}</div>
                 <div ref={player2RemainingCardsRef} className="card-stack-container"/>
             </div>
             <div className="d-flex position-relative">
@@ -93,7 +93,7 @@ export const View = ({path = ""}) => {
             </div>
             <div className="d-flex align-items-end">
                 <div ref={player1RemainingCardsRef} className="card-stack-container"/>
-                <div ref={player1WonCardsRef} className="card-stack-container"/>
+                <div ref={player1WonCardsRef} className="card-stack-container battle-won-pile">{t("battleStatus.wonPile")}</div>
                 {seatLabel(v.player1Name, 1, v.player1CardCount)}
             </div>
         </div>

@@ -113,6 +113,7 @@
   "cardCountShort_one": "{{count}} carte",
   "cardCountShort_other": "{{count}} cartes",
   "battleStatus": {
+    "wonPile": "Cartes gagnées",
     "you": "Toi",
     "tapYourPile": "Touche ton paquet pour jouer",
     "tapYourPiles": "Chacun touche son paquet pour jouer",
