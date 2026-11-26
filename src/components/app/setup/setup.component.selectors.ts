@@ -11,6 +11,9 @@ export const selectors = {
     cardCountOptions: (state: State) => state.game.cardCountOptions,
     suitCount: (state: State) => state.suitCount,
     suitCountOptions: (state: State) => state.game.suitCountOptions,
+    // what each option changes, null when the game does not say
+    cardCountHints: (state: State) => state.game.cardCountOptions.map(option => state.game.cardCountHints?.[option] ?? null),
+    suitCountHints: (state: State) => state.game.suitCountOptions.map(option => state.game.suitCountHints?.[option] ?? null),
     // whether each number of suits can be played with the chosen number of cards
     availableSuitCounts: (state: State) => state.game.suitCountOptions.map(option => isSuitCountAvailable(state.game, state.cardCount, option)),
     playerCount,

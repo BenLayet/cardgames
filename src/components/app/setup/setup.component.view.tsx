@@ -8,13 +8,22 @@ import {AppBar} from "../../navigation/AppBar.tsx";
 import {RulesLink} from "../../navigation/RulesLink.tsx";
 import {hasRules} from "../../navigation/rules.ts";
 import {MAX_NAME_LENGTH} from "./setup.component.state.ts";
+import type {OptionHint as OptionHintKey} from "../../../model/games.model.ts";
 
 const SUIT_SYMBOLS = "♠♥♦♣";
 
 // When a game in progress can be resumed, resuming it is the main action and starting a new game the second one
+// what an option changes, under its value: a longer game, a harder one...
+const OptionHint = ({hint}: { hint: OptionHintKey | null }) => {
+    const {t} = useTranslation();
+    return hint && <span className="choice-hint">{t(`optionHints.${hint}`)}</span>;
+};
+
 export const View = ({path = "", onResume}: { path?: string, onResume?: () => void }) => {
     const [v, d] = useSofter<SetupContract>(path);
     const {t} = useTranslation();
+    const suitCountLabel = (count: number, hint: OptionHintKey | null) =>
+        [t("suitCountOption", {count}), hint && t(`optionHints.${hint}`)].filter(Boolean).join(", ");
     return (<div className="setup vstack position-relative">
             <AppBar title={t(`games.${v.gameId}`)} level={1} onBack={() => d.backRequested()}/>
             <div className="setup-body vstack align-items-center">
@@ -67,12 +76,13 @@ export const View = ({path = "", onResume}: { path?: string, onResume?: () => vo
                     {v.cardCountOptions.length > 0 && <div>
                         <span className="setup-label">{t("cardCount")}</span>
                         <div className="choice-group">
-                            {v.cardCountOptions.map((option) => <button
+                            {v.cardCountOptions.map((option, index) => <button
                                     key={option}
                                     className="btn btn-choice px-3"
                                     aria-pressed={v.cardCount === option}
                                     onClick={() => d.setCardCountRequested(option)}>
                                     {option}
+                                    <OptionHint hint={v.cardCountHints[index]}/>
                                 </button>
                             )}
                         </div>
@@ -85,10 +95,11 @@ export const View = ({path = "", onResume}: { path?: string, onResume?: () => vo
                                     className="btn btn-choice px-3"
                                     disabled={!v.availableSuitCounts[index]}
                                     aria-pressed={v.suitCount === option}
-                                    aria-label={t("suitCountOption", {count: option})}
-                                    title={t("suitCountOption", {count: option})}
+                                    aria-label={suitCountLabel(option, v.suitCountHints[index])}
+                                    title={suitCountLabel(option, v.suitCountHints[index])}
                                     onClick={() => d.setSuitCountRequested(option)}>
                                     {SUIT_SYMBOLS.slice(0, option)}
+                                    <OptionHint hint={v.suitCountHints[index]}/>
                                 </button>
                             )}
                         </div>
