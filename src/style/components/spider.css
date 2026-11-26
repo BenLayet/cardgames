@@ -114,8 +114,10 @@
     pointer-events: none;
 }
 
-/* the selected cards are lifted while they wait for a column */
-.spider-card--selected {
+/* the selected cards are lifted while they wait for a column; the face is lifted, not the card itself,
+   so that the lift is not taken for a move and the card does not fly back down */
+.spider-card--selected > *,
+.spider-card--selected-first::after {
     transform: translateY(calc(var(--spider-card-h) * -0.07));
 }
 
