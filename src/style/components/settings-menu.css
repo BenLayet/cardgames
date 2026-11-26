@@ -67,6 +67,8 @@
 .settings-volume-control input[type="range"] {
     flex: 1;
     min-width: 8rem;
+    /* the whole height of a finger can grab the slider, not only its thin track */
+    height: 44px;
     accent-color: var(--app-brass);
     cursor: pointer;
 }

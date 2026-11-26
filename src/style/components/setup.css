@@ -34,6 +34,7 @@
 /* the name of a seat, typed on the felt */
 .seat-name {
     flex: 1 1 auto;
+    min-height: 44px;
     min-width: 0;
     font-weight: 700;
     color: var(--app-ink);
@@ -56,6 +57,7 @@
 
 /* the rules of the game, read from its menu: a plain link under the main action */
 .rules-link {
+    align-self: center;
     color: var(--app-muted);
     border-color: transparent;
     font-size: .9rem;
