@@ -2,12 +2,15 @@ name: Version label
 
 # Every pull request says how it changes the version with one label, and leaves the version in package.json
 # alone: the version is raised once the pull request is merged (see version.yml)
+# A draft pull request is skipped: open it as a draft, add the label, then mark it ready for review,
+# so that the check never fails only because the label is not there yet
 on:
   pull_request:
-    types: [opened, synchronize, reopened, labeled, unlabeled]
+    types: [opened, synchronize, reopened, labeled, unlabeled, ready_for_review]
 
 jobs:
   version-label:
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
       - name: One label, minor or patch
