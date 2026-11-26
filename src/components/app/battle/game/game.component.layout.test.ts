@@ -55,4 +55,24 @@ describe("Bataille table layout", () => {
         expect(nearestSeat(layout, [0, 2, 3], {x: 10, y: 380})).not.toBe(1);
         expect(nearestSeat(layout, [], {x: 10, y: 380})).toBe(null);
     });
+    it("draws no slot for a player out of the game, and centres the others again, as large or larger", () => {
+        const all = tableLayout(4, 390, 760);
+        const three = tableLayout(4, 390, 760, [0, 2, 3]);
+        expect(three.seats.map(seat => seat.hasSlot)).toEqual([true, false, true, true]);
+        // the piles stay where they are
+        expect(three.seats[1].pile).toEqual(three.seats[1].played);
+        expect(three.cardWidth).toBeGreaterThanOrEqual(all.cardWidth);
+        // the remaining slots are centred on the table
+        const slots = three.seats.filter(seat => seat.hasSlot).map(seat => seat.played);
+        const xs = slots.map(slot => slot.x), ys = slots.map(slot => slot.y);
+        expect((Math.min(...xs) + Math.max(...xs)) / 2).toBeCloseTo(390 / 2, 0);
+        expect((Math.min(...ys) + Math.max(...ys)) / 2).toBeCloseTo(760 / 2, 0);
+        expect(all.seats.every(seat => seat.hasSlot)).toBe(true);
+    });
+
+    it("keeps a single slot, centred, for the last player", () => {
+        const layout = tableLayout(6, 844, 300, [4]);
+        expect(layout.seats.filter(seat => seat.hasSlot)).toHaveLength(1);
+        expect(layout.seats[4].played).toEqual({x: 422, y: 150});
+    });
 });

@@ -1,8 +1,9 @@
 // Where the piles and the cards played of a Bataille game lie on the table, for 2 to 6 players.
 // The piles sit around the table: seat 0 at the bottom, the others clockwise, as in the "Bataille à six" mockup;
 // two players sit in opposite corners, player 1 at the bottom left and player 2 at the top right.
-// The cards played lie in the middle of the table, in a centred grid of slots, one per player in seat order,
-// on 1, 2 or 3 rows: the one that gives the largest cards without any slot, pile or name overlapping another.
+// The cards played lie in the middle of the table, in a centred grid of slots, one per player still in the game,
+// in seat order, on 1, 2 or 3 rows: the one that gives the largest cards without any slot, pile or name overlapping another.
+// A player who leaves the game loses their slot: the others are centred again, and may grow.
 
 // the centre of each pile, in percent of the table, when the table is upright or wide
 const UPRIGHT: Record<number, [number, number][]> = {
@@ -33,6 +34,8 @@ export type SeatLayout = {
     // the centre of the pile, and of the cards played, piled on each other, in pixels from the top left corner of the table
     pile: Point,
     played: Point,
+    // false for a player out of the game: no slot is drawn for them
+    hasSlot: boolean,
     labelSide: LabelSide,
 };
 export type TableLayout = { cardWidth: number, cardHeight: number, rows: number, seats: SeatLayout[] };
@@ -91,9 +94,9 @@ const slotGrid = (count: number, rows: number, width: number, height: number, ca
     return {box, slots};
 };
 
-const fits = (count: number, rows: number, isWide: boolean, width: number, height: number, cardWidth: number): boolean => {
+const fits = (count: number, slotCount: number, rows: number, isWide: boolean, width: number, height: number, cardWidth: number): boolean => {
     const cardHeight = cardWidth * CARD_RATIO;
-    const {box} = slotGrid(count, rows, width, height, cardWidth, cardHeight);
+    const {box} = slotGrid(slotCount, rows, width, height, cardWidth, cardHeight);
     if (box.left < GAP || box.top < GAP) return false;
     const piles = (isWide ? WIDE : UPRIGHT)[count].map(([px, py]) =>
         placePile(px, py, labelSide(count, isWide, px, py), width, height, cardWidth, cardHeight));
@@ -105,35 +108,41 @@ const fits = (count: number, rows: number, isWide: boolean, width: number, heigh
 };
 
 // the largest card width that fits, to the pixel, or 0 when even the smallest card does not fit
-const largestCardWidth = (count: number, rows: number, isWide: boolean, width: number, height: number, maxWidth: number): number => {
-    if (!fits(count, rows, isWide, width, height, MIN_CARD_WIDTH)) return 0;
+const largestCardWidth = (count: number, slotCount: number, rows: number, isWide: boolean, width: number, height: number, maxWidth: number): number => {
+    const fitsWith = (cardWidth: number) => fits(count, slotCount, rows, isWide, width, height, cardWidth);
+    if (!fitsWith(MIN_CARD_WIDTH)) return 0;
     let low = MIN_CARD_WIDTH, high = Math.max(MIN_CARD_WIDTH, Math.floor(maxWidth));
-    if (fits(count, rows, isWide, width, height, high)) return high;
+    if (fitsWith(high)) return high;
     while (high - low > 1) {
         const middle = Math.floor((low + high) / 2);
-        if (fits(count, rows, isWide, width, height, middle)) low = middle;
+        if (fitsWith(middle)) low = middle;
         else high = middle;
     }
     return low;
 };
 
-export const tableLayout = (playerCount: number, width: number, height: number): TableLayout => {
+// the seats with a slot in the middle: those still in the game (all of them when not given);
+// a seat without a slot has its cards played drawn on its pile
+export const tableLayout = (playerCount: number, width: number, height: number, slotSeats?: readonly number[]): TableLayout => {
     const isWide = width > height;
     const count = clamp(Math.round(playerCount), 2, 6);
+    const withSlot = (slotSeats ?? Array.from({length: count}, (_, index) => index)).filter(seat => seat >= 0 && seat < count);
+    const slotCount = Math.max(1, withSlot.length);
     const [widthPart, heightPart] = isWide ? MAX_CARD_WIDE : MAX_CARD_UPRIGHT;
     const maxWidth = Math.min(width * widthPart, height * heightPart);
     // the fewest rows win a tie
-    const best = [1, 2, 3].filter(rows => rows <= count)
-        .map(rows => ({rows, cardWidth: largestCardWidth(count, rows, isWide, width, height, maxWidth)}))
+    const best = [1, 2, 3].filter(rows => rows <= slotCount)
+        .map(rows => ({rows, cardWidth: largestCardWidth(count, slotCount, rows, isWide, width, height, maxWidth)}))
         .reduce((a, b) => b.cardWidth > a.cardWidth ? b : a);
     const cardWidth = Math.max(MIN_CARD_WIDTH, best.cardWidth);
-    const rows = best.cardWidth > 0 ? best.rows : Math.min(3, count);
+    const rows = best.cardWidth > 0 ? best.rows : Math.min(3, slotCount);
     const cardHeight = cardWidth * CARD_RATIO;
-    const {slots} = slotGrid(count, rows, width, height, cardWidth, cardHeight);
+    const {slots} = slotGrid(slotCount, rows, width, height, cardWidth, cardHeight);
     const seats = (isWide ? WIDE : UPRIGHT)[count].map(([px, py], index): SeatLayout => {
         const side = labelSide(count, isWide, px, py);
         const {centre} = placePile(px, py, side, width, height, cardWidth, cardHeight);
-        return {pile: centre, played: slots[index], labelSide: side};
+        const slot = withSlot.indexOf(index);
+        return {pile: centre, played: slot >= 0 ? slots[slot] : centre, hasSlot: slot >= 0, labelSide: side};
     });
     return {cardWidth, cardHeight, rows, seats};
 };

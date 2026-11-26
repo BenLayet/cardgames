@@ -41,9 +41,14 @@ const Table = ({path}: { path: string }) => {
         const rect = tableRef.current?.getBoundingClientRect();
         return rect ? {width: rect.width, height: rect.height} : null;
     }, [tableRef]);
+    // a slot in the middle for each player still in the game; at the end, for the winners
+    const inGame = v.seats.flatMap((seat, index) => seat.rank === null ? [index] : []);
+    const seatsInGame = (inGame.length > 0 ? inGame : v.seats.flatMap((seat, index) => seat.rank === 1 ? [index] : [])).join(",");
     const layout: TableLayout | null = useMemo(
-        () => size && size.width > 0 && v.seatCount > 0 ? tableLayout(v.seatCount, size.width, size.height) : null,
-        [size, v.seatCount]);
+        () => size && size.width > 0 && v.seatCount > 0
+            ? tableLayout(v.seatCount, size.width, size.height, seatsInGame.split(",").filter(Boolean).map(Number))
+            : null,
+        [size, v.seatCount, seatsInGame]);
     // the cards are drawn from the top left corner of the table: each stack is where the layout puts it
     const layoutState: LayoutState | null = useMemo(() => {
         if (!layout || !size) return null;
@@ -134,11 +139,11 @@ const Table = ({path}: { path: string }) => {
         <div ref={tableRef} className="battle-table" onPointerDown={onTableClicked}
              style={layout ? {"--battle-card-w": `${layout.cardWidth}px`} as CSSProperties : undefined}>
             {layout && v.seats.map((seat, index) => {
-                const {pile, played, labelSide} = layout.seats[index];
+                const {pile, played, hasSlot, labelSide} = layout.seats[index];
                 const key = v.isSolo ? null : PLAYER_KEYS[index];
                 const isPlayable = !seat.isComputer && seat.rank === null;
                 return <div key={index} className={seatClass(seat)} style={{"--seat-color": `var(--app-seat-${index})`} as CSSProperties}>
-                    <div className="battle-played" style={{left: played.x, top: played.y}}/>
+                    {hasSlot && <div className="battle-played" style={{left: played.x, top: played.y}}/>}
                     <div className={`battle-pile battle-pile--label-${labelSide}`} style={{left: pile.x, top: pile.y}}
                          {...(isPlayable ? {
                              tabIndex: 0,
