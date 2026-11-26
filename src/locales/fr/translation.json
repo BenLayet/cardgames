@@ -108,7 +108,7 @@
       },
       {
         "title": "Aide",
-        "text": "L'ampoule propose un coup, la flèche annule le dernier coup."
+        "text": "L'ampoule propose un coup, la flèche annule le dernier coup. Annuler compte comme un coup."
       }
     ]
   }
