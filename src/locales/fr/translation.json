@@ -68,6 +68,7 @@
   "version": "Version",
   "hint": "Indice",
   "useEmptyColumn": "Tu peux déplacer des cartes vers une rangée vide",
+  "hintMove": "Mets {{card}} sur {{target}} de la rangée {{column}}",
   "chooseDestination": "Il y a plusieurs destinations possibles, choisis-en une.",
   "noUsefulMove": "Plus de coup utile",
   "ranks": {
@@ -108,6 +109,21 @@
       "H": "cœur",
       "D": "carreau",
       "C": "trèfle"
+    },
+    "ranksWithArticle": {
+      "A": "l'as",
+      "2": "le 2",
+      "3": "le 3",
+      "4": "le 4",
+      "5": "le 5",
+      "6": "le 6",
+      "7": "le 7",
+      "8": "le 8",
+      "9": "le 9",
+      "T": "le 10",
+      "J": "le valet",
+      "Q": "la dame",
+      "K": "le roi"
     }
   },
   "cardCountShort_one": "{{count}} carte",

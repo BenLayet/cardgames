@@ -15,6 +15,7 @@ import {TableActions} from "../../../navigation/TableActions.tsx";
 import {Fireworks} from "../../../fireworks/Fireworks.tsx";
 import {EndMessage} from "../../../end-message/EndMessage.tsx";
 import {spiderRank} from "../../../../model/spider.model.ts";
+import type {Rank} from "../../../../model/deck.model.ts";
 import {useCardPointer} from "./useCardPointer.ts";
 
 // narrower cards are drawn with text only, the pictures would be unreadable
@@ -92,13 +93,14 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
                         </div>)}
                 </button>
         </div>
-        <div ref={columnsRef} className="spider-columns"
+        <div ref={columnsRef} className={`spider-columns ${v.hintedMove ? "spider-columns--recommending" : ""}`}
              {...pointer.handlers}>
             {v.columns.map((column, columnIndex) => {
                 const offsets = cardOffsets(column, measured?.room ?? MIN_COLUMN_ROOM, compact);
                 const columnClasses = [
                     "spider-column",
                     v.destinations.includes(columnIndex) ? "spider-column--destination" : "",
+                    v.hintedMove?.to === columnIndex ? "spider-column--recommended" : "",
                 ].join(" ");
                 return <div key={columnIndex} data-column={columnIndex} className={columnClasses}
                             style={{"--column-height": offsets[offsets.length - 1] ?? 0} as CSSProperties}>
@@ -131,7 +133,12 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
             <p className="fs-4">{t("moves", {count: v.moveCount})}</p>
         </EndMessage>}
         <TableActions statusRef={statusRef} actionsRef={actionsRef} status={<>
-            {v.selected !== null && <span>{t("chooseDestination")}</span>}
+            {v.hintedMove && <span>{t("hintMove", {
+                card: t(`cardNames.ranksWithArticle.${v.hintedMove.card.charAt(0) as Rank}`),
+                target: t(`cardNames.ranksWithArticle.${v.hintedMove.target.charAt(0) as Rank}`),
+                column: v.hintedMove.to + 1,
+            })}</span>}
+            {v.selected !== null && !v.hintedMove && <span>{t("chooseDestination")}</span>}
             {v.hint?.kind === "none" && <span className="fst-italic">{t("noUsefulMove")}</span>}
             {v.hint?.kind === "emptyColumn" && <span className="fst-italic">{t("useEmptyColumn")}</span>}
             {v.selected === null && v.hint?.kind !== "none" && v.hint?.kind !== "emptyColumn" &&

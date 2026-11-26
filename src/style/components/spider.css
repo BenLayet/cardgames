@@ -292,3 +292,24 @@
 @media (prefers-reduced-motion: reduce) {
     .spider-slot--won, .spider-slot--won::after { animation: none; }
 }
+
+/* the destination recommended by the hint stands out, in the colour of the hint; the other ones are fainter */
+.spider-column--recommended {
+    --spider-highlight: #ffe14d;
+}
+
+/* the glow pulses: the card itself stays opaque, so the cards under it do not show through */
+.spider-column--recommended > .spider-card:last-child .card-image {
+    filter: drop-shadow(0 0 8px var(--spider-highlight)) drop-shadow(0 0 3px var(--spider-highlight));
+    animation: spider-recommended-pulse 0.8s ease-in-out 3;
+}
+
+@keyframes spider-recommended-pulse {
+    50% {
+        filter: drop-shadow(0 0 2px var(--spider-highlight));
+    }
+}
+
+.spider-columns--recommending .spider-column--destination:not(.spider-column--recommended) > .spider-card:last-child .card-image {
+    filter: drop-shadow(0 0 2px var(--spider-highlight));
+}
