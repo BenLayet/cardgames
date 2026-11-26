@@ -25,7 +25,8 @@ const cardsWithLocation = (state: State): CardWithPlacement[] =>
         })),
         ...seat.played.map((card, index) => ({
             card,
-            placement: {stackLocation: `seat${seatIndex}Played` as const, stackIndex: 3, index, faceUp: seat.playedUp[index], messyLevel: 2},
+            // the cards of a battle are moved aside, so that the tied card stays in view
+            placement: {stackLocation: `seat${seatIndex}Played` as const, stackIndex: 3, index, faceUp: seat.playedUp[index], messyLevel: 2, fan: Math.min(index, 6) / 2},
         })),
     ]);
 
@@ -104,6 +105,8 @@ export const selectors = {
     roundWinner: (state: State) => state.roundWinner,
     lastRoundWinner: (state: State) => state.lastRoundWinner,
     lastWonCount: (state: State) => state.lastWonCount,
+    roundNumber: (state: State) => state.roundNumber,
+    areCardsOnTable,
     hasPlayed: (state: State) => state.hasPlayed,
     savedGame,
 } satisfies Selectors<State>;
