@@ -1,6 +1,6 @@
 import {useSofter} from "@softer-components/redux-adapter";
 import {useTranslation} from "react-i18next";
-import {type CSSProperties, useRef} from "react";
+import {type CSSProperties, useEffect, useEffectEvent, useRef} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faLightbulb, faRotateLeft} from "@fortawesome/free-solid-svg-icons";
 
@@ -63,6 +63,12 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
     const slotsRef = useRef<HTMLDivElement>(null);
     const isCollecting = useCardFlight(tableRef, stockRef, {count: v.completed.length, slots: slotsRef}, isDraggedElement);
     const Face = compact ? CompactCardView : CardView;
+    // the victory shows once the last sequence has reached its place
+    const isVictoryShown = v.hasGameEnded && !isCollecting;
+    const onVictoryShown = useEffectEvent(() => d.victoryShown());
+    useEffect(() => {
+        if (isVictoryShown) onVictoryShown();
+    }, [isVictoryShown]);
 
     const isSelected = (column: number, index: number) =>
         v.selected !== null && v.selected.column === column && index >= v.selected.index;
@@ -122,8 +128,7 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
                 </div>;
             })}
         </div>
-        {/* the victory shows once the last sequence has reached its place */}
-        {v.hasGameEnded && !isCollecting && <EndMessage onPlayAgain={() => d.playAgainRequested()}>
+        {isVictoryShown && <EndMessage onPlayAgain={() => d.playAgainRequested()}>
             <Fireworks/>
             <h1>{t("victory")}</h1>
             <p className="fs-4">{t("moves", {count: v.moveCount})}</p>
