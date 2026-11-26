@@ -168,17 +168,31 @@ const Table = ({path}: { path: string }) => {
         {v.hasGameEnded && <EndMessage onPlayAgain={() => d.playAgainRequested()} onMenu={() => d.menuRequested()}>
             {v.isSolo && v.gameWinner === 0 && <>
                 <Fireworks/>
-                <h2>{t("victory")}</h2>
+                <h2>{t("battleEnd.youWon")}</h2>
             </>}
             {v.isSolo && v.gameWinner === 1 && <>
-                <h2>{t("defeat")}</h2>
+                <h2>{t("battleEnd.computerWon")}</h2>
                 <Tomatoes/>
             </>}
             {!v.isSolo && v.gameWinner !== null && <>
                 <Fireworks/>
-                <h2>{t("namedPlayerWins", {name: seatName(v.gameWinner)})}</h2>
+                <h2>{t("battleEnd.playerWon", {name: seatName(v.gameWinner)})}</h2>
             </>}
             {v.isTiedGame && <h2>{t("tie")}</h2>}
+            {/* between humans, the place of each player, with the colour of their seat */}
+            {!v.isSolo && <ol className="battle-ranking">
+                {v.ranking.map(index => {
+                    const seat = v.seats[index];
+                    return <li key={index} className={seat.rank === 1 ? "battle-ranking-first" : undefined}
+                               style={{"--seat-color": `var(--app-seat-${index})`} as CSSProperties}>
+                        <span className="battle-ranking-place">{seat.rank !== null && place(seat.rank)}</span>
+                        <i className="seat-dot" aria-hidden="true"/>
+                        <span className="battle-ranking-name">{seatName(index)}</span>
+                        {seat.eliminatedRound !== null && seat.rank !== 1 &&
+                            <span className="battle-ranking-why">{t("battleEnd.outInRound", {round: seat.eliminatedRound})}</span>}
+                    </li>;
+                })}
+            </ol>}
         </EndMessage>}
     </>;
 };

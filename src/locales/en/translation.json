@@ -49,9 +49,6 @@
   "soundsOff": "Off",
   "start": "Start",
   "victory": "Victory",
-  "defeat": "You Lost...",
-  "namedPlayerWins": "{{name}} wins!",
-  "playerWins": "Player {{number}} Wins!",
   "battle": "Battle!",
   "tie": "It's a Tie!",
   "playAgain": "Play again",
@@ -212,5 +209,11 @@
   "cardsEach_one": "{{count}} card each",
   "cardsEach_other": "{{count}} cards each",
   "setAside_one": "{{count}} set aside",
-  "setAside_other": "{{count}} set aside"
+  "setAside_other": "{{count}} set aside",
+  "battleEnd": {
+    "youWon": "You won!",
+    "computerWon": "The computer won",
+    "playerWon": "{{name}} won!",
+    "outInRound": "out in round {{round}}"
+  }
 }
