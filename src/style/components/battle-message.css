@@ -43,3 +43,9 @@
     user-select: none;
     -webkit-user-select: none;
 }
+
+/* the cards and messages on the table are stacked among themselves only:
+   the windows opened from the top bar (rules, settings, about) stay over them */
+.battle-table {
+    isolation: isolate;
+}
