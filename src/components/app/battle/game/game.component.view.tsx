@@ -12,12 +12,9 @@ import {Fireworks} from "../../../fireworks/Fireworks.tsx";
 import {Tomatoes} from "../../../tomatoes/Tomatoes.tsx";
 import {EndMessage} from "../../../end-message/EndMessage.tsx";
 import {TableActions} from "../../../navigation/TableActions.tsx";
-import {nearestSeat, type TableLayout, tableLayout} from "./game.component.layout.ts";
+import {nearestSeat, playerKeys, type TableLayout, tableLayout} from "./game.component.layout.ts";
 import type {SeatView} from "./game.component.selectors.ts";
 
-// the keys of the players sharing a keyboard, from seat 0 to seat 5: far apart, so that each one has room for a hand,
-// and at the same place on AZERTY and QWERTY keyboards except A and M
-export const PLAYER_KEYS = ["l", "a", "g", "p", "x", "m"] as const;
 
 // a card narrower than this is drawn compact, as in the Spider
 const COMPACT_CARD_MAX_WIDTH_PX = 60;
@@ -89,7 +86,7 @@ const Table = ({path}: { path: string }) => {
             return;
         }
         if (v.isSolo) return;
-        const seat = PLAYER_KEYS.indexOf(event.key.toLowerCase() as typeof PLAYER_KEYS[number]);
+        const seat = playerKeys(v.seatCount).indexOf(event.key.toLowerCase());
         if (seat >= 0 && seat < v.seatCount) d.playerClicked(seat);
     });
     useEffect(() => {
@@ -140,7 +137,7 @@ const Table = ({path}: { path: string }) => {
              style={layout ? {"--battle-card-w": `${layout.cardWidth}px`} as CSSProperties : undefined}>
             {layout && v.seats.map((seat, index) => {
                 const {pile, played, hasSlot, labelSide} = layout.seats[index];
-                const key = v.isSolo ? null : PLAYER_KEYS[index];
+                const key = v.isSolo ? null : playerKeys(v.seatCount)[index];
                 const isPlayable = !seat.isComputer && seat.rank === null;
                 return <div key={index} className={seatClass(seat)} style={{"--seat-color": `var(--app-seat-${index})`} as CSSProperties}>
                     {hasSlot && <div className="battle-played" style={{left: played.x, top: played.y}}/>}
