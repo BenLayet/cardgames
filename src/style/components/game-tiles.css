@@ -67,3 +67,11 @@
     font-weight: 700;
     color: var(--app-muted);
 }
+
+.game-tile-description {
+    font-size: 0.75rem;
+    line-height: 1.25;
+    color: var(--app-muted);
+    text-align: center;
+    text-wrap: balance;
+}

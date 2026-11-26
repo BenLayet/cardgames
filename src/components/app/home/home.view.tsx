@@ -14,8 +14,10 @@ const FANS: Record<GameId, (Card | null)[]> = {
     pouilleux: ["JS", "JC"],
 };
 
+// a game against the computer can be played alone, whatever its number of seats
 const PlayerCount = ({game}: { game: GameDefinition }) => {
     const {t} = useTranslation();
+    if (game.computerOpponents) return game.maxPlayers === 2 ? t("aloneOrTwo") : t("aloneOrUpTo", {count: game.maxPlayers});
     return game.minPlayers === game.maxPlayers
         ? t("playerCount", {count: game.minPlayers})
         : t("playerRange", {min: game.minPlayers, max: game.maxPlayers});
@@ -44,6 +46,7 @@ export const Home = ({onGameSelected}: { onGameSelected: (gameId: GameId) => voi
                     <Fan cards={FANS[game.id]}/>
                     <span className="game-tile-name display-font">{t(`games.${game.id}`)}</span>
                     <span className="game-tile-players"><PlayerCount game={game}/></span>
+                    <span className="game-tile-description">{t(`gameDescriptions.${game.id}`)}</span>
                 </button>)}
             </div>
         </div>

@@ -11,6 +11,16 @@
   "playerCount_one": "{{count}} joueur",
   "playerCount_other": "{{count}} joueurs",
   "playerRange": "{{min}} à {{max}} joueurs",
+  "aloneOrUpTo_one": "Seul",
+  "aloneOrUpTo_other": "Seul ou jusqu'à {{count}}",
+  "aloneOrTwo": "Seul ou à deux",
+  "gameDescriptions": {
+    "bataille": "Le hasard décide, idéale avec un enfant",
+    "batailleCorse": "Rapidité et réflexes",
+    "spider": "Réussite à plusieurs niveaux",
+    "crapette": "Réussite à deux",
+    "pouilleux": "Évite de garder la dernière carte"
+  },
   "players": "Joueurs",
   "addPlayer": "Ajouter un joueur",
   "removePlayer": "Retirer un joueur",

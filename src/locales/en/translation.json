@@ -11,6 +11,16 @@
   "playerCount_one": "{{count}} player",
   "playerCount_other": "{{count}} players",
   "playerRange": "{{min}} to {{max}} players",
+  "aloneOrUpTo_one": "Solo",
+  "aloneOrUpTo_other": "Solo or up to {{count}}",
+  "aloneOrTwo": "Solo or two players",
+  "gameDescriptions": {
+    "bataille": "Pure luck, great with a child",
+    "batailleCorse": "Speed and reflexes",
+    "spider": "Solitaire with several levels",
+    "crapette": "Solitaire for two",
+    "pouilleux": "Don't be left with the last card"
+  },
   "players": "Players",
   "addPlayer": "Add a player",
   "removePlayer": "Remove a player",
