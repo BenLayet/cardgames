@@ -10,11 +10,11 @@ export const View = ({path = ""}) => {
     const [v, d, c] = useSofter<BattleContract>(path);
     const {t} = useTranslation();
     return (
-        <div className="vstack p-2 justify-content-between position-relative" style={{backgroundColor: '', position: 'relative'}}>
+        <main className="vstack p-2 justify-content-between position-relative">
 
             {v.isStartable && <Setup path={c.setup}/>}
             {v.shouldMenuBeVisible && <AppBar title={t("games.bataille")} level={2} onBack={() => d.goHomeRequested()} rulesOf="bataille"/>}
             {v.isStarted && <Game path={c.game}/>}
-        </div>
+        </main>
     );
 };

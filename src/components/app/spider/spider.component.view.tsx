@@ -7,9 +7,9 @@ import {Setup} from "../setup";
 export const View = ({path = ""}) => {
     const [v, d, c] = useSofter<SpiderContract>(path);
     return (
-        <div className="vstack p-1 p-sm-2 position-relative">
+        <main className="vstack p-1 p-sm-2 position-relative">
             {v.isStartable && <Setup path={c.setup} onResume={v.canResume ? () => d.resumeRequested() : undefined}/>}
             {v.isStarted && <Game path={c.game} onBack={() => d.goHomeRequested()}/>}
-        </div>
+        </main>
     );
 };

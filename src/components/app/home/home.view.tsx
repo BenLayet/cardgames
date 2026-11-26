@@ -35,7 +35,7 @@ const Fan = ({cards}: { cards: (Card | null)[] }) => <div className="game-tile-f
 // The list of the games that can be played
 export const Home = ({onGameSelected}: { onGameSelected: (gameId: GameId) => void }) => {
     const {t} = useTranslation();
-    return (<div className="home vstack align-items-center">
+    return (<main className="home vstack align-items-center">
             <AppBar title={t("title")} level={0}/>
             <span className="eyebrow">{t("tagline")}</span>
             <div className="game-tiles">
@@ -49,6 +49,6 @@ export const Home = ({onGameSelected}: { onGameSelected: (gameId: GameId) => voi
                     <span className="game-tile-description">{t(`gameDescriptions.${game.id}`)}</span>
                 </button>)}
             </div>
-        </div>
+        </main>
     );
 };

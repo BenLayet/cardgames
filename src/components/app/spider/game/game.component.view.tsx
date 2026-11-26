@@ -76,7 +76,7 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
     return <div ref={tableRef} className="spider-table vstack gap-3" style={{"--spider-columns": v.columns.length} as CSSProperties}>
         <AppBar title={t("games.spider")} level={2} onBack={onBack} rulesOf="spider"/>
         <div className="spider-top-bar d-flex justify-content-between align-items-start gap-2">
-            <div ref={slotsRef} className="spider-completed" aria-label={t("completedSequences", {count: v.completed.length})}>
+            <div ref={slotsRef} className="spider-completed" role="group" aria-label={t("completedSequences", {count: v.completed.length})}>
                 {Array.from({length: v.sequenceCount}, (_, i) => <div key={i} className="spider-slot">
                     {v.completed[i] && <div className="spider-card"><Face card={`K${v.completed[i]}`}/></div>}
                 </div>)}
@@ -127,7 +127,7 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
         </div>
         {isVictoryShown && <EndMessage onPlayAgain={() => d.playAgainRequested()} onMenu={() => d.menuRequested()}>
             <Fireworks/>
-            <h1>{t("victory")}</h1>
+            <h2>{t("victory")}</h2>
             <p className="fs-4">{t("moves", {count: v.moveCount})}</p>
         </EndMessage>}
         <TableActions statusRef={statusRef} actionsRef={actionsRef} status={<>

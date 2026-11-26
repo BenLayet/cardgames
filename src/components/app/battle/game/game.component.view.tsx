@@ -80,20 +80,20 @@ export const View = ({path = ""}) => {
         {v.hasGameEnded && <EndMessage onPlayAgain={() => d.playAgainRequested()} onMenu={() => d.menuRequested()}>
             {v.isPlayer2Computer && v.hasPlayer1WonGame && <>
                 <Fireworks/>
-                <h1>{t("victory")}</h1>
+                <h2>{t("victory")}</h2>
             </>
             }
             {v.isPlayer2Computer && v.hasPlayer2WonGame && <>
-                <h1>{t("defeat")}</h1>
+                <h2>{t("defeat")}</h2>
                 <Tomatoes/>
             </>
             }
             {!v.isPlayer2Computer && (v.hasPlayer1WonGame || v.hasPlayer2WonGame) && <>
                 <Fireworks/>
-                <h1>{winnerName ? t("namedPlayerWins", {name: winnerName}) : t("playerWins", {number: v.hasPlayer1WonGame ? 1 : 2})}</h1>
+                <h2>{winnerName ? t("namedPlayerWins", {name: winnerName}) : t("playerWins", {number: v.hasPlayer1WonGame ? 1 : 2})}</h2>
             </>
             }
-            {v.isTiedGame && <h1>{t("tie")}</h1>}
+            {v.isTiedGame && <h2>{t("tie")}</h2>}
         </EndMessage>
         }
     </>
