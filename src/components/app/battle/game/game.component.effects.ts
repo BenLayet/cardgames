@@ -1,11 +1,12 @@
 import type {Contract} from "./game.component.contract.ts";
 import type {Effects} from "@softer-components/types";
-import {createDeck, shuffleDeck} from "../../../../model/deck.model.ts";
+import {type Card, createDeck, shuffleDeck} from "../../../../model/deck.model.ts";
 import type {AudioService} from "../../../../services/audio.service.ts";
 import type {SchedulerService} from "../../../../services/scheduler.service.ts";
 import {DELAYS_MS} from "./game.component.timings.ts";
 import type {BattleSaveService} from "../../../../services/battle-save.service.ts";
 import {COMPUTER_SEAT} from "./game.component.state.ts";
+import {maxRounds, simulateGame} from "./game.component.simulation.ts";
 
 export type Dependencies = {
     audioService: AudioService,
@@ -19,6 +20,17 @@ export const dealPiles = <T>(deck: T[], playerCount: number): T[][] => {
     return Array.from({length: playerCount}, (_, seat) => deck.slice(seat * perPlayer, (seat + 1) * perPlayer));
 };
 
+// a deal is played in memory first: one that would never end, or last too long, is shuffled again
+const MAX_SHUFFLES = 500;
+export const dealPlayablePiles = (cardCount: number, playerCount: number, random: () => number = Math.random): Card[][] => {
+    let piles = dealPiles(shuffleDeck(createDeck(cardCount), random), playerCount);
+    const limit = maxRounds(cardCount, playerCount);
+    for (let shuffle = 1; shuffle < MAX_SHUFFLES && simulateGame(piles, limit).outcome !== "ends"; shuffle++) {
+        piles = dealPiles(shuffleDeck(createDeck(cardCount), random), playerCount);
+    }
+    return piles;
+};
+
 export const effects = ({audioService, schedulerService, battleSaveService}: Dependencies): Effects<Contract> => {
     const after = (delayMs: number, callback: () => void) => {
         schedulerService.schedule(callback, delayMs);
@@ -29,8 +41,7 @@ export const effects = ({audioService, schedulerService, battleSaveService}: Dep
             schedulerService.cancelAll();
             // a new game replaces the one that could be resumed
             battleSaveService.clear();
-            const deck = shuffleDeck(createDeck(cardCount));
-            const piles = dealPiles(deck, playerCount);
+            const piles = dealPlayablePiles(cardCount, playerCount);
             after(DELAYS_MS.deal, () => dealCompleted({piles, setAsideCount: cardCount % playerCount}));
         },
         // the game goes on with the players chosen on the menu, which may have changed since the game was left,
