@@ -109,13 +109,16 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
                             index >= v.movableRunStarts[columnIndex] ? "spider-card--movable" : "",
                             card.faceUp && index < v.movableRunStarts[columnIndex] ? "spider-card--stuck" : "",
                             isSelected(columnIndex, index) ? "spider-card--selected" : "",
+                            v.selected?.column === columnIndex && v.selected.index === index ? "spider-card--selected-first" : "",
                             dragged ? "spider-card--dragged" : "",
                         ].join(" ");
                         return <div key={card.id} data-index={index} data-card-id={card.id} data-rank={spiderRank(card.card)} className={classes}
                                     style={{
                                         top: `calc(var(--spider-card-h) * ${offsets[index]})`,
+                                        // how far the selected run reaches below its first card, for its shadow
+                                        "--selected-run-height": (offsets[offsets.length - 1] ?? 0) - offsets[index],
                                         transform: dragged ? `translate(${pointer.dragOffset.dx}px, ${pointer.dragOffset.dy}px)` : undefined,
-                                    }}>
+                                    } as CSSProperties}>
                             <Face card={card.card} faceUp={card.faceUp}/>
                         </div>;
                     })}
