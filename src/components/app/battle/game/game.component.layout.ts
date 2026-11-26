@@ -1,16 +1,18 @@
 // Where the seats of a Bataille game sit around the table, for 2 to 6 players:
 // seat 0 at the bottom, the others clockwise, as in the "Bataille à six" mockup.
+// Two players sit in opposite corners, player 1 at the bottom left and player 2 at the top right,
+// and lay their cards side by side in the middle of the table.
 
 // the centre of each seat, in percent of the table, when the table is upright or wide
 const UPRIGHT: Record<number, [number, number][]> = {
-    2: [[50, 86], [50, 14]],
+    2: [[18, 88], [82, 12]],
     3: [[50, 86], [24, 15], [76, 15]],
     4: [[50, 86], [15, 50], [50, 14], [85, 50]],
     5: [[50, 86], [15, 60], [25, 14], [75, 14], [85, 60]],
     6: [[27, 86], [14, 50], [27, 14], [73, 14], [86, 50], [73, 86]],
 };
 const WIDE: Record<number, [number, number][]> = {
-    2: [[50, 83], [50, 17]],
+    2: [[22, 80], [78, 20]],
     3: [[50, 83], [17, 24], [83, 24]],
     4: [[50, 83], [11, 50], [50, 17], [89, 50]],
     5: [[50, 83], [11, 62], [30, 17], [70, 17], [89, 62]],
@@ -29,6 +31,8 @@ export type SeatLayout = {
     // the centre of the pile, and of the cards played in front of it, in pixels from the top left corner of the table
     pile: Point,
     played: Point,
+    // how far each card of a battle is moved aside from the card under it, in pixels
+    fan: Point,
     labelSide: LabelSide,
 };
 export type TableLayout = { cardWidth: number, cardHeight: number, seats: SeatLayout[] };
@@ -37,8 +41,17 @@ export type TableLayout = { cardWidth: number, cardHeight: number, seats: SeatLa
 const LABEL_HEIGHT = 34;
 const LABEL_WIDTH = 96;
 const GAP = 6;
+// with 3 players or more, a card of a battle is moved aside by part of its size, to the right and down
+const FAN_X = 0.07;
+const FAN_Y = 0.08;
+// with 2 players, the cards of a battle are spread further, away from the other player's cards:
+// sideways on a wide table, towards the own pile on an upright one, so that each card's corner can be read
+const TWO_PLAYER_FAN_X = 0.3;
+const TWO_PLAYER_FAN_Y = 0.22;
 
-const labelSide = (isWide: boolean, x: number, y: number): LabelSide => {
+const labelSide = (count: number, isWide: boolean, x: number, y: number): LabelSide => {
+    // two players: each name is written beside the pile, towards the middle of the table
+    if (count === 2) return x < 50 ? "right" : "left";
     if (!isWide) return y < 40 ? "above" : "below";
     if (x < 20 || x > 80) return "below";
     return x <= 50 ? "left" : "right";
@@ -53,8 +66,8 @@ export const tableLayout = (playerCount: number, width: number, height: number):
     const cardWidth = Math.max(24, Math.min(width * widthPart, height * heightPart));
     const cardHeight = cardWidth * CARD_RATIO;
     const centre = {x: width / 2, y: height / 2};
-    const seats = (isWide ? WIDE : UPRIGHT)[count].map(([px, py]): SeatLayout => {
-        const side = labelSide(isWide, px, py);
+    const seats = (isWide ? WIDE : UPRIGHT)[count].map(([px, py], index): SeatLayout => {
+        const side = labelSide(count, isWide, px, py);
         // the pile and its label stay on the table
         const roomAbove = cardHeight / 2 + GAP + (side === "above" ? LABEL_HEIGHT : 0);
         const roomBelow = cardHeight / 2 + GAP + (side === "below" ? LABEL_HEIGHT : 0);
@@ -64,6 +77,19 @@ export const tableLayout = (playerCount: number, width: number, height: number):
             x: clamp(px / 100 * width, roomLeft, width - roomRight),
             y: clamp(py / 100 * height, roomAbove, height - roomBelow),
         };
+        if (count === 2) {
+            // player 1's cards on the left of the centre, player 2's on the right
+            const towardsRight = index === 0 ? -1 : 1;
+            const towardsPile = index === 0 ? 1 : -1;
+            return {
+                pile,
+                played: {x: centre.x + towardsRight * (cardWidth + GAP) / 2, y: centre.y},
+                fan: isWide
+                    ? {x: towardsRight * TWO_PLAYER_FAN_X * cardWidth, y: 0}
+                    : {x: 0, y: towardsPile * TWO_PLAYER_FAN_Y * cardHeight},
+                labelSide: side,
+            };
+        }
         // the cards played lie just inside the seat, on the line to the centre of the table,
         // far enough to clear the pile and its label on one axis
         let dx = centre.x - pile.x, dy = centre.y - pile.y;
@@ -77,7 +103,12 @@ export const tableLayout = (playerCount: number, width: number, height: number):
             Math.abs(dx) > 0.05 ? needX / Math.abs(dx) : Infinity,
             length,
         );
-        return {pile, played: {x: pile.x + dx * distance, y: pile.y + dy * distance}, labelSide: side};
+        return {
+            pile,
+            played: {x: pile.x + dx * distance, y: pile.y + dy * distance},
+            fan: {x: FAN_X * cardWidth, y: FAN_Y * cardHeight},
+            labelSide: side,
+        };
     });
     return {cardWidth, cardHeight, seats};
 };

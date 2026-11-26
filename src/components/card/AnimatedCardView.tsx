@@ -14,6 +14,8 @@ type Coordinates = { top: number, left: number };
 export type LayoutState = {
     table?: Coordinates;
     stackLocations: Partial<Record<StackLocation, Coordinates>>
+    // how far a fanned card of a stack moves aside for each step, in pixels; by default to the right and down
+    fanSteps?: Partial<Record<StackLocation, { x: number, y: number }>>
 };
 
 function fakeRandom(seed: number) {
@@ -28,8 +30,8 @@ function translateRangeKeeping0(value: number) {
 export const MAX_STACK_DEPTH = 8;
 
 // a fanned card moves aside by part of its size for each step, to the right and down
-const FAN_X = 0.14;
-const FAN_Y = 0.16;
+const FAN_X = 0.07;
+const FAN_Y = 0.08;
 
 function computeFinalPosition(location: Pick<CardPlacement, "stackLocation" | "index" | "messyLevel" | "fan">, layoutState: LayoutState, size: { width: number, height: number }) {
     const stackCoordinates = {
@@ -40,8 +42,9 @@ function computeFinalPosition(location: Pick<CardPlacement, "stackLocation" | "i
     // a stack grows up and to the right by one pixel per card, up to a few pixels, so that it stays on its slot
     const depth = Math.min(location.index, MAX_STACK_DEPTH);
     const fan = location.fan ?? 0;
-    const x = stackCoordinates.left + depth / 2 + fan * FAN_X * size.width;
-    const y = stackCoordinates.top - depth + fan * FAN_Y * size.height;
+    const fanStep = layoutState.fanSteps?.[location.stackLocation] ?? {x: FAN_X * size.width, y: FAN_Y * size.height};
+    const x = stackCoordinates.left + depth / 2 + fan * fanStep.x;
+    const y = stackCoordinates.top - depth + fan * fanStep.y;
 
     return {
         x,

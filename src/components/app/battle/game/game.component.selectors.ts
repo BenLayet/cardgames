@@ -25,8 +25,8 @@ const cardsWithLocation = (state: State): CardWithPlacement[] =>
         })),
         ...seat.played.map((card, index) => ({
             card,
-            // the cards of a battle are moved aside, so that the tied card stays in view
-            placement: {stackLocation: `seat${seatIndex}Played` as const, stackIndex: 3, index, faceUp: seat.playedUp[index], messyLevel: 2, fan: Math.min(index, 6) / 2},
+            // the cards of a battle are moved aside, so that the tied card stays in view (the layout says how far)
+            placement: {stackLocation: `seat${seatIndex}Played` as const, stackIndex: 3, index, faceUp: seat.playedUp[index], messyLevel: 2, fan: Math.min(index, 6)},
         })),
     ]);
 

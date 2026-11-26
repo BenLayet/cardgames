@@ -47,11 +47,13 @@ const Table = ({path}: { path: string }) => {
         if (!layout || !size) return null;
         const corner = ({x, y}: { x: number, y: number }) => ({left: x - layout.cardWidth / 2, top: y - layout.cardHeight / 2});
         const stackLocations: LayoutState["stackLocations"] = {deck: corner({x: size.width / 2, y: size.height / 2})};
+        const fanSteps: LayoutState["fanSteps"] = {};
         layout.seats.forEach((seat, index) => {
             stackLocations[`seat${index}Pile`] = corner(seat.pile);
             stackLocations[`seat${index}Played`] = corner(seat.played);
+            fanSteps[`seat${index}Played`] = seat.fan;
         });
-        return {table: {left: 0, top: 0}, stackLocations};
+        return {table: {left: 0, top: 0}, stackLocations, fanSteps};
     }, [layout, size]);
 
     const humanSeats = v.seats.flatMap((seat, index) => !seat.isComputer && seat.rank === null ? [index] : []);
