@@ -49,8 +49,8 @@ body:has(.app-bar) #root {
 /* the buttons of the bar are icons only, without a frame, like in most applications */
 .app-bar .app-bar-button,
 .app-bar .settings-menu > .btn {
-    min-width: 2.75rem;
-    min-height: 2.75rem;
+    min-width: max(44px, 2.75rem);
+    min-height: max(44px, 2.75rem);
     color: var(--app-ink);
     border-color: transparent;
     background: transparent;

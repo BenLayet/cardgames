@@ -42,6 +42,9 @@
     --bs-btn-focus-shadow-rgb: var(--bs-primary-rgb);
     --bs-btn-font-weight: 700;
     border-radius: var(--app-radius);
+    /* easy to hit with a finger: 44 px is the smallest target Apple recommends */
+    min-width: 44px;
+    min-height: 44px;
 }
 
 /* the main action of a screen: one per screen */
