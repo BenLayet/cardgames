@@ -20,6 +20,8 @@ export type SavedBattleGame = {
     hasPlayed: boolean,
     isSolo: boolean,
     playerNames: (string | null)[],
+    // how the cards collected are shuffled, null in a game saved before they were
+    dealSeed: number | null,
 };
 
 // Keeps the Bataille game in progress so that it can be resumed after going back or closing the application

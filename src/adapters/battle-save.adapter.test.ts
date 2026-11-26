@@ -7,7 +7,7 @@ const seat = {pile: ["AS", "2H"], played: ["KD"], playedUp: [true], rank: null, 
 const game: SavedBattleGame = {
     seats: [seat, seat, {...seat, pile: [], played: [], playedUp: [], rank: 3, eliminatedRound: 12}] as SavedBattleGame["seats"],
     contenders: [0, 1], step: "down", battleCount: 1, roundNumber: 14, lastRoundWinner: 1, lastWonCount: 6, setAsideCount: 1,
-    hasPlayed: true, isSolo: false, playerNames: [null, "Léa", "Tom"],
+    hasPlayed: true, isSolo: false, playerNames: [null, "Léa", "Tom"], dealSeed: 123456,
 };
 
 describe("saved Bataille game", () => {
@@ -31,7 +31,13 @@ describe("saved Bataille game", () => {
                 {pile: ["KD", "3C", "QS"], played: [], playedUp: [], rank: null, eliminatedRound: null},
             ],
             contenders: [0, 1], step: "up", battleCount: 0, roundNumber: 1, lastRoundWinner: 1, lastWonCount: 0, setAsideCount: 0,
-            hasPlayed: true, isSolo: true, playerNames: [null, null],
+            hasPlayed: true, isSolo: true, playerNames: [null, null], dealSeed: null,
         });
+    });
+
+    it("reads a game saved before the cards collected were shuffled: they go on being collected in seat order", () => {
+        const older: Partial<SavedBattleGame> = {...game};
+        delete older.dealSeed;
+        expect(decodeSavedBattleGame(JSON.stringify({version: 2, ...older}))).toEqual({...game, dealSeed: null});
     });
 });

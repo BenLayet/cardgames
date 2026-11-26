@@ -48,6 +48,7 @@ const fromVersion1 = (game: Record<string, unknown>): SavedBattleGame | null => 
         hasPlayed: game.hasPlayed === true,
         isSolo: game.isPlayer2Computer,
         playerNames: game.playerNames,
+        dealSeed: null,
     };
 };
 
@@ -61,6 +62,8 @@ export const decodeSavedBattleGame = (text: string): SavedBattleGame | null => {
         if (!isGame(game, game.seats.length)) return null;
         const saved: Record<string, unknown> = {...game};
         delete saved.version;
+        // a game saved before the cards collected were shuffled goes on collecting them in seat order
+        if (!Number.isInteger(saved.dealSeed)) saved.dealSeed = null;
         return saved as SavedBattleGame;
     } catch {
         return null;

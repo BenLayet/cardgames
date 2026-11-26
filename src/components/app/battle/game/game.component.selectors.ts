@@ -46,6 +46,7 @@ const savedGame = (state: State): SavedBattleGame => ({
     hasPlayed: state.hasPlayed,
     isSolo: state.isSolo,
     playerNames: state.playerNames,
+    dealSeed: state.dealSeed,
 });
 
 // what each seat shows on the table
