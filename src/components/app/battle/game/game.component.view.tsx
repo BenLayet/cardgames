@@ -8,6 +8,7 @@ import {Fireworks} from "../../../fireworks/Fireworks.tsx";
 import {Tomatoes} from "../../../tomatoes/Tomatoes.tsx";
 import {EndMessage} from "../../../end-message/EndMessage.tsx";
 import {useTranslation} from "react-i18next";
+import {TableActions} from "../../../navigation/TableActions.tsx";
 
 export const View = ({path = ""}) => {
     const [v, d] = useSofter<GameContract>(path);
@@ -43,9 +44,28 @@ export const View = ({path = ""}) => {
         else d.player1Clicked();
     };
     const winnerName = v.hasPlayer1WonGame ? v.player1Name : v.player2Name;
-    // between two humans, each half of the table shows whose it is
-    const seatLabel = (name: string | null, number: number) => !v.isPlayer2Computer &&
-        <div className={`battle-seat-name battle-seat-name--player${number}`}>{name ?? t("playerNumber", {number})}</div>;
+    // each half of the table shows whose it is, and how many cards they hold
+    const seatName = (name: string | null, number: 1 | 2) => {
+        if (name) return name;
+        if (v.isPlayer2Computer) return number === 1 ? t("battleStatus.you") : t("computer");
+        return t("playerNumber", {number});
+    };
+    const seatLabel = (name: string | null, number: 1 | 2, count: number) =>
+        <div className={`battle-seat battle-seat--player${number}`}>
+            <div className="battle-seat-name">{seatName(name, number)}</div>
+            <div className="battle-seat-count">{t("cardCountShort", {count})}</div>
+        </div>;
+    // what to do, then who won the last round
+    const status = () => {
+        if (v.hasGameEnded) return null;
+        if (v.battleCount > 0) return t("battleStatus.battle");
+        if (!v.hasPlayed) return v.isPlayer2Computer ? t("battleStatus.tapYourPile") : t("battleStatus.tapYourPiles");
+        if (v.lastRoundWinner === null) return null;
+        const winnerNumber = v.lastRoundWinner === "player1" ? 1 : 2;
+        const typedName = winnerNumber === 1 ? v.player1Name : v.player2Name;
+        if (!typedName && v.isPlayer2Computer) return winnerNumber === 1 ? t("battleStatus.youWonRound") : t("battleStatus.computerWonRound");
+        return t("battleStatus.playerWonRound", {name: seatName(typedName, winnerNumber)});
+    };
     return <>
         <div ref={gameRef} className="battle-table vstack justify-content-between" onPointerDown={onTableClicked}>
             <div style={{position: "absolute", bottom: 0, right: 0, zIndex: 1000}}>
@@ -55,7 +75,7 @@ export const View = ({path = ""}) => {
                 </div>
             </div>
             <div className="d-flex justify-content-end align-items-start">
-                {seatLabel(v.player2Name, 2)}
+                {seatLabel(v.player2Name, 2, v.player2CardCount)}
                 <div ref={player2WonCardsRef} className="card-stack-container"/>
                 <div ref={player2RemainingCardsRef} className="card-stack-container"/>
             </div>
@@ -74,9 +94,10 @@ export const View = ({path = ""}) => {
             <div className="d-flex align-items-end">
                 <div ref={player1RemainingCardsRef} className="card-stack-container"/>
                 <div ref={player1WonCardsRef} className="card-stack-container"/>
-                {seatLabel(v.player1Name, 1)}
+                {seatLabel(v.player1Name, 1, v.player1CardCount)}
             </div>
         </div>
+        <TableActions status={status()}/>
         {v.hasGameEnded && <EndMessage onPlayAgain={() => d.playAgainRequested()} onMenu={() => d.menuRequested()}>
             {v.isPlayer2Computer && v.hasPlayer1WonGame && <>
                 <Fireworks/>

@@ -94,5 +94,10 @@ export const selectors = {
     isPlayer2Computer: (state: State) => state.isPlayer2Computer,
     player1Name: (state: State) => state.playerNames[0] ?? null,
     player2Name: (state: State) => state.playerNames[1] ?? null,
+    // the cards each player holds, those being played left aside
+    player1CardCount: (state: State) => cardCount(state.player1),
+    player2CardCount: (state: State) => cardCount(state.player2),
+    lastRoundWinner: (state: State) => state.lastRoundWinner,
+    hasPlayed: (state: State) => state.hasPlayed,
 } satisfies Selectors<State>;
 export type Values = ExtractComponentValuesContract<typeof selectors>;

@@ -110,6 +110,17 @@
       "C": "trèfle"
     }
   },
+  "cardCountShort_one": "{{count}} carte",
+  "cardCountShort_other": "{{count}} cartes",
+  "battleStatus": {
+    "you": "Toi",
+    "tapYourPile": "Touche ton paquet pour jouer",
+    "tapYourPiles": "Chacun touche son paquet pour jouer",
+    "battle": "Bataille\u00a0! Une carte cachée, puis une visible",
+    "youWonRound": "Tu remportes les cartes",
+    "computerWonRound": "L'ordinateur remporte les cartes",
+    "playerWonRound": "{{name}} remporte les cartes"
+  },
   "newGame": "Nouvelle partie",
   "resumeGame": "Reprendre la partie",
   "close": "Fermer",
