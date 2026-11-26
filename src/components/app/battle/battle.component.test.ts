@@ -98,6 +98,9 @@ describe("battle", () => {
         await vi.runAllTimersAsync();
         await battle.when({name: "playerClicked", payload: 0, statePath: gamePath});
         await vi.runAllTimersAsync();
+        // a tap sends the cards to the winner
+        await battle.when({name: "playerClicked", payload: 0, statePath: gamePath});
+        await vi.runAllTimersAsync();
         const afterOneRound = battle.getValues("/game").cardsWithLocation();
 
         await battle.when({name: "goHomeRequested", statePath: []});

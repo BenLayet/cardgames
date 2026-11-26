@@ -9,6 +9,9 @@ export const eventForwarders = {
         {from: "gameStarted", to: "readyForNextCards"},
         {from: "gameRestored", to: "readyForNextCards"},
         {from: "playerClicked", to: "playerPlayed", onCondition: ({values, payload}) => values.canPlay().at(payload) ?? false},
+        // once a round is won, any tap turns over the next face down card of a battle, then sends the cards to the winner
+        {from: "playerClicked", to: "hiddenCardRevealed", onCondition: ({values}) => values.canRevealHiddenCard()},
+        {from: "playerClicked", to: "cardsCollected", onCondition: ({values}) => values.canCollectCards()},
         {from: "playerPlayed", to: "allPlayed", onCondition: ({values}) => values.haveAllPlayed()},
         // between two rounds or two steps of a battle
         {from: "readyForNextCards", to: "gameWon", onCondition: ({values}) => values.hasGameWinner()},
@@ -24,8 +27,6 @@ export const eventForwarders = {
         {from: "reviewWinnerCompleted", to: "roundWon", onCondition: ({values}) => values.hasRoundLeader()},
         {from: "reviewWinnerCompleted", to: "tieOccurred", onCondition: ({values}) => !values.hasRoundLeader()},
         {from: "tieOccurred", to: "readyForNextCards"},
-        {from: "roundWon", to: "hiddenCardsRevealed", onCondition: ({values}) => values.areHiddenCardsOnTable()},
-        {from: "roundWon", to: "cardsCollected", onCondition: ({values}) => !values.areHiddenCardsOnTable()},
         {from: "cardsSetAside", to: "roundCompleted"},
         {from: "roundCompleted", to: "readyForNextCards"},
         {from: "gameWon", to: "gameEnded"},

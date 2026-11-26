@@ -89,11 +89,17 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
         state.lastRoundWinner = winner;
         state.lastWonCount = state.seats.reduce((count, seat) => count + seat.played.length, 0);
     },
-    // the face down cards are shown before they go to the winner
-    hiddenCardsRevealed: ({state}) => {
-        state.seats.forEach(seat => {
-            seat.playedUp = seat.playedUp.map(() => true);
-        });
+    // the face down cards are shown before they go to the winner, one at a time:
+    // in the order they were laid, the first battle first, and for each battle from seat 0 clockwise
+    hiddenCardRevealed: ({state}) => {
+        const depth = Math.max(...state.seats.map(seat => seat.played.length));
+        for (let index = 0; index < depth; index++) {
+            const seat = state.seats.find(seat => index < seat.playedUp.length && !seat.playedUp[index]);
+            if (seat) {
+                seat.playedUp[index] = true;
+                return;
+            }
+        }
     },
     // every card of the round goes under the pile of the winner
     cardsCollected: ({state}) => {

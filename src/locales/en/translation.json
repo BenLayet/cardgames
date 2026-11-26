@@ -128,7 +128,9 @@
     "playerWonCards_other": "{{name}} takes {{count}} cards",
     "eliminated_one": "{{names}} is out",
     "eliminated_other": "{{names}} are out",
-    "eliminatedTag": "Out · {{place}}"
+    "eliminatedTag": "Out · {{place}}",
+    "tapToReveal": "Tap the table to turn over the next hidden card",
+    "tapToCollect": "{{won}} · tap the table to collect"
   },
   "newGame": "New game",
   "resumeGame": "Resume the game",
@@ -154,7 +156,7 @@
       },
       {
         "title": "Battle",
-        "text": "When several players have the highest card, only they lay one card face down, then one face up. The highest card takes them all, the other players' cards included. If you have a single card left, it is your face up card. Without any card, you lose the battle."
+        "text": "When several players have the highest card, only they lay one card face down, then one face up. The highest card takes them all, the other players' cards included. If you have a single card left, it is your face up card. Without any card, you lose the battle. Once the battle is won, each tap on the table turns over a hidden card."
       },
       {
         "title": "Out",
@@ -162,7 +164,7 @@
       },
       {
         "title": "With a keyboard",
-        "text": "Enter or Space on your pile plays a card. With several players, each one has a key, written on their pile: L, A, G, P, X, M."
+        "text": "Enter or Space on your pile plays a card. With several players, each one has a key, written on their pile: L, A, G, P, X, M. When a round is won, Space, Enter or a player's key turns over the hidden cards, then collects the cards."
       }
     ],
     "spider": [

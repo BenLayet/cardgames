@@ -75,10 +75,7 @@ export const effects = ({audioService, schedulerService, battleSaveService}: Dep
         // Card flips
         suspenseStarted: ({suspenseCompleted}) => after(DELAYS_MS.suspense, suspenseCompleted),
         reviewWinnerStarted: ({reviewWinnerCompleted}) => after(DELAYS_MS.reviewWinner, reviewWinnerCompleted),
-        hiddenCardsRevealed: ({cardsCollected}) => {
-            audioService.playCardSlide();
-            after(DELAYS_MS.revealedCards, cardsCollected);
-        },
+        hiddenCardRevealed: () => audioService.playCardSlide(),
         cardsCollected: ({roundCompleted}) => {
             audioService.playCardSlide();
             after(DELAYS_MS.collected, roundCompleted);

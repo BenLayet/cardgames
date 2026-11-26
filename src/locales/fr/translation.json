@@ -128,7 +128,9 @@
     "playerWonCards_other": "{{name}} remporte {{count}} cartes",
     "eliminated_one": "{{names}} est éliminé",
     "eliminated_other": "{{names}} sont éliminés",
-    "eliminatedTag": "Éliminé · {{place}}"
+    "eliminatedTag": "Éliminé · {{place}}",
+    "tapToReveal": "Touche la table pour révéler la carte cachée suivante",
+    "tapToCollect": "{{won}} · touche la table pour ramasser"
   },
   "newGame": "Nouvelle partie",
   "resumeGame": "Reprendre la partie",
@@ -154,7 +156,7 @@
       },
       {
         "title": "Bataille",
-        "text": "Si plusieurs joueurs ont la plus forte carte, eux seuls posent une carte cachée puis une visible. La plus forte prend tout, y compris les cartes des autres joueurs. S'il te reste une seule carte, elle sert de carte visible. Sans carte, tu perds la bataille."
+        "text": "Si plusieurs joueurs ont la plus forte carte, eux seuls posent une carte cachée puis une visible. La plus forte prend tout, y compris les cartes des autres joueurs. S'il te reste une seule carte, elle sert de carte visible. Sans carte, tu perds la bataille. Une fois la bataille gagnée, chaque toucher sur la table révèle une carte cachée."
       },
       {
         "title": "Éliminé",
@@ -162,7 +164,7 @@
       },
       {
         "title": "Au clavier",
-        "text": "Entrée ou Espace sur ton paquet joue une carte. À plusieurs, chacun a sa touche, affichée sur son paquet\u00a0: L, A, G, P, X, M."
+        "text": "Entrée ou Espace sur ton paquet joue une carte. À plusieurs, chacun a sa touche, affichée sur son paquet\u00a0: L, A, G, P, X, M. Quand un tour est gagné, Espace, Entrée ou une touche de joueur révèle les cartes cachées, puis ramasse les cartes."
       }
     ],
     "spider": [
