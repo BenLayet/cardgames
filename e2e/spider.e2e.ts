@@ -130,6 +130,28 @@ test("a completed sequence flies away with the ace on top and the king beneath",
     expect(ranks).toEqual([12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
 });
 
+test("the victory shows once the last sequence has reached its place", async ({page}) => {
+    await resume(page, ALMOST_WON);
+    // each frame, whether the sequence is still flying and whether the victory is on screen
+    await page.evaluate(() => {
+        const frames: { flying: boolean, victory: boolean }[] = [];
+        (window as unknown as { victoryFrames: typeof frames }).victoryFrames = frames;
+        const sample = () => {
+            frames.push({
+                flying: document.querySelector(".card-flight-layer") !== null,
+                victory: Array.from(document.querySelectorAll("h1"), (h: HTMLElement) => h.textContent).includes("Victoire"),
+            });
+            if (frames.length < 240) requestAnimationFrame(sample);
+        };
+        requestAnimationFrame(sample);
+    });
+    await card(page, 1, 0).click();
+    await expect(page.getByRole("heading", {name: "Victoire"})).toBeVisible();
+    const frames = await page.evaluate(() => (window as unknown as { victoryFrames: { flying: boolean, victory: boolean }[] }).victoryFrames);
+    expect(frames.some(frame => frame.flying)).toBe(true);
+    expect(frames.some(frame => frame.flying && frame.victory)).toBe(false);
+});
+
 test.describe("on a touch screen", () => {
     test.use({hasTouch: true});
 
