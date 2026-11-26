@@ -25,6 +25,8 @@ export const initialState = {
     isPlayer2Computer: true,
     // the names typed on the setup screen, null for a player named after their number
     playerNames: [] as (string | null)[],
+    // a resumed game shows its cards where they are, without dealing them
+    isRestored: false,
 }
 
 export type State = typeof initialState;

@@ -6,6 +6,8 @@ interface CardProps {
     card: Card;
     placement: CardPlacement;
     layoutState: LayoutState;
+    // how the card comes on the table: dealt after a delay in milliseconds, or already in place (a resumed game)
+    entry?: number | "inPlace";
 }
 
 type Coordinates = { top: number, left: number };
@@ -47,9 +49,11 @@ const MOVE_MS = 500;
 // slows down towards the end, like a card sliding on the felt
 const EASE_OUT = "cubic-bezier(0.33, 1, 0.68, 1)";
 
-export function AnimatedCardView({card, placement, layoutState}: CardProps) {
+export function AnimatedCardView({card, placement, layoutState, entry = 0}: CardProps) {
     const ref = useRef<HTMLDivElement>(null);
     const movement = useRef<Animation | null>(null);
+    // only the first movement of the card is its entry on the table
+    const entryRef = useRef<number | "inPlace" | null>(entry);
     const {stackLocation, index, messyLevel} = placement;
     // The card moves from where it is on screen, even in the middle of a previous movement, to where it belongs
     useLayoutEffect(() => {
@@ -61,8 +65,11 @@ export function AnimatedCardView({card, placement, layoutState}: CardProps) {
         const current = getComputedStyle(element).transform;
         movement.current?.cancel();
         element.style.transform = target;
-        if (typeof element.animate !== "function") return;
-        movement.current = element.animate([{transform: current}, {transform: target}], {duration: MOVE_MS, easing: EASE_OUT});
+        const delay = entryRef.current ?? 0;
+        entryRef.current = null;
+        if (delay === "inPlace" || typeof element.animate !== "function") return;
+        // a dealt card waits on the deck for its turn
+        movement.current = element.animate([{transform: current}, {transform: target}], {duration: MOVE_MS, delay, easing: EASE_OUT, fill: "backwards"});
     }, [stackLocation, index, messyLevel, layoutState]);
 
     return (

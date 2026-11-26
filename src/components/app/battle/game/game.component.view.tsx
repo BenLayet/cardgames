@@ -4,6 +4,7 @@ import type {GameContract} from "./game.component.ts";
 import {type KeyboardEvent, type PointerEvent, useEffect, useEffectEvent, useRef} from "react";
 import {useMeasure} from "../../../../hooks/useMeasure.ts";
 import {AnimatedCardView, type LayoutState} from "../../../card/AnimatedCardView.tsx";
+import type {CardPlacement} from "../../../../model/deck.model.ts";
 import {Fireworks} from "../../../fireworks/Fireworks.tsx";
 import {Tomatoes} from "../../../tomatoes/Tomatoes.tsx";
 import {EndMessage} from "../../../end-message/EndMessage.tsx";
@@ -13,6 +14,11 @@ import {TableActions} from "../../../navigation/TableActions.tsx";
 // the keys of the two players sharing a keyboard: one at each end of the middle row
 const PLAYER1_KEY = "l";
 const PLAYER2_KEY = "a";
+
+// the cards are dealt one after the other, to each player in turn
+const DEAL_STAGGER_MS = 20;
+const dealDelayMs = ({stackLocation, index}: CardPlacement) =>
+    (index * 2 + (stackLocation.startsWith("player2") ? 1 : 0)) * DEAL_STAGGER_MS;
 
 export const View = ({path = ""}) => {
     const [v, d] = useSofter<GameContract>(path);
@@ -100,7 +106,8 @@ export const View = ({path = ""}) => {
             <div style={{position: "absolute", bottom: 0, right: 0, zIndex: 1000}}>
                 <div ref={deckRef} className="card-stack-container" style={{borderStyle: "none"}}>
                     {layoutState && v.cardsWithLocation.map(c =>
-                        <AnimatedCardView key={c.card} card={c.card} placement={c.placement} layoutState={layoutState}/>)}
+                        <AnimatedCardView key={c.card} card={c.card} placement={c.placement} layoutState={layoutState}
+                                          entry={v.isRestored ? "inPlace" : dealDelayMs(c.placement)}/>)}
                 </div>
             </div>
             <div className="battle-row-top d-flex justify-content-end align-items-start">
