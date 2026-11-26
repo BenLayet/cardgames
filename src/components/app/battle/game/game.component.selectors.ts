@@ -10,13 +10,13 @@ import {
     haveAllContendersPlayed,
     isGameOver,
     isInGame,
+    isTopLayerHidden,
     roundLeader,
 } from "./game.component.rules.ts";
 
 // a battle is going on: more than one player is tied, and the round has no winner yet
 const isBattleGoingOn = (state: State) => state.battleCount > 0 && state.roundWinner === null;
 
-const areHiddenCardsOnTable = (state: State) => state.seats.some(seat => seat.playedUp.some(up => !up));
 // the round is won and its cards are still on the table
 const isWaitingForCollection = (state: State) => state.roundWinner !== null && areCardsOnTable(state) && !state.gameEnded;
 
@@ -93,9 +93,9 @@ export const selectors = {
     isBattleWonByDefault: (state: State) => state.step === "down" && state.contenders.length === 1 && state.roundWinner === null && areCardsOnTable(state),
     // no player of a battle has a card left
     isBattleLostByAll: (state: State) => state.step === "down" && state.contenders.length === 0 && areCardsOnTable(state),
-    // the round is won: the players turn over the face down cards, then send the cards to the winner
-    canRevealHiddenCard: (state: State) => isWaitingForCollection(state) && areHiddenCardsOnTable(state),
-    canCollectCards: (state: State) => isWaitingForCollection(state) && !areHiddenCardsOnTable(state),
+    // the round is won: the players send the cards to the winner layer by layer, turning over a face down layer first
+    canRevealHiddenCards: (state: State) => isWaitingForCollection(state) && isTopLayerHidden(state),
+    canCollectCards: (state: State) => isWaitingForCollection(state) && !isTopLayerHidden(state),
     isGameOver,
     hasGameWinner: (state: State) => gameWinner(state) !== null,
     // the seat of the winner once the game has ended, null on a tie

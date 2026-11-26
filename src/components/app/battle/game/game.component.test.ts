@@ -41,9 +41,9 @@ const dealToHumans = async (...piles: Card[][]) => {
 };
 const click = (seat: number) => store.when(event("playerClicked", seat));
 
-// once a round is won, the player taps until every hidden card is turned over and the cards are collected
+// once a round is won, the player taps until every layer of cards is collected, the hidden ones turned over first
 const collect = async () => {
-    while (values().canRevealHiddenCard() || values().canCollectCards()) {
+    while (values().canRevealHiddenCards() || values().canCollectCards()) {
         await click(0);
         await vi.runAllTimersAsync();
     }
@@ -112,7 +112,8 @@ describe("game", () => {
 
         await playRound(); // 2S vs 4H: player 2 wins the whole battle
         expect(values().battleCount()).toBe(0);
-        expect(pile(1)).toEqual(["AS", "3S", "2S", "AH", "5H", "4H"]);
+        // collected layer by layer from the top, each layer under the ones before, in seat order
+        expect(pile(1)).toEqual(["AS", "AH", "3S", "5H", "2S", "4H"]);
         expect(pile(0)).toEqual(["9S", "8H"]);
         expect(played(0)).toEqual([]);
         expect(played(1)).toEqual([]);
@@ -132,7 +133,7 @@ describe("game", () => {
         expect(faceUp(0)).toEqual([true, false]);
     });
 
-    it("turns the face down cards of a battle over one tap at a time, then sends the cards to the winner on a tap", async () => {
+    it("collects the cards of a battle layer by layer from the top, turning the face down layer over first", async () => {
         await dealToHumans(["2S", "3S", "AS"], ["4H", "5H", "AH"]);
         await everyonePlays(0, 1); // AS vs AH
         await everyonePlays(0, 1); // face down cards 3S and 5H
@@ -143,23 +144,47 @@ describe("game", () => {
         // the round is won, but nothing moves without a tap
         expect(values().roundWinner()).toBe(1);
         expect(hiddenCount()).toBe(2);
-        expect(values().canRevealHiddenCard()).toBe(true);
-
-        // any player taps: one card at a time, player 1's first
-        await click(1);
-        expect(hiddenCount()).toBe(1);
-        expect(values().cardsWithLocation().find(c => c.card === "3S")?.placement.faceUp).toBe(true);
-        await click(0);
-        expect(hiddenCount()).toBe(0);
-        await vi.runAllTimersAsync();
-        expect(played(0)).toHaveLength(3);
         expect(values().canCollectCards()).toBe(true);
+        expect(values().canRevealHiddenCards()).toBe(false);
 
+        // any player taps: the top layer, 2S and 4H, goes to the winner
+        await click(0);
+        await vi.runAllTimersAsync();
+        expect(played(0)).toEqual(["AS", "3S"]);
+        expect(played(1)).toEqual(["AH", "5H"]);
+        expect([...pile(1)].sort()).toEqual(["2S", "4H"]);
+        // the next layer is face down: a tap turns both cards over at once
+        expect(values().canRevealHiddenCards()).toBe(true);
+        await click(1);
+        expect(hiddenCount()).toBe(0);
+        expect(played(0)).toHaveLength(2);
+        // then a tap for each layer
+        await click(0);
+        await vi.runAllTimersAsync();
+        expect(played(0)).toEqual(["AS"]);
+        expect(pile(1)).toHaveLength(4);
+        // each layer goes under the cards collected before
+        expect([...pile(1)].slice(2).sort()).toEqual(["2S", "4H"]);
+        expect(values().hasGameEnded()).toBe(false);
         await click(0);
         await vi.runAllTimersAsync();
         expect(played(0)).toEqual([]);
         expect(pile(1)).toHaveLength(6);
         expect(values().hasGameEnded()).toBe(true);
+    });
+
+    it("collects a round without a battle in a single tap", async () => {
+        await dealToHumans(["2S", "3S"], ["4H", "AH"]);
+        await click(0);
+        await click(1);
+        await vi.runAllTimersAsync();
+        expect(values().canCollectCards()).toBe(true);
+        await click(1);
+        await vi.runAllTimersAsync();
+        expect(played(0)).toEqual([]);
+        expect(played(1)).toEqual([]);
+        expect(pile(1)).toHaveLength(3);
+        expect(values().canPlay()).toEqual([true, true]);
     });
 
     it("counts successive battles", async () => {
@@ -215,7 +240,8 @@ describe("game", () => {
         expect(values().canPlay()).toEqual([true, true]);
         // the single card of the player is played face up
         await playRound();
-        expect(pile(1)).toEqual(["KS", "2S", "KH", "3H", "4H"]);
+        // the top layer is 4H alone, then 2S with the face down 3H, then KS and KH
+        expect(pile(1)).toEqual(["KS", "KH", "2S", "3H", "4H"]);
         expect(values().hasGameEnded()).toBe(true);
     });
 
@@ -308,7 +334,7 @@ describe("game", () => {
 
             await everyonePlays(0, 1); // face down cards
             await everyonePlays(0, 1); // 2S vs 4H
-            expect(pile(1)).toEqual(["KS", "3S", "2S", "KH", "5H", "4H", "TD", "7D"]);
+            expect(pile(1)).toEqual(["KS", "KH", "TD", "7D", "3S", "5H", "2S", "4H"]);
             expect(values().canPlay()).toEqual([false, true, true, true]);
         });
 

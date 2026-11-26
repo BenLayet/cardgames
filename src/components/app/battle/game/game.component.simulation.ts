@@ -2,7 +2,7 @@ import type {Card} from "../../../../model/deck.model.ts";
 import {initialState, type State} from "./game.component.state.ts";
 import {stateUpdaters} from "./game.component.updaters.ts";
 import {selectors} from "./game.component.selectors.ts";
-import {haveAllContendersPlayed, isGameOver, roundLeader} from "./game.component.rules.ts";
+import {areCardsOnTable, haveAllContendersPlayed, isGameOver, isTopLayerHidden, roundLeader} from "./game.component.rules.ts";
 
 // The outcome of a Bataille game is fixed by the deal: the taps only set the pace.
 // So a deal can be played to the end in memory, with the very rules of the table, before it is dealt.
@@ -18,6 +18,7 @@ export type SimulatedGame = {
 
 type UpdaterName = keyof typeof stateUpdaters;
 
+
 // the piles are given from the bottom to the top, as they are dealt: the last card of each is played first;
 // the seed shuffles the cards collected, as on the table (null: collected in seat order)
 export const simulateGame = (piles: Card[][], dealSeed: number | null, maxRounds = MAX_ROUNDS): SimulatedGame => {
@@ -27,6 +28,13 @@ export const simulateGame = (piles: Card[][], dealSeed: number | null, maxRounds
         const updater = stateUpdaters[name] as unknown as (params: { state: State, payload: unknown }) => unknown;
         const next = updater({state, payload});
         if (next) state = next as State;
+    };
+    // the players tap until every layer is collected
+    const collect = () => {
+        while (areCardsOnTable(state)) {
+            if (isTopLayerHidden(state)) apply("hiddenCardsRevealed");
+            apply("layerCollected");
+        }
     };
     apply("dealCompleted", {piles: piles.map(pile => [...pile]), setAsideCount: 0, dealSeed: dealSeed ?? undefined});
     // the updaters change the state in place, as on the table where each change is made on a copy:
@@ -38,7 +46,7 @@ export const simulateGame = (piles: Card[][], dealSeed: number | null, maxRounds
         let isRoundOver = false;
         if (selectors.isBattleWonByDefault(state)) {
             apply("roundWon");
-            apply("cardsCollected");
+            collect();
             isRoundOver = true;
         } else if (selectors.isBattleLostByAll(state)) {
             apply("cardsSetAside");
@@ -56,7 +64,7 @@ export const simulateGame = (piles: Card[][], dealSeed: number | null, maxRounds
                     apply("tieOccurred");
                 } else {
                     apply("roundWon");
-                    apply("cardsCollected");
+                    collect();
                     isRoundOver = true;
                 }
             }
