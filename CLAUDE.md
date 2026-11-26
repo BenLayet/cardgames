@@ -35,7 +35,8 @@ Every new game follows these rules, so that all games look and behave the same w
 
 - Piles are not perfectly aligned: each card of a stack is slightly rotated, the stack grows by a pixel per card, up to a few pixels.
 - Cards in play, on the table during a round, look loosely stacked: more disorder than a pile that is put away.
-- Use the `messyLevel` and `fan` fields of `CardPlacement` (`src/model/deck.model.ts`), which `AnimatedCardView` turns into a rotation and an offset. The rotation of a card comes from its index in the stack, not from `Math.random()`, so that a card does not move again when the screen is drawn again.
+- Use the `messyLevel` field of `CardPlacement` (`src/model/deck.model.ts`): `AnimatedCardView` turns it into a tilt of up to `messyLevel / 2` degrees on each side (`cardTilt` in `src/components/card/card-tilt.ts`), and lifts each card of a stack a little by its index. The tilt comes from the card and its stack, not from `Math.random()` nor from the index of the card: a card keeps its tilt when the screen is drawn again or when cards go under it, and the first card of a stack is tilted like the others.
+- Leave room for the tilt where cards lie side by side, so that tilted cards never overlap (Bataille: `slotGaps` in `game.component.layout.ts`).
 - Keep it light: the value and suit of every face-up card must stay readable.
 
 ### 5. Status line at the bottom, actions at the bottom right
