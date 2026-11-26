@@ -4,10 +4,10 @@ export const DELAYS_MS = {
     deal: 500,
     // the computer plays a little after the player, to give the impression of an answer
     computerAnswer: 100,
-    // before the played cards are turned over
-    suspense: 600,
-    // to look at the turned over cards before the round is resolved
-    reviewWinner: 1000,
+    // the last card played reaches the middle of the table before the round is resolved
+    suspense: 500,
+    // a short look at all the cards before the winner, or the battle, is shown
+    reviewWinner: 300,
     // to see the face down cards of a battle before they go to the winner
     revealedCards: 1500,
     // the cards fly to the pile of the winner before the next round

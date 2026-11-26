@@ -8,14 +8,15 @@ import {assertIsNotUndefined} from "../../../../utils/assert.functions.ts";
 
 // The helpers below change the state in place and return nothing,
 // because a value returned by an updater would replace the whole state.
-const playTopCard = (seat: SeatState): void => {
+// a card is laid face up, at once, except the face down card of a battle
+const playTopCard = (seat: SeatState, faceUp: boolean): void => {
     const card = seat.pile.pop();
     assertIsNotUndefined(card);
     seat.played.push(card);
-    seat.playedUp.push(false);
+    seat.playedUp.push(faceUp);
     seat.canPlay = false;
 };
-// the last card of each contender is turned over
+// the last card of each contender is face up (it already is, unless the game was saved by an older version)
 const revealTopCards = (state: State): void => {
     state.contenders.forEach(index => {
         const upStates = state.seats[index].playedUp;
@@ -56,7 +57,7 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
         isRestored: true,
     }),
     playerPlayed: ({state, payload: index}) => {
-        playTopCard(state.seats[index]);
+        playTopCard(state.seats[index], state.step === "up");
         state.hasPlayed = true;
     },
     // the players without cards leave the game, then each contender who has to lay a card can play it

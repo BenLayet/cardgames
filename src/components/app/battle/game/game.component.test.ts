@@ -109,6 +109,20 @@ describe("game", () => {
         expect(played(1)).toEqual([]);
     });
 
+    it("lays a card face up at once, and the face down card of a battle face down", async () => {
+        await dealToHumans(["2S", "3S", "AS"], ["4H", "5H", "AH"]);
+        const faceUp = (seat: number) => values().cardsWithLocation()
+            .filter(c => c.placement.stackLocation === `seat${seat}Played`)
+            .sort((a, b) => a.placement.index - b.placement.index)
+            .map(c => c.placement.faceUp);
+        await click(0);
+        expect(faceUp(0)).toEqual([true]);
+        expect(faceUp(1)).toEqual([]);
+        await everyonePlays(1); // AS vs AH: a battle
+        await everyonePlays(0, 1);
+        expect(faceUp(0)).toEqual([true, false]);
+    });
+
     it("counts successive battles", async () => {
         await deal(["2S", "KS", "3S", "AS"], ["4H", "KH", "5H", "AH"]);
         await playRound(); // AS vs AH
