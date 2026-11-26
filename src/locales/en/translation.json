@@ -121,9 +121,17 @@
     "tapYourPile": "Tap your pile to play",
     "tapYourPiles": "Each player taps their pile to play",
     "battle": "Battle! One card face down, then one face up",
-    "youWonRound": "You take the cards",
-    "computerWonRound": "The computer takes the cards",
-    "playerWonRound": "{{name}} takes the cards"
+    "battleToPlay": "Battle! To play: {{names}}",
+    "toPlay": "To play: {{names}}",
+    "youWonCards_one": "You take {{count}} card",
+    "youWonCards_other": "You take {{count}} cards",
+    "computerWonCards_one": "The computer takes {{count}} card",
+    "computerWonCards_other": "The computer takes {{count}} cards",
+    "playerWonCards_one": "{{name}} takes {{count}} card",
+    "playerWonCards_other": "{{name}} takes {{count}} cards",
+    "eliminated_one": "{{names}} is out",
+    "eliminated_other": "{{names}} are out",
+    "eliminatedTag": "Out · {{place}}"
   },
   "newGame": "New game",
   "resumeGame": "Resume the game",
@@ -157,7 +165,7 @@
       },
       {
         "title": "With a keyboard",
-        "text": "Enter or Space on your pile plays a card. Between two players, the top player plays with the A key and the bottom one with the L key."
+        "text": "Enter or Space on your pile plays a card. With several players, each one has a key, written on their pile: L, A, G, P, X, M."
       }
     ],
     "spider": [
@@ -194,5 +202,9 @@
     "install": "Update",
     "later": "Later",
     "failed": "Could not check. Are you connected to the Internet?"
-  }
+  },
+  "place_ordinal_one": "{{count}}st",
+  "place_ordinal_two": "{{count}}nd",
+  "place_ordinal_few": "{{count}}rd",
+  "place_ordinal_other": "{{count}}th"
 }

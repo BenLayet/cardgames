@@ -1,33 +1,258 @@
-/* the player who taps each half of the table: name, and how many cards they hold */
+/* The seats around the table, for 2 to 6 players: the pile of each player, their colour, name and card count.
+   The layout (game.component.layout.ts) places the piles and the cards played; the cards are drawn under the seats. */
+.battle-table {
+    --battle-seat-0: #e2566a;
+    --battle-seat-1: #e8c35a;
+    --battle-seat-2: #6aa6e8;
+    --battle-seat-3: #b08ae6;
+    --battle-seat-4: #e88a4a;
+    --battle-seat-5: #4fd1c5;
+    --battle-card-w: 100px;
+    --battle-card-h: calc(var(--battle-card-w) * 200 / 143);
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.battle-table .card-image {
+    width: var(--battle-card-w);
+    height: var(--battle-card-h);
+}
+
+.battle-cards {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    pointer-events: none;
+}
+
 .battle-seat {
-    min-width: 0;
-    padding: var(--app-space-2) var(--app-space-1);
+    display: contents;
 }
 
-.battle-seat--player2 {
-    margin-right: auto;
+/* the place of the pile: the cards lie in it */
+.battle-pile,
+.battle-played {
+    position: absolute;
+    width: var(--battle-card-w);
+    height: var(--battle-card-h);
+    translate: -50% -50%;
+    border-radius: var(--app-radius-sm);
+    z-index: 2;
 }
 
-.battle-seat--player1 {
-    margin-left: auto;
-    text-align: right;
+.battle-pile {
+    border: 1px dashed var(--app-line);
+}
+
+/* the cards lie over the pile: its focus outline is drawn around them */
+.battle-pile:focus-visible {
+    outline-offset: 8px;
+}
+
+/* the outline of a pile: its colour while it waits for its player, ruby in a battle, gold for the round winner */
+.battle-pile::after {
+    content: "";
+    position: absolute;
+    inset: -5px;
+    border-radius: calc(var(--app-radius-sm) + 5px);
+    border: 2px solid var(--seat-color);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.battle-seat--waiting .battle-pile::after {
+    opacity: 1;
+    animation: battle-pile-pulse 1.4s ease-in-out infinite;
+}
+
+.battle-seat--tied .battle-pile::after {
+    opacity: 1;
+    animation: none;
+    border-color: #d9475c;
+    border-width: 3px;
+}
+
+.battle-seat--tied.battle-seat--waiting .battle-pile::after {
+    animation: battle-pile-pulse 1.4s ease-in-out infinite;
+}
+
+.battle-seat--winner .battle-pile::after {
+    opacity: 1;
+    animation: none;
+    border-color: var(--app-gold);
+    border-width: 3px;
+    box-shadow: 0 0 18px var(--app-gold);
+}
+
+@keyframes battle-pile-pulse {
+    0%, 100% {
+        opacity: .25;
+        scale: .98;
+    }
+    50% {
+        opacity: 1;
+        scale: 1.03;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .battle-seat--waiting .battle-pile::after {
+        animation: none;
+    }
+}
+
+/* out of the battle: a veil of felt over the pile and the cards played, which stay there for the winner */
+.battle-seat--dimmed .battle-pile,
+.battle-seat--dimmed .battle-played {
+    background: #0a2a1fa0;
+}
+
+.battle-seat--dimmed .battle-seat-label {
+    opacity: .5;
+}
+
+/* out of the game: the seat stays in place, greyed */
+.battle-seat--out .battle-seat-label {
+    opacity: .6;
+}
+
+.battle-seat--out .battle-seat-name span {
+    text-decoration: line-through;
+    text-decoration-color: #f4eee280;
+}
+
+/* the name and card count, next to the pile, away from the centre of the table */
+.battle-seat-label {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    width: max-content;
+    max-width: 7rem;
+    pointer-events: none;
+}
+
+.battle-pile--label-below .battle-seat-label {
+    top: calc(100% + 6px);
+    left: 50%;
+    translate: -50% 0;
+}
+
+.battle-pile--label-above .battle-seat-label {
+    bottom: calc(100% + 14px);
+    left: 50%;
+    translate: -50% 0;
+}
+
+.battle-pile--label-left .battle-seat-label {
+    right: calc(100% + 8px);
+    top: 50%;
+    translate: 0 -50%;
+    align-items: flex-end;
+}
+
+.battle-pile--label-right .battle-seat-label {
+    left: calc(100% + 8px);
+    top: 50%;
+    translate: 0 -50%;
+    align-items: flex-start;
 }
 
 .battle-seat-name {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    max-width: 100%;
+    font-weight: 700;
+    font-size: .85rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    color: var(--app-ink);
+}
+
+.battle-seat-name span {
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
-    color: var(--app-gold);
-    font-family: var(--app-font-display), serif;
-    font-size: clamp(0.9rem, 3.4vw, 1.4rem);
-    line-height: 1.2;
+}
+
+.battle-seat-dot {
+    flex: none;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--seat-color);
+    box-shadow: 0 0 0 1.5px #0000004d;
+}
+
+.battle-seat-bot {
+    flex: none;
+    color: var(--app-muted);
 }
 
 .battle-seat-count {
-    font-size: 0.85rem;
-    font-weight: 700;
+    font-size: .8rem;
+    font-weight: 600;
     color: var(--app-muted);
     font-variant-numeric: tabular-nums;
+}
+
+.battle-seat-tag {
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    background: #00000073;
+    color: var(--app-muted);
+    border-radius: 4px;
+    padding: 1px 5px;
+}
+
+/* the key of the player, written on their pile on a computer */
+.battle-keycap {
+    display: none;
+    position: absolute;
+    right: -8px;
+    bottom: -8px;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 5px;
+    place-items: center;
+    font-weight: 700;
+    font-size: .8rem;
+    color: #1d1d1f;
+    background: linear-gradient(#fff, #e3ddd0);
+    border-radius: 5px;
+    box-shadow: 0 2px 0 #a99f8c, 0 3px 4px #00000066;
+    pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .battle-keycap {
+        display: grid;
+    }
+}
+
+.battle-seat--out .battle-keycap {
+    display: none;
+}
+
+/* how many cards the round winner takes */
+.battle-won-count {
+    position: absolute;
+    left: 50%;
+    top: -14px;
+    translate: -50% 0;
+    z-index: 1;
+    font-weight: 700;
+    font-size: .8rem;
+    color: #2a1d06;
+    background: var(--app-gold);
+    border-radius: 10px;
+    padding: 1px 7px;
+    white-space: nowrap;
 }
 
 /* a game without actions: the status line goes down to the bottom of the table */
@@ -37,25 +262,4 @@ body:has(.table-status):not(:has(.table-actions)) {
 
 body:not(:has(.table-actions)) .table-status {
     bottom: calc(var(--app-frame) + var(--app-space-2) + env(safe-area-inset-bottom, 0px));
-}
-
-/* the stack at the top grows upwards: keep it below the app bar */
-.battle-row-top {
-    padding-top: 8px;
-}
-
-/* the empty slot of the cards won, before any round is won */
-.battle-won-pile {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: var(--app-space-1);
-    text-align: center;
-    font-size: 0.8rem;
-    color: var(--app-muted);
-}
-
-/* the cards lie over the pile: its focus outline is drawn around them */
-.battle-pile:focus-visible {
-    outline-offset: 8px;
 }

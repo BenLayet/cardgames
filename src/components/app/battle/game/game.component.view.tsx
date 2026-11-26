@@ -1,155 +1,184 @@
 import {useSofter} from "@softer-components/redux-adapter";
+import {type CSSProperties, type KeyboardEvent, type PointerEvent, useEffect, useEffectEvent, useMemo, useRef} from "react";
+import {useTranslation} from "react-i18next";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faRobot} from "@fortawesome/free-solid-svg-icons";
 
 import type {GameContract} from "./game.component.ts";
-import {type KeyboardEvent, type PointerEvent, useEffect, useEffectEvent, useRef} from "react";
 import {useMeasure} from "../../../../hooks/useMeasure.ts";
 import {AnimatedCardView, type LayoutState} from "../../../card/AnimatedCardView.tsx";
-import type {CardPlacement} from "../../../../model/deck.model.ts";
+import type {CardPlacement, StackLocation} from "../../../../model/deck.model.ts";
 import {Fireworks} from "../../../fireworks/Fireworks.tsx";
 import {Tomatoes} from "../../../tomatoes/Tomatoes.tsx";
 import {EndMessage} from "../../../end-message/EndMessage.tsx";
-import {useTranslation} from "react-i18next";
 import {TableActions} from "../../../navigation/TableActions.tsx";
+import {nearestSeat, type TableLayout, tableLayout} from "./game.component.layout.ts";
+import type {SeatView} from "./game.component.selectors.ts";
 
-// the keys of the two players sharing a keyboard: one at each end of the middle row
-const PLAYER1_KEY = "l";
-const PLAYER2_KEY = "a";
+// the keys of the players sharing a keyboard, from seat 0 to seat 5: far apart, so that each one has room for a hand,
+// and at the same place on AZERTY and QWERTY keyboards except A and M
+export const PLAYER_KEYS = ["l", "a", "g", "p", "x", "m"] as const;
 
 // the cards are dealt one after the other, to each player in turn
 const DEAL_STAGGER_MS = 20;
-const dealDelayMs = ({stackLocation, index}: CardPlacement) =>
-    (index * 2 + (stackLocation.startsWith("seat1") ? 1 : 0)) * DEAL_STAGGER_MS;
+const seatOf = (location: StackLocation) => Number(/^seat(\d+)/.exec(location)?.[1] ?? 0);
+const dealDelayMs = (seatCount: number) => ({stackLocation, index}: CardPlacement) =>
+    (index * seatCount + seatOf(stackLocation)) * DEAL_STAGGER_MS;
 
 export const View = ({path = ""}) => {
+    const [v] = useSofter<GameContract>(path);
+    // the table is laid out again for another number of players
+    return <Table key={v.seatCount} path={path}/>;
+};
+
+const Table = ({path}: { path: string }) => {
     const [v, d] = useSofter<GameContract>(path);
     const {t} = useTranslation();
-    const gameRef = useRef<HTMLDivElement>(null);
-    const deckRef = useRef<HTMLDivElement>(null);
-    const player1RemainingCardsRef = useRef<HTMLDivElement>(null);
-    const player1BeingPlayedCardsRef = useRef<HTMLDivElement>(null);
-    const player2RemainingCardsRef = useRef<HTMLDivElement>(null);
-    const player2BeingPlayedCardsRef = useRef<HTMLDivElement>(null);
-    // where each stack is drawn, measured once the empty stack containers are laid out
-    const layoutState = useMeasure((): LayoutState => ({
-        table: deckRef.current?.getBoundingClientRect(),
-        stackLocations: {
-            deck: deckRef.current?.getBoundingClientRect(),
-            seat1Pile: player2RemainingCardsRef.current?.getBoundingClientRect(),
-            seat1Played: player2BeingPlayedCardsRef.current?.getBoundingClientRect(),
-            seat0Pile: player1RemainingCardsRef.current?.getBoundingClientRect(),
-            seat0Played: player1BeingPlayedCardsRef.current?.getBoundingClientRect(),
-        }
-    }), [gameRef]);
-    // against the computer the whole table plays for player 1,
-    // between two humans each one taps their own half: player 2 sits at the top.
-    // A pointer down is handled for each finger, so both players can tap at the same time
+    const tableRef = useRef<HTMLDivElement>(null);
+    const size = useMeasure(() => {
+        const rect = tableRef.current?.getBoundingClientRect();
+        return rect ? {width: rect.width, height: rect.height} : null;
+    }, [tableRef]);
+    const layout: TableLayout | null = useMemo(
+        () => size && size.width > 0 && v.seatCount > 0 ? tableLayout(v.seatCount, size.width, size.height) : null,
+        [size, v.seatCount]);
+    // the cards are drawn from the top left corner of the table: each stack is where the layout puts it
+    const layoutState: LayoutState | null = useMemo(() => {
+        if (!layout || !size) return null;
+        const corner = ({x, y}: { x: number, y: number }) => ({left: x - layout.cardWidth / 2, top: y - layout.cardHeight / 2});
+        const stackLocations: LayoutState["stackLocations"] = {deck: corner({x: size.width / 2, y: size.height / 2})};
+        layout.seats.forEach((seat, index) => {
+            stackLocations[`seat${index}Pile`] = corner(seat.pile);
+            stackLocations[`seat${index}Played`] = corner(seat.played);
+        });
+        return {table: {left: 0, top: 0}, stackLocations};
+    }, [layout, size]);
+
+    const humanSeats = v.seats.flatMap((seat, index) => !seat.isComputer && seat.rank === null ? [index] : []);
+    // against the computer the whole table plays for the player; between humans each one taps near their own pile.
+    // A pointer down is handled for each finger, so that several players can tap at the same time
     // (a click is not fired when two fingers touch the screen together)
     const onTableClicked = (event: PointerEvent<HTMLDivElement>) => {
+        if (v.isSolo || !layout) {
+            d.playerClicked(0);
+            return;
+        }
         const table = event.currentTarget.getBoundingClientRect();
-        if (!v.isSolo && event.clientY < table.top + table.height / 2) d.playerClicked(1);
-        else d.playerClicked(0);
+        const seat = nearestSeat(layout, humanSeats, {x: event.clientX - table.left, y: event.clientY - table.top});
+        if (seat !== null) d.playerClicked(seat);
     };
-    // with the keyboard: Enter or Space on a pile plays it; between two humans, each one also has a key
-    const onPileKey = (play: () => void) => (event: KeyboardEvent) => {
+    // with the keyboard: Enter or Space on a pile plays it; between humans, each one also has a key
+    const onPileKey = (seat: number) => (event: KeyboardEvent) => {
         if (event.key !== "Enter" && event.key !== " ") return;
         event.preventDefault();
-        play();
+        d.playerClicked(seat);
     };
     const onKey = useEffectEvent((event: globalThis.KeyboardEvent) => {
         if (v.isSolo || v.hasGameEnded || event.repeat || event.target instanceof HTMLInputElement) return;
-        const key = event.key.toLowerCase();
-        if (key === PLAYER2_KEY) d.playerClicked(1);
-        if (key === PLAYER1_KEY) d.playerClicked(0);
+        const seat = PLAYER_KEYS.indexOf(event.key.toLowerCase() as typeof PLAYER_KEYS[number]);
+        if (seat >= 0 && seat < v.seatCount) d.playerClicked(seat);
     });
     useEffect(() => {
         const listener = (event: globalThis.KeyboardEvent) => onKey(event);
         window.addEventListener("keydown", listener);
         return () => window.removeEventListener("keydown", listener);
     }, []);
-    const pile = (play: () => void, key: string | null) => ({
-        tabIndex: 0,
-        role: "button",
-        "aria-label": key ? t("battleStatus.playPileWithKey", {key: key.toUpperCase()}) : t("battleStatus.playPile"),
-        "aria-keyshortcuts": key?.toUpperCase(),
-        title: key ? t("battleStatus.playPileWithKey", {key: key.toUpperCase()}) : undefined,
-        onKeyDown: onPileKey(play),
-    });
-    const hasPlayer1WonGame = v.gameWinner === 0;
-    const hasPlayer2WonGame = v.gameWinner === 1;
-    const winnerName = hasPlayer1WonGame ? v.seats[0].name : v.seats[1]?.name ?? null;
-    // each half of the table shows whose it is, and how many cards they hold
-    const seatName = (name: string | null, number: 1 | 2) => {
-        if (name) return name;
-        if (v.isSolo) return number === 1 ? t("battleStatus.you") : t("computer");
-        return t("playerNumber", {number});
+
+    const seatName = (index: number) => {
+        const seat = v.seats[index];
+        if (seat.name) return seat.name;
+        if (v.isSolo) return index === 0 ? t("battleStatus.you") : t("computer");
+        return t("playerNumber", {number: index + 1});
     };
-    const seatLabel = (name: string | null, number: 1 | 2, count: number) =>
-        <div className={`battle-seat battle-seat--player${number}`}>
-            <div className="battle-seat-name">{seatName(name, number)}</div>
-            <div className="battle-seat-count">{t("cardCountShort", {count})}</div>
-        </div>;
+    const names = (seats: number[]) => seats.map(seatName).join(", ");
+    const waiting = v.seats.flatMap((seat, index) => seat.canPlay && !seat.isComputer ? [index] : []);
     // what to do, then who won the last round
     const status = () => {
         if (v.hasGameEnded) return null;
-        if (v.battleCount > 0) return t("battleStatus.battle");
+        if (v.roundWinner !== null) return wonCards(v.roundWinner);
+        if (v.battleCount > 0) return v.isSolo || waiting.length === 0 ? t("battleStatus.battle") : t("battleStatus.battleToPlay", {names: names(waiting)});
         if (!v.hasPlayed) return v.isSolo ? t("battleStatus.tapYourPile") : t("battleStatus.tapYourPiles");
-        if (v.lastRoundWinner === null) return null;
-        const winnerNumber = v.lastRoundWinner === 0 ? 1 : 2;
-        const typedName = v.seats[v.lastRoundWinner].name;
-        if (!typedName && v.isSolo) return winnerNumber === 1 ? t("battleStatus.youWonRound") : t("battleStatus.computerWonRound");
-        return t("battleStatus.playerWonRound", {name: seatName(typedName, winnerNumber)});
+        if (!v.isSolo && v.areCardsOnTable && waiting.length > 0) return t("battleStatus.toPlay", {names: names(waiting)});
+        const eliminated = v.seats.flatMap((seat, index) => seat.eliminatedRound === v.roundNumber - 1 ? [index] : []);
+        if (!v.areCardsOnTable && eliminated.length > 0 && !v.isSolo) return t("battleStatus.eliminated", {names: names(eliminated), count: eliminated.length});
+        return v.lastRoundWinner === null ? null : wonCards(v.lastRoundWinner);
     };
+    const wonCards = (seat: number) => {
+        const count = v.lastWonCount;
+        if (v.isSolo && !v.seats[seat].name) return seat === 0 ? t("battleStatus.youWonCards", {count}) : t("battleStatus.computerWonCards", {count});
+        return t("battleStatus.playerWonCards", {name: seatName(seat), count});
+    };
+    const place = (rank: number) => t("place", {count: rank, ordinal: true});
+
+    const seatClass = (seat: SeatView) => [
+        "battle-seat",
+        seat.canPlay && !seat.isComputer && "battle-seat--waiting",
+        seat.isTied && "battle-seat--tied",
+        seat.isDimmed && "battle-seat--dimmed",
+        seat.isRoundWinner && "battle-seat--winner",
+        seat.rank !== null && !v.hasGameEnded && "battle-seat--out",
+    ].filter(Boolean).join(" ");
+
     return <>
-        <div ref={gameRef} className="battle-table vstack justify-content-between" onPointerDown={onTableClicked}>
-            <div style={{position: "absolute", bottom: 0, right: 0, zIndex: 1000}}>
-                <div ref={deckRef} className="card-stack-container" style={{borderStyle: "none"}}>
-                    {layoutState && v.cardsWithLocation.map(c =>
-                        <AnimatedCardView key={c.card} card={c.card} placement={c.placement} layoutState={layoutState}
-                                          entry={v.isRestored ? "inPlace" : dealDelayMs(c.placement)}/>)}
-                </div>
-            </div>
-            <div className="battle-row-top d-flex justify-content-end align-items-start">
-                {seatLabel(v.seats[1]?.name ?? null, 2, v.seats[1]?.cardCount ?? 0)}
-                <div ref={player2RemainingCardsRef} className="card-stack-container battle-pile"
-                     {...(v.isSolo ? {} : pile(() => d.playerClicked(1), PLAYER2_KEY))}/>
-            </div>
-            <div className="d-flex position-relative">
-                {v.battleCount > 0 &&
+        <div ref={tableRef} className="battle-table" onPointerDown={onTableClicked}
+             style={layout ? {"--battle-card-w": `${layout.cardWidth}px`} as CSSProperties : undefined}>
+            {layout && v.seats.map((seat, index) => {
+                const {pile, played, labelSide} = layout.seats[index];
+                const key = v.isSolo ? null : PLAYER_KEYS[index];
+                const isPlayable = !seat.isComputer && seat.rank === null;
+                return <div key={index} className={seatClass(seat)} style={{"--seat-color": `var(--battle-seat-${index})`} as CSSProperties}>
+                    <div className="battle-played" style={{left: played.x, top: played.y}}/>
+                    <div className={`battle-pile battle-pile--label-${labelSide}`} style={{left: pile.x, top: pile.y}}
+                         {...(isPlayable ? {
+                             tabIndex: 0,
+                             role: "button",
+                             "aria-label": key ? t("battleStatus.playPileWithKey", {key: key.toUpperCase()}) : t("battleStatus.playPile"),
+                             "aria-keyshortcuts": key?.toUpperCase(),
+                             title: key ? t("battleStatus.playPileWithKey", {key: key.toUpperCase()}) : undefined,
+                             onKeyDown: onPileKey(index),
+                         } : {})}>
+                        {key && isPlayable && <span className="battle-keycap" aria-hidden="true">{key.toUpperCase()}</span>}
+                        {seat.isRoundWinner && <span className="battle-won-count">+{v.lastWonCount}</span>}
+                        <div className="battle-seat-label">
+                            <div className="battle-seat-name">
+                                <i className="battle-seat-dot"/>
+                                {seat.isComputer && <FontAwesomeIcon icon={faRobot} className="battle-seat-bot"/>}
+                                <span>{seatName(index)}</span>
+                            </div>
+                            {seat.rank !== null && !v.hasGameEnded
+                                ? <span className="battle-seat-tag">{t("battleStatus.eliminatedTag", {place: place(seat.rank)})}</span>
+                                : <span className="battle-seat-count">{t("cardCountShort", {count: seat.cardCount})}</span>}
+                        </div>
+                    </div>
+                </div>;
+            })}
+            {v.battleCount > 0 &&
+                <div className="battle-message-anchor">
                     <div key={v.battleCount} className="battle-message">
                         {t("battle")}{v.battleCount > 1 && ` x${v.battleCount}`}
-                    </div>}
-                <div className="flex-grow-1 d-flex justify-content-end">
-                    <div ref={player1BeingPlayedCardsRef} className="card-stack-container"/>
-                </div>
-                <div className="flex-grow-1">
-                    <div ref={player2BeingPlayedCardsRef} className="card-stack-container"/>
-                </div>
-            </div>
-            <div className="d-flex align-items-end">
-                <div ref={player1RemainingCardsRef} className="card-stack-container battle-pile"
-                     {...pile(() => d.playerClicked(0), v.isSolo ? null : PLAYER1_KEY)}/>
-                {seatLabel(v.seats[0]?.name ?? null, 1, v.seats[0]?.cardCount ?? 0)}
+                    </div>
+                </div>}
+            <div className="battle-cards">
+                {layoutState && v.cardsWithLocation.map(c =>
+                    <AnimatedCardView key={c.card} card={c.card} placement={c.placement} layoutState={layoutState}
+                                      entry={v.isRestored ? "inPlace" : dealDelayMs(v.seatCount)(c.placement)}/>)}
             </div>
         </div>
         <TableActions status={status()}/>
         {v.hasGameEnded && <EndMessage onPlayAgain={() => d.playAgainRequested()} onMenu={() => d.menuRequested()}>
-            {v.isSolo && hasPlayer1WonGame && <>
+            {v.isSolo && v.gameWinner === 0 && <>
                 <Fireworks/>
                 <h2>{t("victory")}</h2>
-            </>
-            }
-            {v.isSolo && hasPlayer2WonGame && <>
+            </>}
+            {v.isSolo && v.gameWinner === 1 && <>
                 <h2>{t("defeat")}</h2>
                 <Tomatoes/>
-            </>
-            }
-            {!v.isSolo && (hasPlayer1WonGame || hasPlayer2WonGame) && <>
+            </>}
+            {!v.isSolo && v.gameWinner !== null && <>
                 <Fireworks/>
-                <h2>{winnerName ? t("namedPlayerWins", {name: winnerName}) : t("playerWins", {number: hasPlayer1WonGame ? 1 : 2})}</h2>
-            </>
-            }
+                <h2>{t("namedPlayerWins", {name: seatName(v.gameWinner)})}</h2>
+            </>}
             {v.isTiedGame && <h2>{t("tie")}</h2>}
-        </EndMessage>
-        }
-    </>
+        </EndMessage>}
+    </>;
 };
