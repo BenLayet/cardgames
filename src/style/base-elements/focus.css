@@ -1,0 +1,18 @@
+/* the control that has the keyboard focus is always outlined, whatever its own style */
+:focus-visible,
+.btn:focus-visible,
+.form-control:focus-visible,
+.form-range:focus-visible {
+    outline: 3px solid var(--app-gold);
+    outline-offset: 2px;
+}
+
+/* a card has the outline drawn around its picture, above the cards that cover it */
+.spider-card:focus-visible {
+    outline: none;
+}
+
+.spider-card:focus-visible .card-image {
+    outline: 3px solid var(--app-gold);
+    outline-offset: 1px;
+}

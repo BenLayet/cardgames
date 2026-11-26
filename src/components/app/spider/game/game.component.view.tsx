@@ -1,6 +1,6 @@
 import {useSofter} from "@softer-components/redux-adapter";
 import {useTranslation} from "react-i18next";
-import {type CSSProperties, useEffect, useEffectEvent, useRef} from "react";
+import {type CSSProperties, type KeyboardEvent, useEffect, useEffectEvent, useRef} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faLightbulb, faRotateLeft} from "@fortawesome/free-solid-svg-icons";
 
@@ -72,6 +72,32 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
         if (isVictoryShown) onVictoryShown();
     }, [isVictoryShown]);
 
+    // the keyboard plays like a tap: Enter or Space on a card or an empty column, Escape puts the raised cards down
+    const onPress = (action: () => void) => (event: KeyboardEvent) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        event.stopPropagation();
+        action();
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+        if (event.key === "Escape" && v.selected !== null) d.columnClicked(v.selected.column);
+    };
+    // a card played with the keyboard keeps the focus where it goes, or the focus goes to the first card that can move
+    const focusedCardId = useRef<number | null>(null);
+    useEffect(() => {
+        const id = focusedCardId.current;
+        if (id === null || !columnsRef.current) return;
+        if (columnsRef.current.contains(document.activeElement)) return;
+        const card = columnsRef.current.querySelector<HTMLElement>(`[data-card-id="${id}"][tabindex]`)
+            ?? columnsRef.current.querySelector<HTMLElement>("[tabindex]");
+        card?.focus();
+    }, [v.columns]);
+
+    const onCardKey = (event: KeyboardEvent, cardId: number, position: { column: number, index: number }) => onPress(() => {
+        focusedCardId.current = cardId;
+        d.cardClicked(position);
+    })(event);
+
     const isSelected = (column: number, index: number) =>
         v.selected !== null && v.selected.column === column && index >= v.selected.index;
 
@@ -95,7 +121,7 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
                 </button>
         </div>
         <div ref={columnsRef} className={`spider-columns ${v.hintedMove ? "spider-columns--recommending" : ""}`}
-             {...pointer.handlers}>
+             {...pointer.handlers} onKeyDown={onKeyDown}>
             {v.columns.map((column, columnIndex) => {
                 const offsets = cardOffsets(column, measured?.room ?? MIN_COLUMN_ROOM, compact, measured?.cardHeight);
                 const columnClasses = [
@@ -103,13 +129,20 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
                     v.destinations.includes(columnIndex) ? "spider-column--destination" : "",
                     v.hintedMove?.to === columnIndex ? "spider-column--recommended" : "",
                 ].join(" ");
+                // an empty column where the raised cards can go takes the focus, a column with cards is reached by its cards
+                const isFocusableColumn = column.length === 0 && v.destinations.includes(columnIndex);
                 return <div key={columnIndex} data-column={columnIndex} className={columnClasses}
-                            style={{"--column-height": offsets[offsets.length - 1] ?? 0} as CSSProperties}>
+                            style={{"--column-height": offsets[offsets.length - 1] ?? 0} as CSSProperties}
+                            {...(isFocusableColumn ? {
+                                tabIndex: 0, role: "button", "aria-label": t("emptyColumn", {number: columnIndex + 1}),
+                                onKeyDown: onPress(() => d.columnClicked(columnIndex)),
+                            } : {})}>
                     {column.map((card, index) => {
                         const dragged = pointer.isDragged(columnIndex, index);
+                        const isMovable = index >= v.movableRunStarts[columnIndex];
                         const classes = [
                             "spider-card",
-                            index >= v.movableRunStarts[columnIndex] ? "spider-card--movable" : "",
+                            isMovable ? "spider-card--movable" : "",
                             card.faceUp && index < v.movableRunStarts[columnIndex] ? "spider-card--stuck" : "",
                             isSelected(columnIndex, index) ? "spider-card--selected" : "",
                             v.selected?.column === columnIndex && v.selected.index === index ? "spider-card--selected-first" : "",
@@ -121,7 +154,11 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
                                         // how far the selected run reaches below its first card, for its shadow
                                         "--selected-run-height": (offsets[offsets.length - 1] ?? 0) - offsets[index],
                                         transform: dragged ? `translate(${pointer.dragOffset.dx}px, ${pointer.dragOffset.dy}px)` : undefined,
-                                    } as CSSProperties}>
+                                    } as CSSProperties}
+                                    {...(isMovable ? {
+                                        tabIndex: 0, role: "button", "aria-pressed": isSelected(columnIndex, index),
+                                        onKeyDown: (event: KeyboardEvent) => onCardKey(event, card.id, {column: columnIndex, index}),
+                                    } : {})}>
                             <Face card={card.card} faceUp={card.faceUp}/>
                         </div>;
                     })}

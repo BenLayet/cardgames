@@ -1,7 +1,7 @@
 import {useSofter} from "@softer-components/redux-adapter";
 
 import type {GameContract} from "./game.component.ts";
-import {type PointerEvent, useRef} from "react";
+import {type KeyboardEvent, type PointerEvent, useEffect, useEffectEvent, useRef} from "react";
 import {useMeasure} from "../../../../hooks/useMeasure.ts";
 import {AnimatedCardView, type LayoutState} from "../../../card/AnimatedCardView.tsx";
 import {Fireworks} from "../../../fireworks/Fireworks.tsx";
@@ -9,6 +9,10 @@ import {Tomatoes} from "../../../tomatoes/Tomatoes.tsx";
 import {EndMessage} from "../../../end-message/EndMessage.tsx";
 import {useTranslation} from "react-i18next";
 import {TableActions} from "../../../navigation/TableActions.tsx";
+
+// the keys of the two players sharing a keyboard: one at each end of the middle row
+const PLAYER1_KEY = "l";
+const PLAYER2_KEY = "a";
 
 export const View = ({path = ""}) => {
     const [v, d] = useSofter<GameContract>(path);
@@ -43,6 +47,31 @@ export const View = ({path = ""}) => {
         if (!v.isPlayer2Computer && event.clientY < table.top + table.height / 2) d.player2Clicked();
         else d.player1Clicked();
     };
+    // with the keyboard: Enter or Space on a pile plays it; between two humans, each one also has a key
+    const onPileKey = (play: () => void) => (event: KeyboardEvent) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        play();
+    };
+    const onKey = useEffectEvent((event: globalThis.KeyboardEvent) => {
+        if (v.isPlayer2Computer || v.hasGameEnded || event.repeat || event.target instanceof HTMLInputElement) return;
+        const key = event.key.toLowerCase();
+        if (key === PLAYER2_KEY) d.player2Clicked();
+        if (key === PLAYER1_KEY) d.player1Clicked();
+    });
+    useEffect(() => {
+        const listener = (event: globalThis.KeyboardEvent) => onKey(event);
+        window.addEventListener("keydown", listener);
+        return () => window.removeEventListener("keydown", listener);
+    }, []);
+    const pile = (play: () => void, key: string | null) => ({
+        tabIndex: 0,
+        role: "button",
+        "aria-label": key ? t("battleStatus.playPileWithKey", {key: key.toUpperCase()}) : t("battleStatus.playPile"),
+        "aria-keyshortcuts": key?.toUpperCase(),
+        title: key ? t("battleStatus.playPileWithKey", {key: key.toUpperCase()}) : undefined,
+        onKeyDown: onPileKey(play),
+    });
     const winnerName = v.hasPlayer1WonGame ? v.player1Name : v.player2Name;
     // each half of the table shows whose it is, and how many cards they hold
     const seatName = (name: string | null, number: 1 | 2) => {
@@ -77,7 +106,8 @@ export const View = ({path = ""}) => {
             <div className="battle-row-top d-flex justify-content-end align-items-start">
                 {seatLabel(v.player2Name, 2, v.player2CardCount)}
                 <div ref={player2WonCardsRef} className="card-stack-container battle-won-pile">{t("battleStatus.wonPile")}</div>
-                <div ref={player2RemainingCardsRef} className="card-stack-container"/>
+                <div ref={player2RemainingCardsRef} className="card-stack-container battle-pile"
+                     {...(v.isPlayer2Computer ? {} : pile(() => d.player2Clicked(), PLAYER2_KEY))}/>
             </div>
             <div className="d-flex position-relative">
                 {v.battleCount > 0 &&
@@ -92,7 +122,8 @@ export const View = ({path = ""}) => {
                 </div>
             </div>
             <div className="d-flex align-items-end">
-                <div ref={player1RemainingCardsRef} className="card-stack-container"/>
+                <div ref={player1RemainingCardsRef} className="card-stack-container battle-pile"
+                     {...pile(() => d.player1Clicked(), v.isPlayer2Computer ? null : PLAYER1_KEY)}/>
                 <div ref={player1WonCardsRef} className="card-stack-container battle-won-pile">{t("battleStatus.wonPile")}</div>
                 {seatLabel(v.player1Name, 1, v.player1CardCount)}
             </div>
