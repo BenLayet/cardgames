@@ -36,8 +36,11 @@ export const useCardFlight = (
     const previousElements = useRef(new Map<string, HTMLElement>());
     const previousCount = useRef(sequences?.count ?? 0);
     // the sequences on their way to their place
-    const [collecting] = useState(counter);
-    const isCollecting = useSyncExternalStore(collecting.subscribe, () => collecting.value() > 0);
+    const [collecting] = useState(() => collector(sequences?.count ?? 0));
+    // a sequence completed in this render has not started to fly yet, but it is already on its way:
+    // what waits for it must not show for a moment before it leaves
+    const count = sequences?.count ?? 0;
+    const isCollecting = useSyncExternalStore(collecting.subscribe, () => collecting.flying() > 0 || count > collecting.seen());
     useLayoutEffect(() => {
         const elements = container.current?.querySelectorAll<HTMLElement>("[data-card-id]") ?? [];
         // a card still flying is seen where it is on screen, then measured where it lands:
@@ -60,9 +63,9 @@ export const useCardFlight = (
         previous.current = rects;
         const beforeElements = previousElements.current;
         previousElements.current = new Map([...elements].map(element => [element.dataset.cardId ?? "", element]));
-        const count = sequences?.count ?? 0;
         const countBefore = previousCount.current;
         previousCount.current = count;
+        collecting.see(count);
         if (resized || reduced || before.size === 0) return;
         const slotOf = (index: number) => sequences?.slots.current?.children.item(index) as HTMLElement | null | undefined;
         if (count > countBefore && container.current) {
@@ -72,8 +75,8 @@ export const useCardFlight = (
             const landing = collect(container.current, left, slotOf(count - 1));
             if (landing) {
                 // counted before the browser paints: what waits for the sequence never shows before it
-                collecting.add(1);
-                void landing.then(() => collecting.add(-1));
+                collecting.fly(1);
+                void landing.then(() => collecting.fly(-1));
             }
         }
         // after an undo, the cards of the sequence come back from its place
@@ -96,15 +99,24 @@ export const useCardFlight = (
     return isCollecting;
 };
 
-// A number that components can follow; a change renders them again before the browser paints
-const counter = () => {
-    let value = 0;
+// The sequences in flight and the number of completed sequences already seen, which components can follow:
+// a change renders them again before the browser paints
+const collector = (initialCount: number) => {
+    let flying = 0;
+    let seen = initialCount;
     const listeners = new Set<() => void>();
+    const notify = () => listeners.forEach(listener => listener());
     return {
-        value: () => value,
-        add: (n: number) => {
-            value += n;
-            listeners.forEach(listener => listener());
+        flying: () => flying,
+        seen: () => seen,
+        fly: (n: number) => {
+            flying += n;
+            notify();
+        },
+        see: (count: number) => {
+            if (count === seen) return;
+            seen = count;
+            notify();
         },
         subscribe: (listener: () => void) => {
             listeners.add(listener);
