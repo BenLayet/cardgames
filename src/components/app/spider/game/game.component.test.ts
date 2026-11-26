@@ -166,18 +166,23 @@ describe("spider game", () => {
         expect(values().moveCount()).toBe(0);
     });
 
-    it("shows the next hint at each press, and forgets it after a move", async () => {
-        await deal([cards("_2C", "8S"), cards("9H"), cards("9S")]);
+    it("selects the cards of the next hint at each press, and forgets it after a move", async () => {
+        await deal([cards("_2C", "8S"), cards("9H"), cards("9S"), cards("_4C", "5D"), cards("6C")]);
 
         await store.when(event("hintRequested"));
-        expect(values().hint()).toEqual({kind: "move", move: {from: {column: 0, index: 1}, to: 2}});
+        expect(values().hint()).toEqual({kind: "move", from: {column: 0, index: 1}});
+        expect(values().selected()).toEqual({column: 0, index: 1});
+        expect(values().destinations()).toEqual([1, 2]);
         await store.when(event("hintRequested"));
-        expect(values().hint()).toEqual({kind: "move", move: {from: {column: 0, index: 1}, to: 1}});
+        expect(values().selected()).toEqual({column: 3, index: 1});
+        expect(values().destinations()).toEqual([4]);
         await store.when(event("hintRequested"));
-        expect(values().hint()).toEqual({kind: "move", move: {from: {column: 0, index: 1}, to: 2}});
+        expect(values().selected()).toEqual({column: 0, index: 1});
 
-        await store.when(event("cardsDropped", {from: {column: 0, index: 1}, to: 2}));
+        await store.when(event("columnClicked", 2));
+        expect(values().columns()[2].map(card => card.card)).toEqual(["9S", "8S"]);
         expect(values().hint()).toBeNull();
+        expect(values().selected()).toBeNull();
     });
 
     it("deals a row from the stock only when no column is empty", async () => {

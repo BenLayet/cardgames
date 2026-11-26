@@ -298,8 +298,16 @@ describe("hints", () => {
     it("suggests using an empty column in words only, after the moves onto a card", () => {
         const t = table([cards("_2C", "8S"), cards("9S"), cards("_3D", "4H"), cards()]);
         expect(findHints(t)).toEqual([
-            {kind: "move", move: {from: {column: 0, index: 1}, to: 1}},
+            {kind: "move", from: {column: 0, index: 1}},
             {kind: "emptyColumn"},
+        ]);
+    });
+
+    it("suggests each card that can move once, whatever the number of its destinations", () => {
+        const t = full([cards("_2C", "8S"), cards("9H"), cards("9S"), cards("_4C", "5D"), cards("6C")]);
+        expect(findHints(t)).toEqual([
+            {kind: "move", from: {column: 0, index: 1}},
+            {kind: "move", from: {column: 3, index: 1}},
         ]);
     });
 

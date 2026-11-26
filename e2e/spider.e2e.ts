@@ -87,6 +87,16 @@ test("a clicked card that can go to several columns waits for one of them, an em
     await expect(cardsIn(page, 0)).toHaveCount(1);
 });
 
+test("a hint raises the cards to move and shows their columns in blue, as a click would", async ({page}) => {
+    await resume(page, PLAYING);
+    await page.getByRole("button", {name: "Indice"}).click();
+    await expect(card(page, 0, 1)).toHaveClass(/spider-card--selected/);
+    for (const destination of [1, 2, 3]) await expect(column(page, destination)).toHaveClass(/spider-column--destination/);
+    await column(page, 1).click();
+    await expect(cardsIn(page, 1)).toHaveCount(2);
+    await expect(cardsIn(page, 0)).toHaveCount(1);
+});
+
 test("a moved card flies straight from where it was to where it goes", async ({page}) => {
     await resume(page, PLAYING);
     const queen = page.locator(`[data-column="4"] [data-index="1"]`);

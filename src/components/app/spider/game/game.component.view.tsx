@@ -72,10 +72,6 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
 
     const isSelected = (column: number, index: number) =>
         v.selected !== null && v.selected.column === column && index >= v.selected.index;
-    const hintedMove = v.hint?.kind === "move" ? v.hint.move : null;
-    const isHinted = (column: number, index: number) =>
-        hintedMove !== null && hintedMove.from.column === column && index >= hintedMove.from.index;
-    const isHintedTarget = (column: number) => hintedMove?.to === column;
 
     return <div ref={tableRef} className="spider-table vstack gap-3" style={{"--spider-columns": v.columns.length} as CSSProperties}>
         <AppBar title={t("games.spider")} level={2} onBack={onBack}/>
@@ -103,7 +99,6 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
                 const columnClasses = [
                     "spider-column",
                     v.destinations.includes(columnIndex) ? "spider-column--destination" : "",
-                    isHintedTarget(columnIndex) ? "spider-column--hint" : "",
                 ].join(" ");
                 return <div key={columnIndex} data-column={columnIndex} className={columnClasses}
                             style={{"--column-height": offsets[offsets.length - 1] ?? 0} as CSSProperties}>
@@ -115,7 +110,6 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
                             card.faceUp && index < v.movableRunStarts[columnIndex] ? "spider-card--stuck" : "",
                             isSelected(columnIndex, index) ? "spider-card--selected" : "",
                             dragged ? "spider-card--dragged" : "",
-                            isHinted(columnIndex, index) ? "spider-card--hint" : "",
                         ].join(" ");
                         return <div key={card.id} data-index={index} data-card-id={card.id} data-rank={spiderRank(card.card)} className={classes}
                                     style={{
