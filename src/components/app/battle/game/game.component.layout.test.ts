@@ -1,6 +1,6 @@
 import {describe, expect, it} from "vitest";
 
-import {nearestSeat, tableLayout} from "./game.component.layout.ts";
+import {nearestSeat, playerKeys, tableLayout} from "./game.component.layout.ts";
 
 const sizes = [[390, 760], [844, 300], [1280, 680]] as const;
 
@@ -74,5 +74,13 @@ describe("Bataille table layout", () => {
         const layout = tableLayout(6, 844, 300, [4]);
         expect(layout.seats.filter(seat => seat.hasSlot)).toHaveLength(1);
         expect(layout.seats[4].played).toEqual({x: 422, y: 150});
+    });
+});
+
+describe("keys of the players", () => {
+    it("gives each of two players the key on the side of their pile, and L, A, G, P, X, M from three players", () => {
+        expect(playerKeys(2)).toEqual(["a", "l"]);
+        expect(playerKeys(3)).toEqual(["l", "a", "g", "p", "x", "m"]);
+        expect(playerKeys(6)).toEqual(["l", "a", "g", "p", "x", "m"]);
     });
 });

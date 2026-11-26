@@ -154,3 +154,11 @@ export const nearestSeat = (layout: TableLayout, seats: number[], point: Point):
         const distance = (index: number) => Math.hypot(layout.seats[index].pile.x - point.x, layout.seats[index].pile.y - point.y);
         return distance(seat) < distance(nearest) ? seat : nearest;
     }, null);
+
+// the keys of the players sharing a keyboard, from seat 0 to seat 5: far apart, so that each one has room for a hand,
+// and at the same place on AZERTY and QWERTY keyboards except A and M
+const PLAYER_KEYS = ["l", "a", "g", "p", "x", "m"] as const;
+// two players sit in opposite corners: each one plays with the key on the side of their pile,
+// player 1 (bottom left) with A, player 2 (top right) with L
+const TWO_PLAYER_KEYS = ["a", "l"] as const;
+export const playerKeys = (seatCount: number): readonly string[] => seatCount === 2 ? TWO_PLAYER_KEYS : PLAYER_KEYS;
