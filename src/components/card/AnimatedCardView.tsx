@@ -1,4 +1,5 @@
 import {CardView} from "./CardView.tsx";
+import {CompactCardView} from "./CompactCardView.tsx";
 import {useLayoutEffect, useRef} from "react";
 import type {Card, CardPlacement, StackLocation} from "../../model/deck.model.ts";
 
@@ -8,6 +9,8 @@ interface CardProps {
     layoutState: LayoutState;
     // how the card comes on the table: dealt after a delay in milliseconds, or already in place (a resumed game)
     entry?: number | "inPlace";
+    // a small card is drawn compact, so that its value and suit can be read
+    compact?: boolean;
 }
 
 type Coordinates = { top: number, left: number };
@@ -57,7 +60,7 @@ const MOVE_MS = 500;
 // slows down towards the end, like a card sliding on the felt
 const EASE_OUT = "cubic-bezier(0.33, 1, 0.68, 1)";
 
-export function AnimatedCardView({card, placement, layoutState, entry = 0}: CardProps) {
+export function AnimatedCardView({card, placement, layoutState, entry = 0, compact = false}: CardProps) {
     const ref = useRef<HTMLDivElement>(null);
     const movement = useRef<Animation | null>(null);
     // only the first movement of the card is its entry on the table
@@ -82,7 +85,7 @@ export function AnimatedCardView({card, placement, layoutState, entry = 0}: Card
 
     return (
         <div ref={ref} style={{position: "absolute", zIndex: placement.index + placement.stackIndex * 100}}>
-            <CardView card={card} faceUp={placement.faceUp}/>
+            {compact ? <CompactCardView card={card} faceUp={placement.faceUp}/> : <CardView card={card} faceUp={placement.faceUp}/>}
         </div>
     );
 }

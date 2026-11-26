@@ -19,6 +19,8 @@ import type {SeatView} from "./game.component.selectors.ts";
 // and at the same place on AZERTY and QWERTY keyboards except A and M
 export const PLAYER_KEYS = ["l", "a", "g", "p", "x", "m"] as const;
 
+// a card narrower than this is drawn compact, as in the Spider
+const COMPACT_CARD_MAX_WIDTH_PX = 60;
 // the cards are dealt one after the other, to each player in turn
 const DEAL_STAGGER_MS = 20;
 const seatOf = (location: StackLocation) => Number(/^seat(\d+)/.exec(location)?.[1] ?? 0);
@@ -175,7 +177,8 @@ const Table = ({path}: { path: string }) => {
             <div className="battle-cards">
                 {layoutState && v.cardsWithLocation.map(c =>
                     <AnimatedCardView key={c.card} card={c.card} placement={c.placement} layoutState={layoutState}
-                                      entry={v.isRestored ? "inPlace" : dealDelayMs(v.seatCount)(c.placement)}/>)}
+                                      entry={v.isRestored ? "inPlace" : dealDelayMs(v.seatCount)(c.placement)}
+                                      compact={layout !== null && layout.cardWidth < COMPACT_CARD_MAX_WIDTH_PX}/>)}
             </div>
         </div>
         <TableActions status={status()}/>

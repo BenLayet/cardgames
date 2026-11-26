@@ -13,6 +13,12 @@
     height: var(--battle-card-h);
 }
 
+/* the compact cards (spider.css) are sized from the Spider card size */
+.battle-table {
+    --spider-card-w: var(--battle-card-w);
+    --spider-card-h: var(--battle-card-h);
+}
+
 .battle-cards {
     position: absolute;
     top: 0;
