@@ -117,6 +117,7 @@
     "you": "Toi",
     "tapYourPile": "Touche ton paquet pour jouer",
     "tapYourPiles": "Chacun touche son paquet pour jouer",
+    "yourTurn": "À ton tour de jouer",
     "battle": "Bataille\u00a0! Une carte cachée, puis une visible",
     "battleToPlay": "Bataille\u00a0! Au tour de\u00a0: {{names}}",
     "toPlay": "Au tour de\u00a0: {{names}}",
