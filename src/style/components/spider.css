@@ -119,14 +119,12 @@
 }
 
 /* where the selected cards can go: the top card of the column, or the empty column itself */
-.spider-column--destination > .spider-card:last-child .card-image,
-.spider-column--hint > .spider-card:last-child .card-image {
+.spider-column--destination > .spider-card:last-child .card-image {
     filter: drop-shadow(0 0 5px var(--spider-highlight)) drop-shadow(0 0 2px var(--spider-highlight));
 }
 
 /* an empty column: only the place of its first card */
-.spider-column--destination:empty::before,
-.spider-column--hint:empty::before {
+.spider-column--destination:empty::before {
     content: "";
     display: block;
     height: var(--spider-card-h);
@@ -139,18 +137,12 @@
     cursor: pointer;
 }
 
-/* the hint: the cards to move pulse in yellow, and where they go is shown in blue, like a destination to choose */
-.spider-column--hint {
-    --spider-highlight: #4fd1ff;
-}
-
-.spider-card--hint,
+/* the hint to deal a row: the stock pulses in yellow (the cards to move are selected instead) */
 .spider-hint {
     --spider-highlight: #ffe14d;
     animation: spider-hint-pulse 0.8s ease-in-out 3;
 }
 
-.spider-card--hint .card-image,
 .spider-hint .card-image {
     filter: drop-shadow(0 0 5px var(--spider-highlight)) drop-shadow(0 0 2px var(--spider-highlight));
 }

@@ -8,6 +8,7 @@ import {
     dealRow,
     clickDestinationsOf,
     destinationsOf,
+    findHints,
     moveCards,
     type Table,
 } from "../../../../model/spider.model.ts";
@@ -66,10 +67,12 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
         state.table = previous;
         state.moveCount++;
     },
-    // each press shows the next hint
+    // each press shows the next hint: cards to move are selected, as if they had been clicked
     hintRequested: ({state}) => {
-        state.selected = null;
-        state.hintIndex = state.hintIndex === null ? 0 : state.hintIndex + 1;
+        const hints = findHints(state.table);
+        state.hintIndex = state.hintIndex === null ? 0 : (state.hintIndex + 1) % hints.length;
+        const hint = hints[state.hintIndex];
+        state.selected = hint.kind === "move" ? hint.from : null;
     },
     gameEnded: ({state}) => {
         state.gameEnded = true;
