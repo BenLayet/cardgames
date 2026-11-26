@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import { execSync } from 'node:child_process'
@@ -20,6 +20,15 @@ const appVersion = {
   builtAt: new Date().toISOString(),
 }
 
+// version.json, next to the application: the installed application reads it on the server to show
+// the number of a newer version (it is not precached by the service worker, which only keeps js, css, html…)
+const versionFile = (): Plugin => ({
+  name: 'version-file',
+  generateBundle() {
+    this.emitFile({ type: 'asset', fileName: 'version.json', source: JSON.stringify(appVersion) })
+  },
+})
+
 // https://vite.dev/config/
 export default defineConfig({
   define: {
@@ -27,9 +36,11 @@ export default defineConfig({
   },
   plugins: [
     react(),
-    // makes the game installable on phones and playable offline
+    versionFile(),
+    // makes the game installable on phones and playable offline;
+    // a newer version waits until the player chooses to switch to it (About, or the banner)
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       includeAssets: ['favicon.ico', 'favicon.svg', 'favicon-32x32.png', 'apple-touch-icon.png'],
       manifest: {
         // English by default, French for a device in French (browsers without localized manifests use the default)
