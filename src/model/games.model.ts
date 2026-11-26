@@ -18,6 +18,10 @@ export type GameDefinition = {
     suitCountOptions: number[];
     // the numbers of suits that cannot be chosen with a number of cards
     unavailableSuitCounts?: Partial<Record<number, readonly number[]>>;
+    // the players are either one human against the computer ("solo"), or only humans
+    soloOrHumans?: boolean;
+    // the smallest number of cards dealt to each player: the deck sizes that give fewer cannot be chosen
+    minCardsPerPlayer?: number;
     // what each number of cards or of suits changes, shown under it on the setup screen
     cardCountHints?: Partial<Record<number, OptionHint>>;
     suitCountHints?: Partial<Record<number, OptionHint>>;
@@ -29,8 +33,7 @@ export const isSuitCountAvailable = (game: GameDefinition, cardCount: number, su
 
 // The player ranges of the games that are not playable yet are only indicative
 export const GAMES: readonly GameDefinition[] = [
-    // the current battle engine has exactly two players
-    {id: "bataille", minPlayers: 2, maxPlayers: 2, computerOpponents: true, available: true, cardCountOptions: [12, 16, 32, 52], suitCountOptions: []},
+    {id: "bataille", minPlayers: 2, maxPlayers: 6, computerOpponents: true, soloOrHumans: true, minCardsPerPlayer: 4, available: true, cardCountOptions: [12, 16, 32, 52], suitCountOptions: []},
     {id: "batailleCorse", minPlayers: 2, maxPlayers: 6, computerOpponents: true, available: false, cardCountOptions: [], suitCountOptions: []},
     {id: "spider", minPlayers: 1, maxPlayers: 1, computerOpponents: false, available: true, cardCountOptions: [26, 52, 104], suitCountOptions: [1, 2, 4], unavailableSuitCounts: {26: [4]},
         cardCountHints: {26: "short", 52: "medium", 104: "long"}, suitCountHints: {1: "easy", 2: "normal", 4: "hard"}},
@@ -48,8 +51,17 @@ export const gameDefinition = (id: GameId): GameDefinition => {
 export const defaultSeats = (game: GameDefinition, playerCount = game.minPlayers): SeatKind[] =>
     Array.from({length: playerCount}, (_, i) => i > 0 && game.computerOpponents ? "computer" : "human");
 
+// one human against the computer, or only humans
+export const soloSeats = (humanCount: number): SeatKind[] =>
+    humanCount <= 1 ? ["human", "computer"] : Array.from({length: humanCount}, () => "human");
+
+// whether each player gets enough cards from a deck of this size
+export const isCardCountAvailable = (game: GameDefinition, cardCount: number, playerCount: number) =>
+    game.cardCountOptions.includes(cardCount) && Math.floor(cardCount / playerCount) >= (game.minCardsPerPlayer ?? 0);
+
 export const areValidSeats = (game: GameDefinition, seats: unknown): seats is SeatKind[] =>
     Array.isArray(seats)
+    && (!game.soloOrHumans || seats.every(s => s === "human") || (seats.length === 2 && seats[1] === "computer"))
     && seats.length >= game.minPlayers
     && seats.length <= game.maxPlayers
     && seats[0] === "human"

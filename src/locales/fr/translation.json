@@ -204,5 +204,11 @@
     "failed": "Impossible de vérifier. Es-tu connecté à Internet\u00a0?"
   },
   "place_ordinal_one": "{{count}}er",
-  "place_ordinal_other": "{{count}}e"
+  "place_ordinal_other": "{{count}}e",
+  "solo": "Solo",
+  "soloHint": "Tu joues contre l'ordinateur.",
+  "cardsEach_one": "{{count}} carte chacun",
+  "cardsEach_other": "{{count}} cartes chacun",
+  "setAside_one": "{{count}} mise de côté",
+  "setAside_other": "{{count}} mises de côté"
 }

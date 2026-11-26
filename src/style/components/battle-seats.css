@@ -1,12 +1,6 @@
 /* The seats around the table, for 2 to 6 players: the pile of each player, their colour, name and card count.
    The layout (game.component.layout.ts) places the piles and the cards played; the cards are drawn under the seats. */
 .battle-table {
-    --battle-seat-0: #e2566a;
-    --battle-seat-1: #e8c35a;
-    --battle-seat-2: #6aa6e8;
-    --battle-seat-3: #b08ae6;
-    --battle-seat-4: #e88a4a;
-    --battle-seat-5: #4fd1c5;
     --battle-card-w: 100px;
     --battle-card-h: calc(var(--battle-card-w) * 200 / 143);
     position: relative;
@@ -178,7 +172,8 @@
     text-overflow: ellipsis;
 }
 
-.battle-seat-dot {
+.battle-seat-dot,
+.seat-dot {
     flex: none;
     width: 10px;
     height: 10px;

@@ -206,5 +206,11 @@
   "place_ordinal_one": "{{count}}st",
   "place_ordinal_two": "{{count}}nd",
   "place_ordinal_few": "{{count}}rd",
-  "place_ordinal_other": "{{count}}th"
+  "place_ordinal_other": "{{count}}th",
+  "solo": "Solo",
+  "soloHint": "You play against the computer.",
+  "cardsEach_one": "{{count}} card each",
+  "cardsEach_other": "{{count}} cards each",
+  "setAside_one": "{{count}} set aside",
+  "setAside_other": "{{count}} set aside"
 }

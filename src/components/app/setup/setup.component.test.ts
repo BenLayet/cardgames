@@ -85,7 +85,50 @@ describe("setup screen", () => {
     it("plays the battle against the computer by default", () => {
         const {values} = setup();
         expect(values().seats()).toEqual(["human", "computer"]);
-        expect(values().isPlayerCountFixed()).toBe(true);
+        expect(values().isSolo()).toBe(true);
+        expect(values().humanCount()).toBe(1);
+    });
+
+    it("offers Solo or 2 to 6 human players in the battle, and remembers the choice", async () => {
+        const {store, values, settingsService} = setup();
+        expect(values().isSoloOrHumans()).toBe(true);
+        expect(values().humanCountOptions()).toEqual([1, 2, 3, 4, 5, 6]);
+
+        await store.when({name: "setPlayersRequested", payload: 4, statePath: []});
+        expect(values().seats()).toEqual(["human", "human", "human", "human"]);
+        expect(values().isSolo()).toBe(false);
+        expect(settingsService.load().seats.bataille).toEqual(["human", "human", "human", "human"]);
+
+        await store.when({name: "setPlayersRequested", payload: 1, statePath: []});
+        expect(values().seats()).toEqual(["human", "computer"]);
+    });
+
+    it("leaves out the numbers of cards that give fewer than 4 cards to each player", async () => {
+        const {store, values, settingsService} = setup({cardCounts: {bataille: 16}});
+        await store.when({name: "setPlayersRequested", payload: 5, statePath: []});
+
+        expect(values().availableCardCounts()).toEqual([false, false, true, true]);
+        expect(values().cardCount()).toBe(32);
+        expect(settingsService.load().cardCounts.bataille).toBe(32);
+        await store.when({name: "setCardCountRequested", payload: 12, statePath: []});
+        expect(values().cardCount()).toBe(32);
+    });
+
+    it("says how many cards each player gets, and how many are set aside", async () => {
+        const {store, values} = setup({cardCounts: {bataille: 52}});
+        await store.when({name: "setPlayersRequested", payload: 5, statePath: []});
+        expect(values().cardsPerPlayer()).toBe(10);
+        expect(values().setAsideCount()).toBe(2);
+    });
+
+    it("starts with a number of cards that the stored players can play", () => {
+        const {values} = setup({cardCounts: {bataille: 12}, seats: {bataille: ["human", "human", "human", "human", "human", "human"]}});
+        expect(values().cardCount()).toBe(32);
+    });
+
+    it("ignores stored seats that mix humans and the computer in the battle", () => {
+        const {values} = setup({seats: {bataille: ["human", "human", "computer"]}});
+        expect(values().seats()).toEqual(["human", "computer"]);
     });
 
     it("lets a second human take the seat of the computer, and remembers it", async () => {

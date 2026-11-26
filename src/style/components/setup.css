@@ -37,6 +37,33 @@
     flex: 1 1 0;
 }
 
+/* Solo, then 2 to 6 players */
+.setup-player-count {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.setup-player-count > .btn {
+    flex: 1 1 0;
+    min-width: 0;
+    padding-inline: 0.5rem;
+}
+
+.setup-player-count > .btn:first-child {
+    flex-grow: 1.8;
+}
+
+.setup-solo-hint,
+.setup-deal-hint {
+    margin: var(--app-space-2) 0 0;
+    color: var(--app-muted);
+}
+
+.setup-player-names {
+    display: grid;
+    gap: var(--app-space-2);
+}
+
 /* the name of a seat, typed on the felt */
 .seat-name {
     flex: 1 1 auto;
@@ -75,5 +102,11 @@
         align-items: flex-start;
         max-width: none;
         gap: var(--app-space-4) var(--app-space-6);
+    }
+
+    /* the names side by side, two by two */
+    .setup-player-names {
+        grid-template-columns: 1fr 1fr;
+        min-width: min(30rem, 55vw);
     }
 }
