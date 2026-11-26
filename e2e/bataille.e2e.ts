@@ -6,22 +6,29 @@ const seat = (pile: string[], extra = {}) => ({pile, played: [], playedUp: [], r
 const lastRound = {
     version: 2,
     seats: [seat(["4S"]), seat(["2H", "AH"]), seat(["5D"]), seat([], {rank: 4, eliminatedRound: 7})],
-    contenders: [0, 1, 2], step: "up", battleCount: 0, roundNumber: 12, lastRoundWinner: 1, lastWonCount: 3, setAsideCount: 0,
+    // the 12 other cards of the 16 were won by the players or set aside earlier
+    contenders: [0, 1, 2], step: "up", battleCount: 0, roundNumber: 12, lastRoundWinner: 1, lastWonCount: 3, setAsideCount: 12,
     hasPlayed: true, isSolo: false, playerNames: ["Ben", "Léa", "Tom", "Inès"],
 };
 
-const resume = async (page: Page, game: object) => {
-    await page.addInitScript(saved => {
+// one game is kept for each kind of game: the players and the number of cards chosen on the menu
+const resume = async (page: Page, game: object, players: string, cardCount: string, names: string[] = []) => {
+    await page.addInitScript(([saved, key]) => {
         localStorage.setItem("cardgames.settings", JSON.stringify({schemaVersion: 3, language: "fr"}));
-        localStorage.setItem("cardgames.bataille.game", JSON.stringify(saved));
-    }, game);
+        localStorage.setItem(key, JSON.stringify(saved));
+    }, [game, `cardgames.bataille.game.${players.split(" ")[0]}.${cardCount}`] as const);
     await page.goto("/");
     await page.getByText("Bataille").first().click();
+    await expect(page.getByRole("button", {name: "Reprendre la partie"})).toHaveCount(0);
+    await page.getByRole("button", {name: players}).click();
+    await page.getByRole("button", {name: cardCount, exact: true}).click();
+    // the game goes on with the names typed on the menu
+    for (const [index, name] of names.entries()) await page.getByRole("textbox").nth(index).fill(name);
     await page.getByRole("button", {name: "Reprendre la partie"}).click();
 };
 
 test("each player plays with their own key, and the end screen ranks every player", async ({page}) => {
-    await resume(page, lastRound);
+    await resume(page, lastRound, "4 joueurs", "16", lastRound.playerNames);
     await expect(page.getByRole("status")).toHaveText("Léa remporte 3 cartes");
 
     await page.keyboard.press("l");

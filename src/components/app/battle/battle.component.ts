@@ -13,7 +13,7 @@ import {gameDefinition} from "../../../model/games.model.ts";
 
 export type BattleDependencies = Dependencies & GameDependencies & SetupDependencies;
 export const battleDef = (dependencies: BattleDependencies): ComponentDef<Contract, State> => ({
-    initialState: createInitialState(dependencies.battleSaveService.hasSavedGame()),
+    initialState: createInitialState(dependencies.battleSaveService.savedVariants()),
     selectors,
     uiEvents,
     stateUpdaters,

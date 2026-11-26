@@ -14,7 +14,7 @@ export const eventForwarders = {
                 {
                     from: "resumeRequested",
                     to: "restoreRequested",
-                    withPayload: ({values}) => ({isSolo: values.isSolo(), playerNames: values.playerNames()}),
+                    withPayload: ({values}) => ({isSolo: values.isSolo(), playerNames: values.playerNames(), cardCount: values.cardCount()}),
                 },
             ],
             listeners: [

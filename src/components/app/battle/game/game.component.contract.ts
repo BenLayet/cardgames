@@ -39,7 +39,7 @@ export type Events = EventsContract<
         playerClicked: number,
         playerPlayed: number,
         dealRequested: BattlePlayers & { cardCount: number, playerCount: number },
-        restoreRequested: BattlePlayers,
+        restoreRequested: BattlePlayers & { cardCount: number },
         // dealSeed: how the cards collected in each round are shuffled; without it, they are collected in seat order
         dealCompleted: { piles: Card[][], setAsideCount: number, dealSeed?: number },
         gameRestored: SavedBattleGame,
