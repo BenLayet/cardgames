@@ -18,7 +18,7 @@ const PLAYER2_KEY = "a";
 // the cards are dealt one after the other, to each player in turn
 const DEAL_STAGGER_MS = 20;
 const dealDelayMs = ({stackLocation, index}: CardPlacement) =>
-    (index * 2 + (stackLocation.startsWith("player2") ? 1 : 0)) * DEAL_STAGGER_MS;
+    (index * 2 + (stackLocation.startsWith("seat1") ? 1 : 0)) * DEAL_STAGGER_MS;
 
 export const View = ({path = ""}) => {
     const [v, d] = useSofter<GameContract>(path);
@@ -27,21 +27,17 @@ export const View = ({path = ""}) => {
     const deckRef = useRef<HTMLDivElement>(null);
     const player1RemainingCardsRef = useRef<HTMLDivElement>(null);
     const player1BeingPlayedCardsRef = useRef<HTMLDivElement>(null);
-    const player1WonCardsRef = useRef<HTMLDivElement>(null);
     const player2RemainingCardsRef = useRef<HTMLDivElement>(null);
     const player2BeingPlayedCardsRef = useRef<HTMLDivElement>(null);
-    const player2WonCardsRef = useRef<HTMLDivElement>(null);
     // where each stack is drawn, measured once the empty stack containers are laid out
     const layoutState = useMeasure((): LayoutState => ({
         table: deckRef.current?.getBoundingClientRect(),
         stackLocations: {
             deck: deckRef.current?.getBoundingClientRect(),
-            player2RemainingCards: player2RemainingCardsRef.current?.getBoundingClientRect(),
-            player2BeingPlayedCards: player2BeingPlayedCardsRef.current?.getBoundingClientRect(),
-            player2WonCards: player2WonCardsRef.current?.getBoundingClientRect(),
-            player1RemainingCards: player1RemainingCardsRef.current?.getBoundingClientRect(),
-            player1BeingPlayedCards: player1BeingPlayedCardsRef.current?.getBoundingClientRect(),
-            player1WonCards: player1WonCardsRef.current?.getBoundingClientRect(),
+            seat1Pile: player2RemainingCardsRef.current?.getBoundingClientRect(),
+            seat1Played: player2BeingPlayedCardsRef.current?.getBoundingClientRect(),
+            seat0Pile: player1RemainingCardsRef.current?.getBoundingClientRect(),
+            seat0Played: player1BeingPlayedCardsRef.current?.getBoundingClientRect(),
         }
     }), [gameRef]);
     // against the computer the whole table plays for player 1,
@@ -50,8 +46,8 @@ export const View = ({path = ""}) => {
     // (a click is not fired when two fingers touch the screen together)
     const onTableClicked = (event: PointerEvent<HTMLDivElement>) => {
         const table = event.currentTarget.getBoundingClientRect();
-        if (!v.isPlayer2Computer && event.clientY < table.top + table.height / 2) d.player2Clicked();
-        else d.player1Clicked();
+        if (!v.isSolo && event.clientY < table.top + table.height / 2) d.playerClicked(1);
+        else d.playerClicked(0);
     };
     // with the keyboard: Enter or Space on a pile plays it; between two humans, each one also has a key
     const onPileKey = (play: () => void) => (event: KeyboardEvent) => {
@@ -60,10 +56,10 @@ export const View = ({path = ""}) => {
         play();
     };
     const onKey = useEffectEvent((event: globalThis.KeyboardEvent) => {
-        if (v.isPlayer2Computer || v.hasGameEnded || event.repeat || event.target instanceof HTMLInputElement) return;
+        if (v.isSolo || v.hasGameEnded || event.repeat || event.target instanceof HTMLInputElement) return;
         const key = event.key.toLowerCase();
-        if (key === PLAYER2_KEY) d.player2Clicked();
-        if (key === PLAYER1_KEY) d.player1Clicked();
+        if (key === PLAYER2_KEY) d.playerClicked(1);
+        if (key === PLAYER1_KEY) d.playerClicked(0);
     });
     useEffect(() => {
         const listener = (event: globalThis.KeyboardEvent) => onKey(event);
@@ -78,11 +74,13 @@ export const View = ({path = ""}) => {
         title: key ? t("battleStatus.playPileWithKey", {key: key.toUpperCase()}) : undefined,
         onKeyDown: onPileKey(play),
     });
-    const winnerName = v.hasPlayer1WonGame ? v.player1Name : v.player2Name;
+    const hasPlayer1WonGame = v.gameWinner === 0;
+    const hasPlayer2WonGame = v.gameWinner === 1;
+    const winnerName = hasPlayer1WonGame ? v.seats[0].name : v.seats[1]?.name ?? null;
     // each half of the table shows whose it is, and how many cards they hold
     const seatName = (name: string | null, number: 1 | 2) => {
         if (name) return name;
-        if (v.isPlayer2Computer) return number === 1 ? t("battleStatus.you") : t("computer");
+        if (v.isSolo) return number === 1 ? t("battleStatus.you") : t("computer");
         return t("playerNumber", {number});
     };
     const seatLabel = (name: string | null, number: 1 | 2, count: number) =>
@@ -94,11 +92,11 @@ export const View = ({path = ""}) => {
     const status = () => {
         if (v.hasGameEnded) return null;
         if (v.battleCount > 0) return t("battleStatus.battle");
-        if (!v.hasPlayed) return v.isPlayer2Computer ? t("battleStatus.tapYourPile") : t("battleStatus.tapYourPiles");
+        if (!v.hasPlayed) return v.isSolo ? t("battleStatus.tapYourPile") : t("battleStatus.tapYourPiles");
         if (v.lastRoundWinner === null) return null;
-        const winnerNumber = v.lastRoundWinner === "player1" ? 1 : 2;
-        const typedName = winnerNumber === 1 ? v.player1Name : v.player2Name;
-        if (!typedName && v.isPlayer2Computer) return winnerNumber === 1 ? t("battleStatus.youWonRound") : t("battleStatus.computerWonRound");
+        const winnerNumber = v.lastRoundWinner === 0 ? 1 : 2;
+        const typedName = v.seats[v.lastRoundWinner].name;
+        if (!typedName && v.isSolo) return winnerNumber === 1 ? t("battleStatus.youWonRound") : t("battleStatus.computerWonRound");
         return t("battleStatus.playerWonRound", {name: seatName(typedName, winnerNumber)});
     };
     return <>
@@ -111,10 +109,9 @@ export const View = ({path = ""}) => {
                 </div>
             </div>
             <div className="battle-row-top d-flex justify-content-end align-items-start">
-                {seatLabel(v.player2Name, 2, v.player2CardCount)}
-                <div ref={player2WonCardsRef} className="card-stack-container battle-won-pile">{t("battleStatus.wonPile")}</div>
+                {seatLabel(v.seats[1]?.name ?? null, 2, v.seats[1]?.cardCount ?? 0)}
                 <div ref={player2RemainingCardsRef} className="card-stack-container battle-pile"
-                     {...(v.isPlayer2Computer ? {} : pile(() => d.player2Clicked(), PLAYER2_KEY))}/>
+                     {...(v.isSolo ? {} : pile(() => d.playerClicked(1), PLAYER2_KEY))}/>
             </div>
             <div className="d-flex position-relative">
                 {v.battleCount > 0 &&
@@ -130,26 +127,25 @@ export const View = ({path = ""}) => {
             </div>
             <div className="d-flex align-items-end">
                 <div ref={player1RemainingCardsRef} className="card-stack-container battle-pile"
-                     {...pile(() => d.player1Clicked(), v.isPlayer2Computer ? null : PLAYER1_KEY)}/>
-                <div ref={player1WonCardsRef} className="card-stack-container battle-won-pile">{t("battleStatus.wonPile")}</div>
-                {seatLabel(v.player1Name, 1, v.player1CardCount)}
+                     {...pile(() => d.playerClicked(0), v.isSolo ? null : PLAYER1_KEY)}/>
+                {seatLabel(v.seats[0]?.name ?? null, 1, v.seats[0]?.cardCount ?? 0)}
             </div>
         </div>
         <TableActions status={status()}/>
         {v.hasGameEnded && <EndMessage onPlayAgain={() => d.playAgainRequested()} onMenu={() => d.menuRequested()}>
-            {v.isPlayer2Computer && v.hasPlayer1WonGame && <>
+            {v.isSolo && hasPlayer1WonGame && <>
                 <Fireworks/>
                 <h2>{t("victory")}</h2>
             </>
             }
-            {v.isPlayer2Computer && v.hasPlayer2WonGame && <>
+            {v.isSolo && hasPlayer2WonGame && <>
                 <h2>{t("defeat")}</h2>
                 <Tomatoes/>
             </>
             }
-            {!v.isPlayer2Computer && (v.hasPlayer1WonGame || v.hasPlayer2WonGame) && <>
+            {!v.isSolo && (hasPlayer1WonGame || hasPlayer2WonGame) && <>
                 <Fireworks/>
-                <h2>{winnerName ? t("namedPlayerWins", {name: winnerName}) : t("playerWins", {number: v.hasPlayer1WonGame ? 1 : 2})}</h2>
+                <h2>{winnerName ? t("namedPlayerWins", {name: winnerName}) : t("playerWins", {number: hasPlayer1WonGame ? 1 : 2})}</h2>
             </>
             }
             {v.isTiedGame && <h2>{t("tie")}</h2>}

@@ -5,64 +5,77 @@ import type {AudioService} from "../../../../services/audio.service.ts";
 import type {SchedulerService} from "../../../../services/scheduler.service.ts";
 import {DELAYS_MS} from "./game.component.timings.ts";
 import type {BattleSaveService} from "../../../../services/battle-save.service.ts";
-
+import {COMPUTER_SEAT} from "./game.component.state.ts";
 
 export type Dependencies = {
     audioService: AudioService,
     schedulerService: SchedulerService,
     battleSaveService: BattleSaveService,
 };
+
+// every player gets the same number of cards: the cards left over are not dealt
+export const dealPiles = <T>(deck: T[], playerCount: number): T[][] => {
+    const perPlayer = Math.floor(deck.length / playerCount);
+    return Array.from({length: playerCount}, (_, seat) => deck.slice(seat * perPlayer, (seat + 1) * perPlayer));
+};
+
 export const effects = ({audioService, schedulerService, battleSaveService}: Dependencies): Effects<Contract> => {
     const after = (delayMs: number, callback: () => void) => {
         schedulerService.schedule(callback, delayMs);
     };
     return {
-        dealRequested: ({dealCompleted}, {payload: {cardCount}}) => {
+        dealRequested: ({dealCompleted}, {payload: {cardCount, playerCount}}) => {
             // forget whatever was still pending from a previous game
             schedulerService.cancelAll();
             // a new game replaces the one that could be resumed
             battleSaveService.clear();
-            const cardsToDeal = createDeck(cardCount);
-            const shuffledDeck = shuffleDeck(cardsToDeal);
-            const player1Cards = shuffledDeck.slice(0, cardsToDeal.length / 2);
-            const player2Cards = shuffledDeck.slice(cardsToDeal.length / 2, cardsToDeal.length);
-            after(DELAYS_MS.deal, () => dealCompleted({player1Cards, player2Cards}));
+            const deck = shuffleDeck(createDeck(cardCount));
+            const piles = dealPiles(deck, playerCount);
+            after(DELAYS_MS.deal, () => dealCompleted({piles, setAsideCount: cardCount % playerCount}));
         },
-        // the game goes on with the players chosen on the menu, which may have changed since the game was left
-        restoreRequested: ({gameRestored}, {payload: {isPlayer2Computer, playerNames}}) => {
+        // the game goes on with the players chosen on the menu, which may have changed since the game was left,
+        // as long as the number of players is the same
+        restoreRequested: ({gameRestored}, {payload: {isSolo, playerNames}}) => {
             schedulerService.cancelAll();
             const saved = battleSaveService.load();
-            if (saved !== null) gameRestored({...saved, isPlayer2Computer, playerNames});
+            if (saved === null) return;
+            const menuPlayerCount = isSolo ? 2 : playerNames.length;
+            gameRestored(menuPlayerCount === saved.seats.length ? {...saved, isSolo, playerNames} : saved);
         },
-        // the game is saved between two rounds, so that it can be resumed after going back or closing the application
-        readyForNextCards: (_, {values}) => {
-            if (!values.hasGameEnded() && !values.hasPlayer1WonGame() && !values.hasPlayer2WonGame() && !values.isTiedGame()) {
-                battleSaveService.save(values.savedGame());
-            }
+        // the game is saved between two rounds and two steps of a battle,
+        // so that it can be resumed after going back or closing the application
+        readyForNextCards: ({playerClicked}, {values}) => {
+            if (values.isGameOver() || values.hasGameEnded()) return;
+            battleSaveService.save(values.savedGame());
+            // the computer may have to lay a card that the player does not: a battle when the player has a single card left
+            const canPlay = values.canPlay();
+            if (values.isSolo() && canPlay[COMPUTER_SEAT] && !canPlay[0]) after(DELAYS_MS.computerAnswer, () => playerClicked(COMPUTER_SEAT));
         },
         // an ended game is not kept
         gameEnded: () => battleSaveService.clear(),
-        player1Clicked: () => audioService.stopAll(),
-        // the computer answers only when the click of player 1 played a card,
-        // otherwise an ignored click would make player 2 play alone once the next cards can be played
-        player1Played: ({player2Clicked}, {values}) => {
-            if (values.isPlayer2Computer()) after(DELAYS_MS.player2Answer, player2Clicked);
+        playerClicked: () => audioService.stopAll(),
+        // the computer answers only when the player's click played a card,
+        // otherwise an ignored click would make the computer play alone once the next cards can be played
+        playerPlayed: ({playerClicked}, {payload: index, values}) => {
+            if (values.isSolo() && index !== COMPUTER_SEAT && values.canPlay()[COMPUTER_SEAT]) {
+                after(DELAYS_MS.computerAnswer, () => playerClicked(COMPUTER_SEAT));
+            }
         },
         // Card flips
         suspenseCompleted: () => audioService.playCardSlide(),
-        player1RestackedRemainingCards: () => audioService.playCardSlide(),
-        player2RestackedRemainingCards: () => audioService.playCardSlide(),
         suspenseStarted: ({suspenseCompleted}) => after(DELAYS_MS.suspense, suspenseCompleted),
         reviewWinnerStarted: ({reviewWinnerCompleted}) => after(DELAYS_MS.reviewWinner, reviewWinnerCompleted),
-        hiddenPairRevealed: ({pairTransferred}) => {
+        hiddenCardsRevealed: ({cardsCollected}) => {
             audioService.playCardSlide();
-            after(DELAYS_MS.revealedPair, pairTransferred);
+            after(DELAYS_MS.revealedCards, cardsCollected);
         },
-        pairTransferPaused: ({pairTransferRequested}) => after(DELAYS_MS.pairTransferPause, pairTransferRequested),
-        player1WonGame: () => audioService.playApplause(),
-        // a human player 2 deserves applause too
-        player2WonGame: (_, {values}) => {
-            if (values.isPlayer2Computer()) audioService.playCrowdDisappointment();
+        cardsCollected: ({roundCompleted}) => {
+            audioService.playCardSlide();
+            after(DELAYS_MS.collected, roundCompleted);
+        },
+        // against the computer, the crowd is disappointed when the computer wins; any human deserves applause
+        gameWon: (_, {values}) => {
+            if (values.isSolo() && values.seats()[COMPUTER_SEAT].rank === 1) audioService.playCrowdDisappointment();
             else audioService.playApplause();
         },
     };

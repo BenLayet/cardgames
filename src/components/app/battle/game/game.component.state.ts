@@ -1,33 +1,51 @@
 import type {Card} from "../../../../model/deck.model.ts";
 
-export const PLAYERS = ["player1", "player2"] as const;
-export type PlayerId = (typeof PLAYERS)[number];
-export const opponentOf = (id: PlayerId): PlayerId => id === "player1" ? "player2" : "player1";
+// Bataille is played by 2 to 6 players, seated around the table: seat 0 at the bottom, the others clockwise
+export const MAX_SEATS = 6;
+// in a game against the computer, the computer plays the second seat
+export const COMPUTER_SEAT = 1;
 
-export const initialPlayerState = {
-    remainingCards: [] as Card[],
-    wonCards: [] as Card[],
-    beingPlayedCards: [] as Card[],
-    beingPlayedCardsUpStates: [] as boolean[],
+export const initialSeatState = {
+    // the pile of the player, from the bottom to the top: the top card is played first,
+    // the cards won go under it
+    pile: [] as Card[],
+    // the cards laid in front of the player during the round, the first one at index 0
+    played: [] as Card[],
+    playedUp: [] as boolean[],
     canPlay: false,
+    // the place of the player once they have no card left, 1 being the winner; null while they are in the game
+    rank: null as number | null,
+    // the round in which the player had no card left
+    eliminatedRound: null as number | null,
 };
 
 export const initialState = {
-    player1: initialPlayerState,
-    player2: initialPlayerState,
-    gameEnded: false,
-    roundWinner: null as PlayerId | null,
+    seats: [] as SeatState[],
+    // the seats still fighting for the cards of the round: all the players at first, then the tied ones in a battle
+    contenders: [] as number[],
+    // what the next card of each contender is: a face up card, or the face down card of a battle
+    step: "up" as "up" | "down",
+    // number of ties in the current round
+    battleCount: 0,
+    // rounds played since the deal, the first one is round 1
+    roundNumber: 1,
+    roundWinner: null as number | null,
     // who won the last round, kept until the next one is won, to be said on the status line
-    lastRoundWinner: null as PlayerId | null,
+    lastRoundWinner: null as number | null,
+    // how many cards the last round winner took
+    lastWonCount: 0,
+    // the cards that no player can win any more: left out of the deal, or lost by every player of a battle
+    setAsideCount: 0,
+    gameEnded: false,
     // whether a card was played since the deal, the first one is announced on the status line
     hasPlayed: false,
-    // otherwise a second human plays from the other side of the screen
-    isPlayer2Computer: true,
+    // one human against the computer, which plays the second seat; otherwise every seat is a human
+    isSolo: true,
     // the names typed on the setup screen, null for a player named after their number
     playerNames: [] as (string | null)[],
     // a resumed game shows its cards where they are, without dealing them
     isRestored: false,
-}
+};
 
 export type State = typeof initialState;
-export type PlayerState = typeof initialPlayerState;
+export type SeatState = typeof initialSeatState;

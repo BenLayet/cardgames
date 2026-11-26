@@ -1,116 +1,110 @@
-import type {SavedBattleGame, SavedBattlePlayer} from "../../../../services/battle-save.service.ts";
-import type {ExtractComponentValuesContract, Selectors,} from "@softer-components/types";
+import type {SavedBattleGame} from "../../../../services/battle-save.service.ts";
+import type {ExtractComponentValuesContract, Selectors} from "@softer-components/types";
 
-import {opponentOf, type PlayerId, PLAYERS, type PlayerState, type State} from "./game.component.state.ts";
+import type {State} from "./game.component.state.ts";
+import type {CardWithPlacement} from "../../../../model/deck.model.ts";
 import {
-    type Card,
-    type CardWithPlacement,
-    cardValue,
-    isFirstCardHigherValue,
-    type StackLocation
-} from "../../../../model/deck.model.ts";
+    areCardsOnTable,
+    cardCount,
+    gameWinner,
+    haveAllContendersPlayed,
+    isGameOver,
+    isInGame,
+    roundLeader,
+} from "./game.component.rules.ts";
 
-// Rules about one player
-const lastCard = (cards: Card[]) => cards[cards.length - 1];
-const isStackEmpty = (cards: Card[]) => cards.length === 0;
-const cardCount = (player: PlayerState) => player.remainingCards.length + player.wonCards.length;
-const shouldRestack = (player: PlayerState) => isStackEmpty(player.remainingCards) && !isStackEmpty(player.wonCards);
-const canPlay = (player: PlayerState) => player.canPlay && !shouldRestack(player);
-const playedCard = (player: PlayerState) => lastCard(player.beingPlayedCards);
+// a battle is going on: more than one player is tied, and the round has no winner yet
+const isBattleGoingOn = (state: State) => state.battleCount > 0 && state.roundWinner === null;
 
-// Rules about one player against the other
-const hasWonRound = (id: PlayerId) => (state: State) =>
-    isFirstCardHigherValue(playedCard(state[id]), playedCard(state[opponentOf(id)]));
-const hasWonGame = (id: PlayerId) => (state: State) =>
-    cardCount(state[opponentOf(id)]) === 0 && cardCount(state[id]) > 0;
-
-const isTiedGame = (state: State) => cardCount(state.player1) === 0 && cardCount(state.player2) === 0;
-const hasGameEnded = (state: State) => state.gameEnded;
-
-const isTopPairHidden = (state: State) => {
-    const upStates = state.player1.beingPlayedCardsUpStates;
-    return upStates.length > 0 && !upStates[upStates.length - 1];
-};
-const areCardsBeingPlayed = (state: State) => state.player1.beingPlayedCards.length > 0;
-
-// Number of battles in the current round: each revealed pair of equal cards (at even indexes) is a battle.
-// It is 0 when there is no battle or once the round has a winner.
-const battleCount = (state: State) => {
-    if (state.roundWinner !== null) return 0;
-    const {player1, player2} = state;
-    let count = 0;
-    for (let i = 0; i < player1.beingPlayedCards.length && i < player2.beingPlayedCards.length; i += 2) {
-        if (!player1.beingPlayedCardsUpStates[i] || !player2.beingPlayedCardsUpStates[i]) break;
-        if (cardValue(player1.beingPlayedCards[i]) !== cardValue(player2.beingPlayedCards[i])) break;
-        count++;
-    }
-    return count;
-};
-
-const haveBothPlayerPlayed = (state: State) =>
-    state.player2.beingPlayedCards.length === state.player1.beingPlayedCards.length && areCardsBeingPlayed(state);
-// cards at odd positions (1st, 3rd...) are shown, the ones in between are the hidden cards of a battle
-const shouldCardsBeShown = (state: State) => haveBothPlayerPlayed(state) && state.player1.beingPlayedCards.length % 2 === 1;
-
-// How each stack of a player is drawn on the table
-const STACKS = [
-    {name: "BeingPlayedCards", cards: (p: PlayerState) => p.beingPlayedCards, stackIndex: 3, messyLevel: 2, faceUp: (p: PlayerState, index: number) => p.beingPlayedCardsUpStates[index]},
-    {name: "RemainingCards", cards: (p: PlayerState) => p.remainingCards, stackIndex: 1, messyLevel: 2, faceUp: () => false},
-    {name: "WonCards", cards: (p: PlayerState) => p.wonCards, stackIndex: 2, messyLevel: 10, faceUp: () => true},
-] as const;
-
+// How each stack of a seat is drawn on the table: the cards played lie over the piles
 const cardsWithLocation = (state: State): CardWithPlacement[] =>
-    STACKS.flatMap(stack => PLAYERS.flatMap(id => {
-        const player = state[id];
-        const stackLocation: StackLocation = `${id}${stack.name}`;
-        return stack.cards(player).map((card, index) => ({
+    state.seats.flatMap((seat, seatIndex) => [
+        ...seat.pile.map((card, index) => ({
             card,
-            placement: {
-                stackLocation,
-                stackIndex: stack.stackIndex,
-                index,
-                faceUp: stack.faceUp(player, index),
-                messyLevel: stack.messyLevel,
-            }
-        }));
-    }));
+            placement: {stackLocation: `seat${seatIndex}Pile` as const, stackIndex: 1, index, faceUp: false, messyLevel: 2},
+        })),
+        ...seat.played.map((card, index) => ({
+            card,
+            placement: {stackLocation: `seat${seatIndex}Played` as const, stackIndex: 3, index, faceUp: seat.playedUp[index], messyLevel: 2},
+        })),
+    ]);
 
-const savedPlayer = ({remainingCards, wonCards, beingPlayedCards, beingPlayedCardsUpStates}: PlayerState): SavedBattlePlayer =>
-    ({remainingCards, wonCards, beingPlayedCards, beingPlayedCardsUpStates});
+const savedGame = (state: State): SavedBattleGame => ({
+    seats: state.seats.map(({pile, played, playedUp, rank, eliminatedRound}) => ({pile, played, playedUp, rank, eliminatedRound})),
+    contenders: state.contenders,
+    step: state.step,
+    battleCount: state.battleCount,
+    roundNumber: state.roundNumber,
+    lastRoundWinner: state.lastRoundWinner,
+    lastWonCount: state.lastWonCount,
+    setAsideCount: state.setAsideCount,
+    hasPlayed: state.hasPlayed,
+    isSolo: state.isSolo,
+    playerNames: state.playerNames,
+});
+
+// what each seat shows on the table
+export type SeatView = {
+    name: string | null,
+    cardCount: number,
+    canPlay: boolean,
+    isComputer: boolean,
+    // tied on the highest card, in the battle
+    isTied: boolean,
+    // waiting, out of the battle: their cards stay on the table and go to the winner
+    isDimmed: boolean,
+    isRoundWinner: boolean,
+    rank: number | null,
+    eliminatedRound: number | null,
+};
+const seatViews = (state: State): SeatView[] => state.seats.map((seat, index) => ({
+    name: state.isSolo ? null : state.playerNames[index] ?? null,
+    cardCount: cardCount(seat),
+    canPlay: seat.canPlay,
+    isComputer: state.isSolo && index === 1,
+    isTied: isBattleGoingOn(state) && state.contenders.includes(index),
+    isDimmed: isBattleGoingOn(state) && isInGame(seat) && !state.contenders.includes(index),
+    isRoundWinner: state.roundWinner === index,
+    rank: seat.rank,
+    eliminatedRound: seat.eliminatedRound,
+}));
 
 export const selectors = {
-    canPlayer1Play: (state: State) => canPlay(state.player1),
-    canPlayer2Play: (state: State) => canPlay(state.player2),
-    shouldCardsBeShown,
-    haveBothPlayerPlayed,
-    hasPlayer1WonRound: hasWonRound("player1"),
-    hasPlayer2WonRound: hasWonRound("player2"),
+    seatCount: (state: State) => state.seats.length,
+    seats: seatViews,
+    canPlay: (state: State) => state.seats.map(seat => seat.canPlay),
+    haveAllPlayed: haveAllContendersPlayed,
+    // the cards are turned over once every contender has laid a face up card
+    shouldCardsBeShown: (state: State) => haveAllContendersPlayed(state) && state.step === "up",
+    // after the face down cards of a battle, nothing is shown: the face up cards come next
+    isFaceDownStep: (state: State) => state.step === "down",
+    hasRoundLeader: (state: State) => roundLeader(state) !== null,
+    // the other players of a battle have no card left
+    isBattleWonByDefault: (state: State) => state.step === "down" && state.contenders.length === 1 && state.roundWinner === null && areCardsOnTable(state),
+    // no player of a battle has a card left
+    isBattleLostByAll: (state: State) => state.step === "down" && state.contenders.length === 0 && areCardsOnTable(state),
+    areHiddenCardsOnTable: (state: State) => state.seats.some(seat => seat.playedUp.some(up => !up)),
+    isGameOver,
+    hasGameWinner: (state: State) => gameWinner(state) !== null,
+    // the seat of the winner once the game has ended, null on a tie
+    gameWinner: (state: State) => {
+        const winners = state.seats.flatMap((seat, index) => seat.rank === 1 ? [index] : []);
+        return state.gameEnded && winners.length === 1 ? winners[0] : null;
+    },
+    isTiedGame: (state: State) => state.gameEnded && state.seats.filter(seat => seat.rank === 1).length !== 1,
+    // the seats from the first place to the last, those sharing a place in the order of the table
+    ranking: (state: State) => state.seats.map((_, index) => index)
+        .sort((a, b) => (state.seats[a].rank ?? 0) - (state.seats[b].rank ?? 0) || a - b),
+    hasGameEnded: (state: State) => state.gameEnded,
+    battleCount: (state: State) => isBattleGoingOn(state) ? state.battleCount : 0,
     cardsWithLocation,
-    shouldPlayer1RestackRemainingCards: (state: State) => shouldRestack(state.player1),
-    shouldPlayer2RestackRemainingCards: (state: State) => shouldRestack(state.player2),
-    hasPlayer1WonGame: hasWonGame("player1"),
-    hasPlayer2WonGame: hasWonGame("player2"),
-    isTiedGame,
-    hasGameEnded,
-    isTopPairHidden,
-    areCardsBeingPlayed,
-    battleCount,
-    isPlayer2Computer: (state: State) => state.isPlayer2Computer,
+    isSolo: (state: State) => state.isSolo,
     isRestored: (state: State) => state.isRestored,
-    player1Name: (state: State) => state.playerNames[0] ?? null,
-    player2Name: (state: State) => state.playerNames[1] ?? null,
-    // the cards each player holds, those being played left aside
-    player1CardCount: (state: State) => cardCount(state.player1),
-    player2CardCount: (state: State) => cardCount(state.player2),
+    playerNames: (state: State) => state.playerNames,
+    roundWinner: (state: State) => state.roundWinner,
     lastRoundWinner: (state: State) => state.lastRoundWinner,
-    savedGame: (state: State): SavedBattleGame => ({
-        player1: savedPlayer(state.player1),
-        player2: savedPlayer(state.player2),
-        isPlayer2Computer: state.isPlayer2Computer,
-        playerNames: state.playerNames,
-        hasPlayed: state.hasPlayed,
-        lastRoundWinner: state.lastRoundWinner,
-    }),
+    lastWonCount: (state: State) => state.lastWonCount,
     hasPlayed: (state: State) => state.hasPlayed,
+    savedGame,
 } satisfies Selectors<State>;
 export type Values = ExtractComponentValuesContract<typeof selectors>;

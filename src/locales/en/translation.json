@@ -117,7 +117,6 @@
   "battleStatus": {
     "playPile": "Play: turn over the top card",
     "playPileWithKey": "Play: turn over the top card (key {{key}})",
-    "wonPile": "Cards won",
     "you": "You",
     "tapYourPile": "Tap your pile to play",
     "tapYourPiles": "Each player taps their pile to play",
@@ -142,15 +141,19 @@
     "bataille": [
       {
         "title": "Goal",
-        "text": "Win all the cards of the other player."
+        "text": "Win all the cards. Alone against the computer, or with 2 to 6 players."
       },
       {
         "title": "A round",
-        "text": "Each player turns over their top card. The higher card takes both. Ace is highest, 2 is lowest."
+        "text": "Each player turns over their top card. The highest card takes all the cards of the round and puts them under its pile. Ace is highest, 2 is lowest."
       },
       {
         "title": "Battle",
-        "text": "On a tie, each player lays one card face down, then one face up. The higher card takes them all."
+        "text": "When several players have the highest card, only they lay one card face down, then one face up. The highest card takes them all, the other players' cards included. If you have a single card left, it is your face up card. Without any card, you lose the battle."
+      },
+      {
+        "title": "Out",
+        "text": "Without any card, you are out. The last player with cards wins."
       },
       {
         "title": "With a keyboard",

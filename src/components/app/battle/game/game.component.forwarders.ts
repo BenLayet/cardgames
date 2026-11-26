@@ -8,47 +8,27 @@ export const eventForwarders = {
         {from: "dealCompleted", to: "gameStarted"},
         {from: "gameStarted", to: "readyForNextCards"},
         {from: "gameRestored", to: "readyForNextCards"},
-        {from: "player1Clicked", to: "player1Played", onCondition: ({values}) => values.canPlayer1Play()},
-        {from: "player2Clicked", to: "player2Played", onCondition: ({values}) => values.canPlayer2Play()},
-        {from: "player2Played", to: "bothPlayersPlayed", onCondition: ({values}) => values.haveBothPlayerPlayed()},
-        {from: "player1Played", to: "bothPlayersPlayed", onCondition: ({values}) => values.haveBothPlayerPlayed()},
-        {from: "bothPlayersPlayed", to: "suspenseStarted", onCondition: ({values}) => values.shouldCardsBeShown()},
-        {from: "bothPlayersPlayed", to: "readyForNextCards", onCondition: ({values}) => !values.shouldCardsBeShown()},
+        {from: "playerClicked", to: "playerPlayed", onCondition: ({values, payload}) => values.canPlay().at(payload) ?? false},
+        {from: "playerPlayed", to: "allPlayed", onCondition: ({values}) => values.haveAllPlayed()},
+        // between two rounds or two steps of a battle
+        {from: "readyForNextCards", to: "gameWon", onCondition: ({values}) => values.hasGameWinner()},
+        {from: "readyForNextCards", to: "gameTied", onCondition: ({values}) => values.isGameOver() && !values.hasGameWinner()},
+        {from: "readyForNextCards", to: "roundWon", onCondition: ({values}) => values.isBattleWonByDefault()},
+        {from: "readyForNextCards", to: "cardsSetAside", onCondition: ({values}) => values.isBattleLostByAll()},
+        // every contender of a battle has a single card left: no face down card is laid
+        {from: "readyForNextCards", to: "allPlayed", onCondition: ({values}) => values.haveAllPlayed()},
+        {from: "allPlayed", to: "suspenseStarted", onCondition: ({values}) => values.shouldCardsBeShown()},
+        {from: "allPlayed", to: "stepCompleted", onCondition: ({values}) => values.isFaceDownStep()},
+        {from: "stepCompleted", to: "readyForNextCards"},
         {from: "suspenseCompleted", to: "reviewWinnerStarted"},
-        {
-            from: "reviewWinnerCompleted", to: "player1WonRound",
-            onCondition: ({values}) => values.hasPlayer1WonRound()
-        },
-        {
-            from: "reviewWinnerCompleted", to: "player2WonRound",
-            onCondition: ({values}) => values.hasPlayer2WonRound()
-        },
-        {
-            from: "reviewWinnerCompleted", to: "tieOccurred",
-            onCondition: ({values}) => !values.hasPlayer2WonRound() && !values.hasPlayer1WonRound()
-        },
-        {from: "player1WonRound", to: "pairTransferRequested"},
-        {from: "player2WonRound", to: "pairTransferRequested"},
-        {from: "pairTransferRequested", to: "hiddenPairRevealed", onCondition: ({values}) => values.isTopPairHidden()},
-        {from: "pairTransferRequested", to: "pairTransferred", onCondition: ({values}) => !values.isTopPairHidden()},
-        {from: "pairTransferred", to: "pairTransferPaused", onCondition: ({values}) => values.areCardsBeingPlayed()},
-        {from: "pairTransferred", to: "roundCompleted", onCondition: ({values}) => !values.areCardsBeingPlayed()},
+        {from: "reviewWinnerCompleted", to: "roundWon", onCondition: ({values}) => values.hasRoundLeader()},
+        {from: "reviewWinnerCompleted", to: "tieOccurred", onCondition: ({values}) => !values.hasRoundLeader()},
         {from: "tieOccurred", to: "readyForNextCards"},
+        {from: "roundWon", to: "hiddenCardsRevealed", onCondition: ({values}) => values.areHiddenCardsOnTable()},
+        {from: "roundWon", to: "cardsCollected", onCondition: ({values}) => !values.areHiddenCardsOnTable()},
+        {from: "cardsSetAside", to: "roundCompleted"},
         {from: "roundCompleted", to: "readyForNextCards"},
-        {
-            from: "readyForNextCards",
-            to: "player1RestackedRemainingCards",
-            onCondition: ({values}) => values.shouldPlayer1RestackRemainingCards()
-        },
-        {
-            from: "readyForNextCards",
-            to: "player2RestackedRemainingCards",
-            onCondition: ({values}) => values.shouldPlayer2RestackRemainingCards()
-        },
-        {from: "readyForNextCards", to: "player1WonGame", onCondition: ({values}) => values.hasPlayer1WonGame()},
-        {from: "readyForNextCards", to: "player2WonGame", onCondition: ({values}) => values.hasPlayer2WonGame()},
-        {from: "readyForNextCards", to: "gameEnded", onCondition: ({values}) => values.isTiedGame()},
-        {from: "player1WonGame", to: "gameEnded"},
-        {from: "player2WonGame", to: "gameEnded"},
+        {from: "gameWon", to: "gameEnded"},
+        {from: "gameTied", to: "gameEnded"},
     ],
 } satisfies EventForwarders<Contract>;

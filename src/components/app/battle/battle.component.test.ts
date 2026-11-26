@@ -55,7 +55,7 @@ describe("battle", () => {
     it("forgets the pending steps of a round when going home in the middle of it", async () => {
         await store.when({name: "startGameRequested", statePath: setupPath});
         await vi.runAllTimersAsync();
-        await store.when({name: "player1Clicked", statePath: gamePath});
+        await store.when({name: "playerClicked", payload: 0, statePath: gamePath});
 
         await store.when({name: "goHomeRequested", statePath: []});
 
@@ -67,7 +67,7 @@ describe("battle", () => {
         await store.when({name: "startGameRequested", statePath: setupPath});
         await vi.runAllTimersAsync();
 
-        expect(store.getValues("/game").isPlayer2Computer()).toBe(false);
+        expect(store.getValues("/game").isSolo()).toBe(false);
     });
 
     it("gives the names typed on the setup screen to the game", async () => {
@@ -76,8 +76,7 @@ describe("battle", () => {
         await store.when({name: "startGameRequested", statePath: setupPath});
         await vi.runAllTimersAsync();
 
-        expect(store.getValues("/game").player1Name()).toBe("Tom");
-        expect(store.getValues("/game").player2Name()).toBe(null);
+        expect(store.getValues("/game").seats().map(seat => seat.name)).toEqual(["Tom", null]);
     });
 
     it("offers to resume the game left by going back, and resumes it as it was", async () => {
@@ -86,7 +85,7 @@ describe("battle", () => {
         expect(battle.getValues("").canResume()).toBe(false);
         await battle.when({name: "startGameRequested", statePath: setupPath});
         await vi.runAllTimersAsync();
-        await battle.when({name: "player1Clicked", statePath: gamePath});
+        await battle.when({name: "playerClicked", payload: 0, statePath: gamePath});
         await vi.runAllTimersAsync();
         const afterOneRound = battle.getValues("/game").cardsWithLocation();
 
@@ -101,7 +100,7 @@ describe("battle", () => {
 
         expect(next.getValues("").isStarted()).toBe(true);
         expect(next.getValues("/game").cardsWithLocation()).toEqual(afterOneRound);
-        expect(next.getValues("/game").canPlayer1Play()).toBe(true);
+        expect(next.getValues("/game").canPlay()).toEqual([true, true]);
     });
 
     it("resumes the game with the players chosen on the menu, so that a human plays only their own pile", async () => {
@@ -110,7 +109,7 @@ describe("battle", () => {
         // a game against the computer is left after one round
         await battle.when({name: "startGameRequested", statePath: setupPath});
         await vi.runAllTimersAsync();
-        await battle.when({name: "player1Clicked", statePath: gamePath});
+        await battle.when({name: "playerClicked", payload: 0, statePath: gamePath});
         await vi.runAllTimersAsync();
         await battle.when({name: "goHomeRequested", statePath: []});
 
@@ -118,13 +117,12 @@ describe("battle", () => {
         await battle.when({name: "toggleSeatRequested", payload: 1, statePath: setupPath});
         await battle.when({name: "resumeRequested", statePath: []});
         await vi.runAllTimersAsync();
-        expect(battle.getValues("/game").isPlayer2Computer()).toBe(false);
+        expect(battle.getValues("/game").isSolo()).toBe(false);
 
         // the pile of player 1 plays for player 1 only
-        await battle.when({name: "player1Clicked", statePath: gamePath});
+        await battle.when({name: "playerClicked", payload: 0, statePath: gamePath});
         await vi.runAllTimersAsync();
-        expect(battle.getValues("/game").canPlayer1Play()).toBe(false);
-        expect(battle.getValues("/game").canPlayer2Play()).toBe(true);
+        expect(battle.getValues("/game").canPlay()).toEqual([false, true]);
     });
 
     it("no longer offers to resume a game that has ended", async () => {
