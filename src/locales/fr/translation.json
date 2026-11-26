@@ -42,7 +42,7 @@
   "undo": "Annuler",
   "dealRow_one": "Distribuer une rangée ({{count}} restante)",
   "dealRow_other": "Distribuer une rangée ({{count}} restantes)",
-  "dealBlocked": "Remplissez chaque rangée avant de distribuer",
+  "dealBlocked": "Remplis chaque rangée avant de distribuer",
   "completedSequences_one": "{{count}} suite terminée",
   "completedSequences_other": "{{count}} suites terminées",
   "gameActions": "Actions du jeu",
