@@ -1,5 +1,6 @@
 import {useSofter} from "@softer-components/redux-adapter";
 import {useTranslation} from "react-i18next";
+import {useEffect} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faGear, faMusic, faVolumeHigh, faVolumeLow, faVolumeXmark, faXmark, type IconDefinition} from "@fortawesome/free-solid-svg-icons";
 
@@ -37,6 +38,15 @@ const VolumeRow = ({label, offLabel, icon, volume, onChange}: {
 export const View = ({path = ""}) => {
     const [v, d] = useSofter<SettingsContract>(path);
     const {t} = useTranslation();
+    // the Escape key closes the menu, like the other windows over the screen
+    useEffect(() => {
+        if (!v.isMenuOpen) return;
+        const onKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") d.toggleMenuRequested();
+        };
+        window.addEventListener("keydown", onKeyDown);
+        return () => window.removeEventListener("keydown", onKeyDown);
+    }, [v.isMenuOpen, d]);
     return (
         <div className="settings-menu">
             <button

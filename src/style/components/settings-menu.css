@@ -84,9 +84,10 @@
     color: var(--app-ink);
 }
 
+/* off is a normal choice, not an error: muted, not red */
 .settings-volume--off .settings-volume-icon,
 .settings-volume--off .settings-volume-value {
-    color: var(--app-ruby);
+    color: var(--app-muted);
 }
 
 .settings-volume--off input[type="range"] {
