@@ -61,7 +61,7 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
     const tableRef = useRef<HTMLDivElement>(null);
     const stockRef = useRef<HTMLButtonElement>(null);
     const slotsRef = useRef<HTMLDivElement>(null);
-    useCardFlight(tableRef, stockRef, {count: v.completed.length, slots: slotsRef}, isDraggedElement);
+    const isCollecting = useCardFlight(tableRef, stockRef, {count: v.completed.length, slots: slotsRef}, isDraggedElement);
     const Face = compact ? CompactCardView : CardView;
 
     const isSelected = (column: number, index: number) =>
@@ -122,7 +122,8 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
                 </div>;
             })}
         </div>
-        {v.hasGameEnded && <EndMessage onPlayAgain={() => d.playAgainRequested()}>
+        {/* the victory shows once the last sequence has reached its place */}
+        {v.hasGameEnded && !isCollecting && <EndMessage onPlayAgain={() => d.playAgainRequested()}>
             <Fireworks/>
             <h1>{t("victory")}</h1>
             <p className="fs-4">{t("moves", {count: v.moveCount})}</p>

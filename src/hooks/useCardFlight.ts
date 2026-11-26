@@ -1,4 +1,4 @@
-import {type RefObject, useLayoutEffect, useRef} from "react";
+import {type RefObject, useLayoutEffect, useRef, useState, useSyncExternalStore} from "react";
 
 const FLIGHT_MS = 260;
 const JITTER_PX = 4;
@@ -21,6 +21,7 @@ type Rects = Map<string, DOMRect>;
 // such as cards dragged by the pointer, are left alone.
 // When a sequence is completed, its cards leave the table and fly to the place of the sequence, which then shines
 // for a moment. An undo brings them back from there.
+// Returns true while completed sequences are still on their way to their place.
 export const useCardFlight = (
     container: RefObject<HTMLElement | null>,
     origin: RefObject<HTMLElement | null>,
@@ -34,6 +35,9 @@ export const useCardFlight = (
     // the elements of the cards, kept to fly the collected ones after they have left the table
     const previousElements = useRef(new Map<string, HTMLElement>());
     const previousCount = useRef(sequences?.count ?? 0);
+    // the sequences on their way to their place
+    const [collecting] = useState(counter);
+    const isCollecting = useSyncExternalStore(collecting.subscribe, () => collecting.value() > 0);
     useLayoutEffect(() => {
         const elements = container.current?.querySelectorAll<HTMLElement>("[data-card-id]") ?? [];
         // a card still flying is seen where it is on screen, then measured where it lands:
@@ -65,7 +69,12 @@ export const useCardFlight = (
             const left = [...before.keys()].filter(id => !rects.has(id))
                 .map(id => ({rect: before.get(id), element: beforeElements.get(id)}))
                 .filter((card): card is { rect: DOMRect, element: HTMLElement } => card.rect !== undefined && card.element !== undefined && !card.element.isConnected);
-            collect(container.current, left, slotOf(count - 1));
+            const landing = collect(container.current, left, slotOf(count - 1));
+            if (landing) {
+                // counted before the browser paints: what waits for the sequence never shows before it
+                collecting.add(1);
+                void landing.then(() => collecting.add(-1));
+            }
         }
         // after an undo, the cards of the sequence come back from its place
         const originRect = (count === countBefore - 1 ? slotOf(count) : origin.current)?.getBoundingClientRect();
@@ -84,11 +93,30 @@ export const useCardFlight = (
             ], {duration: FLIGHT_MS, easing: EASING}));
         });
     });
+    return isCollecting;
 };
 
-// The cards that left the table fly over it to the place of their sequence, then the place shines for a moment
-const collect = (table: HTMLElement, cards: { rect: DOMRect, element: HTMLElement }[], slot: HTMLElement | null | undefined) => {
-    if (!slot || cards.length === 0 || typeof table.animate !== "function") return;
+// A number that components can follow; a change renders them again before the browser paints
+const counter = () => {
+    let value = 0;
+    const listeners = new Set<() => void>();
+    return {
+        value: () => value,
+        add: (n: number) => {
+            value += n;
+            listeners.forEach(listener => listener());
+        },
+        subscribe: (listener: () => void) => {
+            listeners.add(listener);
+            return () => listeners.delete(listener);
+        },
+    };
+};
+
+// The cards that left the table fly over it to the place of their sequence, then the place shines for a moment.
+// Returns when the cards have landed, or nothing when nothing flies.
+const collect = (table: HTMLElement, cards: { rect: DOMRect, element: HTMLElement }[], slot: HTMLElement | null | undefined): Promise<void> | undefined => {
+    if (!slot || cards.length === 0 || typeof table.animate !== "function") return undefined;
     const target = slot.getBoundingClientRect();
     const layer = document.createElement("div");
     layer.className = "card-flight-layer";
@@ -133,7 +161,7 @@ const collect = (table: HTMLElement, cards: { rect: DOMRect, element: HTMLElemen
         slot.classList.add("spider-slot--won");
         setTimeout(() => slot.classList.remove("spider-slot--won"), CELEBRATION_MS);
     };
-    Promise.all(joins.map(join => join.finished))
+    return Promise.all(joins.map(join => join.finished))
         .then(() => new Promise(resolve => setTimeout(resolve, joins.length > 0 ? JOIN_PAUSE_MS : 0)))
         .then(leave)
         .then(landed, landed);
