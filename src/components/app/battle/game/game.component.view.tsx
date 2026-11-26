@@ -115,7 +115,10 @@ const Table = ({path}: { path: string }) => {
         if (!v.isSolo && v.areCardsOnTable && waiting.length > 0) return t("battleStatus.toPlay", {names: names(waiting)});
         const eliminated = v.seats.flatMap((seat, index) => seat.eliminatedRound === v.roundNumber - 1 ? [index] : []);
         if (!v.areCardsOnTable && eliminated.length > 0 && !v.isSolo) return t("battleStatus.eliminated", {names: names(eliminated), count: eliminated.length});
-        return v.lastRoundWinner === null ? null : wonCards(v.lastRoundWinner);
+        const lastRound = v.lastRoundWinner === null ? null : wonCards(v.lastRoundWinner);
+        // alone against the computer, the player is told when the game waits for them
+        if (v.isSolo && waiting.includes(0)) return lastRound === null ? t("battleStatus.yourTurn") : `${lastRound} · ${t("battleStatus.yourTurn")}`;
+        return lastRound;
     };
     const wonCards = (seat: number) => {
         const count = v.lastWonCount;

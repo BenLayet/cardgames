@@ -59,3 +59,27 @@ test("the setup screen offers Solo or 2 to 6 players, and leaves out decks too s
     await page.getByRole("button", {name: "Commencer"}).click();
     await expect(page.locator(".battle-pile")).toHaveCount(6);
 });
+
+test("alone against the computer, the status line says when it is the player's turn", async ({page}) => {
+    // the player's king beats the computer's queen
+    const solo = {
+        version: 2,
+        seats: [seat(["4S", "KS"]), seat(["2H", "QH"])],
+        contenders: [0, 1], step: "up", battleCount: 0, roundNumber: 5, lastRoundWinner: 1, lastWonCount: 2, setAsideCount: 8,
+        hasPlayed: true, isSolo: true, playerNames: [null, null],
+    };
+    await page.addInitScript(saved => {
+        localStorage.setItem("cardgames.settings", JSON.stringify({schemaVersion: 3, language: "fr"}));
+        localStorage.setItem("cardgames.bataille.game.solo.12", JSON.stringify(saved));
+    }, solo);
+    await page.goto("/");
+    await page.getByText("Bataille").first().click();
+    await page.getByRole("button", {name: "12", exact: true}).click();
+    await page.getByRole("button", {name: "Reprendre la partie"}).click();
+    await expect(page.getByRole("status")).toHaveText("L'ordinateur remporte 2 cartes · À ton tour de jouer");
+
+    await page.locator(".battle-table").click();
+    await expect(page.getByRole("status")).toHaveText("Tu remportes 2 cartes · touche la table pour ramasser");
+    await page.locator(".battle-table").click();
+    await expect(page.getByRole("status")).toHaveText("Tu remportes 2 cartes · À ton tour de jouer");
+});

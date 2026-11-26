@@ -117,6 +117,7 @@
     "you": "You",
     "tapYourPile": "Tap your pile to play",
     "tapYourPiles": "Each player taps their pile to play",
+    "yourTurn": "Your turn",
     "battle": "Battle! One card face down, then one face up",
     "battleToPlay": "Battle! To play: {{names}}",
     "toPlay": "To play: {{names}}",
