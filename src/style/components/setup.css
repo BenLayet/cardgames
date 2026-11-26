@@ -25,10 +25,14 @@
     padding-bottom: var(--app-space-4);
 }
 
-/* the choice between human and computer stays on the line of the name */
+/* the choice between human and computer, under the name, written in words */
 .seat-kind {
-    flex: none;
+    display: flex;
     flex-wrap: nowrap;
+}
+
+.seat-kind > .btn {
+    flex: 1 1 0;
 }
 
 /* the name of a seat, typed on the felt */

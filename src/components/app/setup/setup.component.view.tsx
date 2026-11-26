@@ -46,28 +46,25 @@ export const View = ({path = "", onResume}: { path?: string, onResume?: () => vo
                         </div>}
                         <div className="d-flex flex-column gap-2">
                             {v.seats.map((seat, index) => <div key={index}
-                                    className="d-flex gap-2 align-items-center">
+                                    className="seat d-flex flex-column gap-1">
                                 {/* every seat can be named, the computer's too */}
                                 <input className="form-control seat-name" type="text"
                                        value={v.playerNames[index]} maxLength={MAX_NAME_LENGTH}
-                                       placeholder={t("playerNumber", {number: index + 1})}
+                                       placeholder={seat === "computer" ? t("computer") : t("playerNumber", {number: index + 1})}
                                        aria-label={t("playerName", {number: index + 1})}
                                        autoComplete="off" enterKeyHint="done"
                                        onChange={event => d.renamePlayerRequested({index, name: event.target.value})}/>
-                                {/* a seat that cannot change, like the first one, shows nothing about its kind */}
+                                {/* a seat that cannot change, like the first one, shows nothing about its kind;
+                                    the others say in words who plays it, under the name */}
                                 {v.changeableSeats[index] && <span className="choice-group seat-kind">
                                     {(["human", "computer"] as const).map(kind => <button
                                         key={kind}
-                                        className="btn btn-sm btn-choice text-nowrap"
+                                        className="btn btn-choice text-nowrap"
                                         aria-pressed={seat === kind}
-                                        title={t(kind)}
-                                        aria-label={t(kind)}
                                         onClick={() => {
                                             if (seat !== kind) d.toggleSeatRequested(index);
                                         }}>
-                                        <FontAwesomeIcon icon={kind === "human" ? faUser : faRobot}/>
-                                        {/* the names do not fit next to each other on a phone */}
-                                        <span className="d-none d-sm-inline"> {t(kind)}</span>
+                                        <FontAwesomeIcon icon={kind === "human" ? faUser : faRobot}/> {t(kind)}
                                     </button>)}
                                 </span>}
                             </div>)}
