@@ -59,20 +59,6 @@
     box-shadow: 0 0 0 .2rem #f2d48a40;
 }
 
-/* the rules of the game, read from its menu: a plain link under the main action */
-.rules-link {
-    align-self: center;
-    color: var(--app-muted);
-    border-color: transparent;
-    font-size: .9rem;
-}
-
-.rules-link:hover,
-.rules-link:active {
-    color: var(--app-ink);
-    border-color: transparent;
-}
-
 /* a phone held sideways: the options stand side by side, so that the main action stays on screen */
 @media (orientation: landscape) and (max-height: 600px) {
     .setup-body {

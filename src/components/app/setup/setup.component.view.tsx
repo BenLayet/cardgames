@@ -5,7 +5,6 @@ import {faMinus, faPlay, faPlus, faRobot, faUser} from "@fortawesome/free-solid-
 
 import type {SetupContract} from "./setup.component.ts";
 import {AppBar} from "../../navigation/AppBar.tsx";
-import {RulesLink} from "../../navigation/RulesLink.tsx";
 import {hasRules} from "../../navigation/rules.ts";
 import {MAX_NAME_LENGTH} from "./setup.component.state.ts";
 import type {OptionHint as OptionHintKey} from "../../../model/games.model.ts";
@@ -25,7 +24,8 @@ export const View = ({path = "", onResume}: { path?: string, onResume?: () => vo
     const suitCountLabel = (count: number, hint: OptionHintKey | null) =>
         [t("suitCountOption", {count}), hint && t(`optionHints.${hint}`)].filter(Boolean).join(", ");
     return (<div className="setup vstack position-relative">
-            <AppBar title={t(`games.${v.gameId}`)} level={1} onBack={() => d.backRequested()}/>
+            <AppBar title={t(`games.${v.gameId}`)} level={1} onBack={() => d.backRequested()}
+                    rulesOf={hasRules(v.gameId) ? v.gameId : undefined}/>
             <div className="setup-body vstack align-items-center">
                 <div className="setup-options d-flex flex-column text-center">
                     {/* a game for one player has nothing to choose about the players */}
@@ -115,7 +115,6 @@ export const View = ({path = "", onResume}: { path?: string, onResume?: () => vo
                         : <button onClick={() => d.startGameRequested()} className="btn btn-lg btn-primary">
                             {t("start")}
                         </button>}
-                    {hasRules(v.gameId) && <RulesLink gameId={v.gameId}/>}
                 </div>
             </div>
         </div>

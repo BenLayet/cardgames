@@ -1,7 +1,4 @@
-import {useState} from "react";
 import {useTranslation} from "react-i18next";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faBook} from "@fortawesome/free-solid-svg-icons";
 
 import {Modal} from "../modal/Modal.tsx";
 import type {GameWithRules} from "./rules.ts";
@@ -18,17 +15,4 @@ export const RulesModal = ({gameId, onClose}: { gameId: GameWithRules, onClose: 
             <p>{section.text}</p>
         </section>)}
     </Modal>;
-};
-
-// A link that shows the rules of a game, on the menu of the game
-export const RulesLink = ({gameId}: { gameId: GameWithRules }) => {
-    const {t} = useTranslation();
-    // only a window over the screen, nothing else depends on it
-    const [isOpen, setOpen] = useState(false);
-    return <>
-        <button className="btn btn-link rules-link" onClick={() => setOpen(true)}>
-            <FontAwesomeIcon icon={faBook}/> {t("rules.read")}
-        </button>
-        {isOpen && <RulesModal gameId={gameId} onClose={() => setOpen(false)}/>}
-    </>;
 };
