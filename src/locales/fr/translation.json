@@ -181,7 +181,7 @@
       },
       {
         "title": "Aide",
-        "text": "L'ampoule propose un coup, la flèche annule le dernier coup. Annuler compte comme un coup."
+        "text": "L'ampoule propose un coup\u00a0; touche-la encore pour le coup suivant, puis pour cacher l'indice. La flèche annule le dernier coup. Annuler compte comme un coup."
       },
       {
         "title": "Au clavier",

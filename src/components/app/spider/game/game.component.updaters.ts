@@ -67,12 +67,14 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
         state.table = previous;
         state.moveCount++;
     },
-    // each press shows the next hint: cards to move are selected, as if they had been clicked
+    // each press shows the next hint: cards to move are selected, as if they had been clicked;
+    // the press after the last hint hides it, the next one starts again with the first hint
     hintRequested: ({state}) => {
         const hints = findHints(state.table);
-        state.hintIndex = state.hintIndex === null ? 0 : (state.hintIndex + 1) % hints.length;
-        const hint = hints[state.hintIndex];
-        state.selected = hint.kind === "move" ? hint.from : null;
+        const next = state.hintIndex === null ? 0 : state.hintIndex + 1;
+        state.hintIndex = next < hints.length ? next : null;
+        const hint = state.hintIndex === null ? null : hints[state.hintIndex];
+        state.selected = hint?.kind === "move" ? hint.from : null;
     },
     gameEnded: ({state}) => {
         state.gameEnded = true;
