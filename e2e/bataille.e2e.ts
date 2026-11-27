@@ -43,6 +43,24 @@ test("each player plays with their own key, and the end screen ranks every playe
     await expect(page.locator(".battle-ranking li")).toHaveText([/1er.*Léa/, /2e.*Ben.*tour 12/, /2e.*Tom.*tour 12/, /4e.*Inès.*tour 7/]);
 });
 
+test("between two players, the end screen names the winner without a ranking", async ({page}) => {
+    // Léa's ace beats Ben's four, and Ben has no card left
+    const twoPlayers = {
+        version: 2,
+        seats: [seat(["4S"]), seat(["2H", "AH"])],
+        contenders: [0, 1], step: "up", battleCount: 0, roundNumber: 9, lastRoundWinner: 1, lastWonCount: 2, setAsideCount: 9,
+        hasPlayed: true, isSolo: false, playerNames: ["Ben", "Léa"],
+    };
+    await resume(page, twoPlayers, "2 joueurs", "12", twoPlayers.playerNames);
+    await page.keyboard.press("l");
+    await page.keyboard.press("a");
+    await expect(page.getByRole("status")).toHaveText("Léa remporte 2 cartes · touche la table pour ramasser");
+    await page.keyboard.press("Space");
+
+    await expect(page.getByRole("heading", {name: "Léa a gagné !"})).toBeVisible();
+    await expect(page.locator(".battle-ranking")).toHaveCount(0);
+});
+
 test("the setup screen offers Solo or 2 to 6 players, and leaves out decks too small for them", async ({page}) => {
     await page.addInitScript(() => {
         localStorage.setItem("cardgames.settings", JSON.stringify({schemaVersion: 3, language: "fr"}));
