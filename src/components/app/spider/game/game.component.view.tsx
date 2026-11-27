@@ -199,6 +199,12 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
             {v.selected === null && v.hint?.kind !== "none" && v.hint?.kind !== "emptyColumn" &&
                 <span className="text-nowrap">{t("moves", {count: v.moveCount})}</span>}
         </>}>
+            {/* from the least used to the most used, Undo in the corner (CLAUDE.md §5) */}
+            <button className="btn table-action" disabled={v.hasGameEnded} aria-haspopup="dialog"
+                    onClick={() => setPositionsOpen(true)}>
+                <FontAwesomeIcon icon={faBookmark}/>
+                <span>{t("positions.button")}</span>
+            </button>
             <button className="btn table-action" disabled={v.hasGameEnded}
                     onClick={() => d.hintRequested()}>
                 <FontAwesomeIcon icon={faLightbulb}/>
@@ -207,11 +213,6 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
             <button className="btn table-action table-action--repeat" disabled={!v.canUndo} {...undoPress}>
                 <FontAwesomeIcon icon={faRotateLeft}/>
                 <span>{t("undo")}</span>
-            </button>
-            <button className="btn table-action" disabled={v.hasGameEnded} aria-haspopup="dialog"
-                    onClick={() => setPositionsOpen(true)}>
-                <FontAwesomeIcon icon={faBookmark}/>
-                <span>{t("positions.button")}</span>
             </button>
         </TableActions>
         {arePositionsOpen && <SpiderPositions positions={v.positions} replaced={v.replacedPosition}
