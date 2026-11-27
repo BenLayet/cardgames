@@ -327,6 +327,43 @@ describe("game", () => {
         expect(values().hasGameEnded()).toBe(true);
     });
 
+    // #195: the winner of a battle could still lay a card while its cards were collected, and the game never ended
+    it("ends the game when the last opponent runs out of cards in a battle", async () => {
+        await deal(["2S", "3S", "KS"], ["KH"]);
+        await click(0); // KS vs KH: battle, the computer has no card left, the player wins it
+        await vi.advanceTimersByTimeAsync(DELAYS_MS.computerAnswer + DELAYS_MS.suspense + DELAYS_MS.reviewWinner);
+        expect(values().roundWinner()).toBe(0);
+        expect(values().canPlay()).toEqual([false, false]);
+
+        await click(0); // collects the cards
+        await click(0); // while they fly to the pile: ignored
+        await vi.runAllTimersAsync();
+
+        expect(played(0)).toEqual([]);
+        expect(pile(0)).toHaveLength(4);
+        expect(values().hasGameEnded()).toBe(true);
+        expect(values().gameWinner()).toBe(0);
+    });
+
+    it("ends a saved game stuck with the cards of the only player left on the table", async () => {
+        const battleSaveService = fakeBattleSaveService();
+        store = initTestStore(gameDef({audioService, schedulerService: new TimeoutSchedulerAdapter(), battleSaveService}));
+        await store.when(event("restoreRequested", {isSolo: true, playerNames: [null, null], cardCount: 12}));
+        await store.when(event("gameRestored", {
+            seats: [
+                {pile: [], played: [], playedUp: [], rank: 2, eliminatedRound: 7},
+                {pile: ["2H", "3H", "4H", "5H", "6H", "7H", "8H", "9H", "TH", "JH", "QH"], played: ["KC"], playedUp: [true], rank: null, eliminatedRound: null},
+            ],
+            contenders: [1], step: "up", battleCount: 0, roundNumber: 8, lastRoundWinner: 1, lastWonCount: 3,
+            setAsideCount: 0, hasPlayed: true, isSolo: true, playerNames: [null, null], dealSeed: 1,
+        }));
+        await vi.runAllTimersAsync();
+
+        expect(values().hasGameEnded()).toBe(true);
+        expect(values().gameWinner()).toBe(1);
+        expect(pile(1)).toHaveLength(12);
+    });
+
     it("ends the game with a victory when the computer has no card left", async () => {
         await deal(["KS"], ["QH"]);
 
