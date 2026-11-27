@@ -20,7 +20,7 @@ describe("Bataille table layout", () => {
         });
 
     it.each(sizes.flatMap(([width, height]) => [2, 3, 4, 5, 6].map(count => [count, width, height])))(
-        "lays the %i slots of a %ix%i table side by side, in seat order, clear of the piles",
+        "lays the %i slots of a %ix%i table side by side, each one near its pile, clear of the piles",
         (count, width, height) => {
             const {cardWidth, cardHeight, rows, seats} = tableLayout(count, width, height);
             expect(rows).toBeGreaterThanOrEqual(1);
@@ -29,12 +29,31 @@ describe("Bataille table layout", () => {
             // no two slots overlap
             slots.forEach((a, i) => slots.slice(i + 1).forEach(b =>
                 expect(Math.abs(a.x - b.x) >= cardWidth || Math.abs(a.y - b.y) >= cardHeight).toBe(true)));
-            // in seat order: left to right, row after row
-            slots.slice(1).forEach((slot, i) => expect(slot.y > slots[i].y || (slot.y === slots[i].y && slot.x > slots[i].x)).toBe(true));
+            // each player has the slot nearest to their pile: swapping the slots of two players never brings them nearer
+            const distance = (seat: number, slot: number) => Math.hypot(seats[seat].pile.x - slots[slot].x, seats[seat].pile.y - slots[slot].y);
+            slots.forEach((_, a) => slots.forEach((_, b) =>
+                expect(distance(a, b) + distance(b, a)).toBeGreaterThanOrEqual(distance(a, a) + distance(b, b) - 1e-6)));
             // no slot on a pile
             seats.forEach(({pile}) => slots.forEach(slot =>
                 expect(Math.abs(pile.x - slot.x) >= cardWidth || Math.abs(pile.y - slot.y) >= cardHeight).toBe(true)));
         });
+
+    it("gives each player the slot on the side of their pile", () => {
+        // three players on an upright phone: the slot of the player at the bottom is the lowest one
+        const three = tableLayout(3, 390, 760).seats;
+        expect(three[0].played.y).toBe(Math.max(...three.map(seat => seat.played.y)));
+        expect(three[1].played.x).toBeLessThan(three[2].played.x);
+        // six players on a wide phone, on one row: the player on the left has the first slot, the one on the right the last
+        const wide = tableLayout(6, 844, 300);
+        expect(wide.rows).toBe(1);
+        const six = wide.seats;
+        const xs = six.map(seat => seat.played.x);
+        expect(six[1].played.x).toBe(Math.min(...xs));
+        expect(six[4].played.x).toBe(Math.max(...xs));
+        // the players of the left half have the slots of the left half
+        [0, 1, 2].forEach(seat => expect(six[seat].played.x).toBeLessThan(422));
+        [3, 4, 5].forEach(seat => expect(six[seat].played.x).toBeGreaterThan(422));
+    });
 
     it("takes the number of rows that gives the largest cards", () => {
         // six players on an upright phone: more than one row
@@ -71,6 +90,9 @@ describe("Bataille table layout", () => {
         expect((Math.min(...xs) + Math.max(...xs)) / 2).toBeCloseTo(390 / 2, 0);
         expect((Math.min(...ys) + Math.max(...ys)) / 2).toBeCloseTo(760 / 2, 0);
         expect(all.seats.every(seat => seat.hasSlot)).toBe(true);
+        // each remaining player keeps the slot nearest to their pile
+        const left = three.seats[0].played, right = three.seats[3].played;
+        expect(three.seats[2].played.y).toBeLessThan(Math.max(left.y, right.y));
     });
 
     it("keeps a single slot, centred, for the last player", () => {
