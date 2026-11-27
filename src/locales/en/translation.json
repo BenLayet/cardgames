@@ -181,7 +181,7 @@
       },
       {
         "title": "Help",
-        "text": "The light bulb suggests a move; press it again for the next move, then to hide the hint. The arrow undoes the last move. Each undo counts as a move."
+        "text": "The light bulb suggests a move; press it again for the next move, then to hide the hint. The arrow undoes the last move; hold it to keep undoing, two moves a second. Each undo counts as a move."
       },
       {
         "title": "With a keyboard",
