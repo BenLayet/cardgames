@@ -125,9 +125,9 @@ const Table = ({path}: { path: string }) => {
     // a battle after a battle is a double battle, then a triple one, then "Battle x4", "Battle x5"…
     const battleName = () => t(`battle.${v.battleCount <= 3 ? v.battleCount : "more"}`, {count: v.battleCount});
     const wonCards = (seat: number) => {
-        const count = v.lastWonCount;
-        if (v.isSolo && !v.seats[seat].name) return seat === 0 ? t("battleStatus.youWonCards", {count}) : t("battleStatus.computerWonCards", {count});
-        return t("battleStatus.playerWonCards", {name: seatName(seat), count});
+        // how many cards are won is not told, to keep some suspense (#165)
+        if (v.isSolo && !v.seats[seat].name) return seat === 0 ? t("battleStatus.youWonCards") : t("battleStatus.computerWonCards");
+        return t("battleStatus.playerWonCards", {name: seatName(seat)});
     };
     const place = (rank: number) => t("place", {count: rank, ordinal: true});
 
@@ -161,16 +161,15 @@ const Table = ({path}: { path: string }) => {
                          } : {})}/>
                     <div className={`battle-marks battle-marks--pile battle-marks--label-${labelSide}`} style={{left: pile.x, top: pile.y}}>
                         {key && isPlayable && <span className="battle-keycap" aria-hidden="true">{key.toUpperCase()}</span>}
-                        {seat.isRoundWinner && <span className="battle-won-count">+{v.lastWonCount}</span>}
                         <div className="battle-seat-label">
                             <div className="battle-seat-name">
                                 <i className="battle-seat-dot"/>
                                 {seat.isComputer && <FontAwesomeIcon icon={faRobot} className="battle-seat-bot"/>}
                                 <span>{seatName(index)}</span>
                             </div>
-                            {seat.rank !== null && !v.hasGameEnded
-                                ? <span className="battle-seat-tag">{t("battleStatus.eliminatedTag", {place: place(seat.rank)})}</span>
-                                : <span className="battle-seat-count">{t("cardCountShort", {count: seat.cardCount})}</span>}
+                            {/* no card count under the name, to keep some suspense (#165) */}
+                            {seat.rank !== null && !v.hasGameEnded &&
+                                <span className="battle-seat-tag">{t("battleStatus.eliminatedTag", {place: place(seat.rank)})}</span>}
                         </div>
                     </div>
                 </div>;

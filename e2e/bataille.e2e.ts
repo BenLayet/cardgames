@@ -29,14 +29,14 @@ const resume = async (page: Page, game: object, players: string, cardCount: stri
 
 test("each player plays with their own key, and the end screen ranks every player", async ({page}) => {
     await resume(page, lastRound, "4 joueurs", "16", lastRound.playerNames);
-    await expect(page.getByRole("status")).toHaveText("Léa remporte 3 cartes");
+    await expect(page.getByRole("status")).toHaveText("Léa remporte les cartes");
 
     await page.keyboard.press("l");
     await expect(page.getByRole("status")).toHaveText("Au tour de : Léa, Tom");
     await page.keyboard.press("a");
     await page.keyboard.press("g");
     // Léa wins the round: the cards wait for a tap, or a key, before going to her
-    await expect(page.getByRole("status")).toHaveText("Léa remporte 3 cartes · touche la table pour ramasser");
+    await expect(page.getByRole("status")).toHaveText("Léa remporte les cartes · touche la table pour ramasser");
     await page.keyboard.press("Space");
 
     await expect(page.getByRole("heading", {name: "Léa a gagné !"})).toBeVisible();
@@ -54,7 +54,7 @@ test("between two players, the end screen names the winner without a ranking", a
     await resume(page, twoPlayers, "2 joueurs", "12", twoPlayers.playerNames);
     await page.keyboard.press("l");
     await page.keyboard.press("a");
-    await expect(page.getByRole("status")).toHaveText("Léa remporte 2 cartes · touche la table pour ramasser");
+    await expect(page.getByRole("status")).toHaveText("Léa remporte les cartes · touche la table pour ramasser");
     await page.keyboard.press("Space");
 
     await expect(page.getByRole("heading", {name: "Léa a gagné !"})).toBeVisible();
@@ -94,10 +94,10 @@ test("alone against the computer, the status line says when it is the player's t
     await page.getByText("Bataille").first().click();
     await page.getByRole("button", {name: "12", exact: true}).click();
     await page.getByRole("button", {name: "Reprendre la partie"}).click();
-    await expect(page.getByRole("status")).toHaveText("L'ordinateur remporte 2 cartes · À ton tour de jouer");
+    await expect(page.getByRole("status")).toHaveText("L'ordinateur remporte les cartes · À ton tour de jouer");
 
     await page.locator(".battle-table").click();
-    await expect(page.getByRole("status")).toHaveText("Tu remportes 2 cartes · touche la table pour ramasser");
+    await expect(page.getByRole("status")).toHaveText("Tu remportes les cartes · touche la table pour ramasser");
     await page.locator(".battle-table").click();
-    await expect(page.getByRole("status")).toHaveText("Tu remportes 2 cartes · À ton tour de jouer");
+    await expect(page.getByRole("status")).toHaveText("Tu remportes les cartes · À ton tour de jouer");
 });

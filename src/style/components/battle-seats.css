@@ -180,13 +180,6 @@
     color: var(--app-muted);
 }
 
-.battle-seat-count {
-    font-size: .8rem;
-    font-weight: 600;
-    color: var(--app-muted);
-    font-variant-numeric: tabular-nums;
-}
-
 .battle-seat-tag {
     font-size: .7rem;
     font-weight: 700;
@@ -225,21 +218,6 @@
 
 .battle-seat--out .battle-keycap {
     display: none;
-}
-
-/* how many cards the round winner takes */
-.battle-won-count {
-    position: absolute;
-    left: 50%;
-    top: -14px;
-    translate: -50% 0;
-    font-weight: 700;
-    font-size: .8rem;
-    color: #2a1d06;
-    background: var(--app-gold);
-    border-radius: 10px;
-    padding: 1px 7px;
-    white-space: nowrap;
 }
 
 /* a game without actions: the status line goes down to the bottom of the table */

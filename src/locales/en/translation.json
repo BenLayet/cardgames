@@ -112,8 +112,6 @@
       "C": "clubs"
     }
   },
-  "cardCountShort_one": "{{count}} card",
-  "cardCountShort_other": "{{count}} cards",
   "battleStatus": {
     "playPile": "Play: turn over the top card",
     "playPileWithKey": "Play: turn over the top card (key {{key}})",
@@ -124,12 +122,9 @@
     "battle": "{{battle}} One card face down, then one face up",
     "battleToPlay": "{{battle}} To play: {{names}}",
     "toPlay": "To play: {{names}}",
-    "youWonCards_one": "You take {{count}} card",
-    "youWonCards_other": "You take {{count}} cards",
-    "computerWonCards_one": "The computer takes {{count}} card",
-    "computerWonCards_other": "The computer takes {{count}} cards",
-    "playerWonCards_one": "{{name}} takes {{count}} card",
-    "playerWonCards_other": "{{name}} takes {{count}} cards",
+    "youWonCards": "You take the cards",
+    "computerWonCards": "The computer takes the cards",
+    "playerWonCards": "{{name}} takes the cards",
     "eliminated_one": "{{names}} is out",
     "eliminated_other": "{{names}} are out",
     "eliminatedTag": "Out · {{place}}",

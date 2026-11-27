@@ -112,8 +112,6 @@
       "C": "trèfle"
     }
   },
-  "cardCountShort_one": "{{count}} carte",
-  "cardCountShort_other": "{{count}} cartes",
   "battleStatus": {
     "playPile": "Jouer : retourner la carte du dessus",
     "playPileWithKey": "Jouer : retourner la carte du dessus (touche {{key}})",
@@ -124,12 +122,9 @@
     "battle": "{{battle}} Une carte cachée, puis une visible",
     "battleToPlay": "{{battle}} Au tour de\u00a0: {{names}}",
     "toPlay": "Au tour de\u00a0: {{names}}",
-    "youWonCards_one": "Tu remportes {{count}} carte",
-    "youWonCards_other": "Tu remportes {{count}} cartes",
-    "computerWonCards_one": "L'ordinateur remporte {{count}} carte",
-    "computerWonCards_other": "L'ordinateur remporte {{count}} cartes",
-    "playerWonCards_one": "{{name}} remporte {{count}} carte",
-    "playerWonCards_other": "{{name}} remporte {{count}} cartes",
+    "youWonCards": "Tu remportes les cartes",
+    "computerWonCards": "L'ordinateur remporte les cartes",
+    "playerWonCards": "{{name}} remporte les cartes",
     "eliminated_one": "{{names}} est éliminé",
     "eliminated_other": "{{names}} sont éliminés",
     "eliminatedTag": "Éliminé · {{place}}",
