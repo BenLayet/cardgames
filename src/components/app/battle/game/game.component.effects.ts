@@ -66,7 +66,12 @@ export const effects = ({audioService, schedulerService, battleSaveService}: Dep
         },
         // a game resumed while the cards of a round are being collected goes on collecting them
         gameRestored: (dispatchers, {values}) => collectLater(dispatchers, values),
-        roundWon: (dispatchers, {values}) => collectLater(dispatchers, values),
+        // a cheer with the sparks of the winning card, for a human winner: the computer's wins stay silent
+        roundWon: (dispatchers, {values}) => {
+            const winner = values.seats().find(seat => seat.isRoundWinner);
+            if (values.winningCard() !== null && winner && !winner.isComputer) audioService.playCheer();
+            collectLater(dispatchers, values);
+        },
         // the game is saved between two rounds and two steps of a battle,
         // so that it can be resumed after going back or closing the application
         readyForNextCards: ({playerClicked}, {values}) => {
