@@ -9,6 +9,17 @@ const USER_GESTURE_EVENTS = ["pointerdown", "keydown", "touchend"] as const;
 // gain at the loudest setting
 const MAX_MUSIC_GAIN = 0.6;
 const CARD_SLIDE_GAIN = 0.7;
+// the cheer: three notes rising quickly (G5, C6, E6), each a soft bell that fades out, the last one longer;
+// made here with oscillators, so it has no sound file
+const CHEER_NOTES = [
+    {frequency: 783.99, delay: 0, length: 0.35},
+    {frequency: 1046.5, delay: 0.08, length: 0.35},
+    {frequency: 1318.51, delay: 0.16, length: 0.7},
+];
+// a bell has partials above its note: here an octave and a twelfth above, quieter
+const CHEER_PARTIALS = [{ratio: 1, gain: 1}, {ratio: 2, gain: 0.25}, {ratio: 3, gain: 0.08}];
+const CHEER_GAIN = 0.22;
+const CHEER_ATTACK_S = 0.008;
 
 // Plays through the Web Audio API: iOS ignores the volume of <audio> elements, not the gain of a GainNode
 export class AudioAdapter implements AudioService {
@@ -62,6 +73,30 @@ export class AudioAdapter implements AudioService {
     // Short sound effect that can overlap with itself and with the other sounds
     playCardSlide(): void {
         this.playSound(cardSlideSoundUrl, CARD_SLIDE_GAIN);
+    }
+
+    // Short sound that can overlap with itself and with the other sounds
+    playCheer(): void {
+        if (this.soundsVolume <= 0) return;
+        const {context, soundsGain} = this.graph();
+        const start = context.currentTime;
+        CHEER_NOTES.forEach(({frequency, delay, length}) => {
+            const at = start + delay;
+            const envelope = context.createGain();
+            envelope.gain.setValueAtTime(0, at);
+            envelope.gain.linearRampToValueAtTime(CHEER_GAIN, at + CHEER_ATTACK_S);
+            envelope.gain.exponentialRampToValueAtTime(0.0001, at + length);
+            envelope.connect(soundsGain);
+            CHEER_PARTIALS.forEach(({ratio, gain}) => {
+                const oscillator = context.createOscillator();
+                oscillator.frequency.value = frequency * ratio;
+                const partialGain = context.createGain();
+                partialGain.gain.value = gain;
+                oscillator.connect(partialGain).connect(envelope);
+                oscillator.start(at);
+                oscillator.stop(at + length);
+            });
+        });
     }
 
     private graph() {

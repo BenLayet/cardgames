@@ -230,6 +230,16 @@ describe("spider game", () => {
         expect(audioService.playApplause).toHaveBeenCalled();
     });
 
+    it("cheers a completed sequence with its sparks, not with the move that completed it", async () => {
+        await deal([cards("_4D", ...SEQUENCE_WITHOUT_ACE), cards("AS")]);
+        await store.when(event("cardsDropped", {from: {column: 1, index: 0}, to: 0}));
+        expect(audioService.playCheer).not.toHaveBeenCalled();
+
+        await store.when(event("sequenceCelebrated"));
+
+        expect(audioService.playCheer).toHaveBeenCalledOnce();
+    });
+
     it("undoes the last move, including the card turned over and the sequence removed", async () => {
         await deal([cards("_4D", ...SEQUENCE_WITHOUT_ACE), cards("AS")]);
         await store.when(event("cardsDropped", {from: {column: 1, index: 0}, to: 0}));

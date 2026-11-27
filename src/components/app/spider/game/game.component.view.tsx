@@ -81,6 +81,7 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
         const cardWidth = (measured?.cardHeight ?? 0) / CARD_RATIO;
         const {count, speed} = moment === "landed" ? LANDED_SPARKS : WHOLE_SPARKS;
         sparks.current?.burst({...at, color: suitColor(v.completed[sequence]), count, speed: cardWidth * speed});
+        if (moment === "whole") d.sequenceCelebrated();
     };
     const isCollecting = useCardFlight(tableRef, stockRef, {count: v.completed.length, slots: slotsRef, celebrate}, isDraggedElement);
     const Face = compact ? CompactCardView : CardView;
