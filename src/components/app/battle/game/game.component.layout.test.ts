@@ -80,6 +80,24 @@ describe("Bataille table layout", () => {
     });
 });
 
+describe("message of a battle", () => {
+    it.each(sizes)("is written above the slots, clear of the piles and their names, on %i x %i", (width, height) => {
+        for (const players of [2, 3, 4, 5, 6]) {
+            const {cardWidth, cardHeight, seats, message} = tableLayout(players, width, height);
+            const slotsTop = Math.min(...seats.map(seat => seat.played.y)) - cardHeight / 2;
+            expect(message.bottom, `${players} players`).toBeLessThan(slotsTop);
+            // the longest message, "Double bataille !", is about 8.5 letters wide
+            const box = {left: message.x - message.fontSize * 4.25, right: message.x + message.fontSize * 4.25, top: message.bottom - message.fontSize * 1.15};
+            expect(box.top, `${players} players`).toBeGreaterThanOrEqual(0);
+            seats.forEach(({pile}) => {
+                const apart = pile.x + cardWidth / 2 <= box.left || pile.x - cardWidth / 2 >= box.right
+                    || pile.y + cardHeight / 2 <= box.top || pile.y - cardHeight / 2 >= message.bottom;
+                expect(apart, `${players} players`).toBe(true);
+            });
+        }
+    });
+});
+
 describe("keys of the players", () => {
     it("gives each of two players the key on the side of their pile, and L, A, G, P, X, M from three players", () => {
         expect(playerKeys(2)).toEqual(["a", "l"]);

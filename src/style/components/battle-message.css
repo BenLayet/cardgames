@@ -1,8 +1,7 @@
-/* in the middle of the table, over the cards */
+/* just above the cards played in the middle of the table, in the room the layout keeps for it (game.component.layout.ts),
+   so that it covers no card */
 .battle-message-anchor {
     position: absolute;
-    left: 50%;
-    top: 50%;
     width: 0;
     height: 0;
     z-index: var(--z-table-message);
@@ -13,14 +12,14 @@
     position: absolute;
     left: 50%;
     top: 50%;
-    translate: -50% -50%;
-    transform-origin: center;
+    translate: -50% -100%;
+    transform-origin: center bottom;
     pointer-events: none;
     white-space: nowrap;
     color: var(--app-gold);
     font-family: var(--app-font-display);
-    font-size: clamp(2rem, 8vw, 4rem);
-    line-height: 1.1;
+    font-size: var(--battle-message-size, 2rem);
+    line-height: 1.15;
     font-weight: 400;
     text-shadow: 0 0 20px rgba(0, 0, 0, 0.8), 0 0 40px rgba(242, 212, 138, 0.5), 4px 4px 8px rgba(0, 0, 0, 0.5);
     animation: battle-message-pop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1) both,

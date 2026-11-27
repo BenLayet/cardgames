@@ -171,8 +171,10 @@ const Table = ({path}: { path: string }) => {
                     </div>
                 </div>;
             })}
-            {v.battleCount > 0 &&
-                <div className="battle-message-anchor">
+            {/* the message of a battle, just above the cards played: the layout keeps room for it */}
+            {v.battleCount > 0 && layout &&
+                <div className="battle-message-anchor"
+                     style={{left: layout.message.x, top: layout.message.bottom, "--battle-message-size": `${layout.message.fontSize}px`} as CSSProperties}>
                     <div key={v.battleCount} className="battle-message">
                         {t("battle")}{v.battleCount > 1 && ` x${v.battleCount}`}
                     </div>
