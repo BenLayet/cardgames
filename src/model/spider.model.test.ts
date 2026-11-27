@@ -327,13 +327,13 @@ describe("hints", () => {
 describe("saved game", () => {
     it("accepts a game that was saved", () => {
         const dealt = dealTable(createSpiderDeck(2, 104));
-        const saved = JSON.parse(JSON.stringify({table: dealt, history: [dealt], moveCount: 3})) as unknown;
+        const saved = JSON.parse(JSON.stringify({table: dealt, history: [dealt], moveCount: 3, positions: [{table: dealt, history: [], moveCount: 0, savedAt: 1}]})) as unknown;
         expect(isSavedSpiderGame(saved)).toBe(true);
     });
 
     it("accepts a game of 52 cards that was saved", () => {
         const dealt = dealTable(createSpiderDeck(1, 52));
-        expect(isSavedSpiderGame({table: dealt, history: [], moveCount: 0})).toBe(true);
+        expect(isSavedSpiderGame({table: dealt, history: [], moveCount: 0, positions: []})).toBe(true);
     });
 
     it.each([
@@ -342,6 +342,9 @@ describe("saved game", () => {
         ["52 cards in ten columns", {table: {...dealTable(createSpiderDeck(1, 52)), columns: [...dealTable(createSpiderDeck(1, 52)).columns, [], []]}, history: [], moveCount: 0}],
         ["missing cards", {table: {...dealTable(createSpiderDeck(1, 104)), stock: []}, history: [], moveCount: 0}],
         ["an unknown card", {table: {...EMPTY_TABLE, stock: cards("ZZ")}, history: [], moveCount: 0}],
+        ["no saved positions", {table: dealTable(createSpiderDeck(1, 52)), history: [], moveCount: 0}],
+        ["a saved position without its time", {table: dealTable(createSpiderDeck(1, 52)), history: [], moveCount: 0,
+            positions: [{table: dealTable(createSpiderDeck(1, 52)), history: [], moveCount: 0}]}],
     ])("rejects %s", (_, value) => {
         expect(isSavedSpiderGame(value)).toBe(false);
     });

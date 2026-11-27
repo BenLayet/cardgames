@@ -34,6 +34,10 @@ export const eventForwarders = {
         },
         {from: "stockClicked", to: "rowDealt", onCondition: ({values}) => values.canDealRow()},
         {from: "undoRequested", to: "moveUndone", onCondition: ({values}) => values.canUndo()},
+        {
+            from: "positionRestoreRequested", to: "positionRestored",
+            onCondition: ({values, payload}) => !values.hasGameEnded() && payload >= 0 && payload < values.positions().length,
+        },
         {from: "cardsMoved", to: "sequencesCollected", onCondition: ({values}) => values.hasCompletedSequence()},
         {from: "rowDealt", to: "sequencesCollected", onCondition: ({values}) => values.hasCompletedSequence()},
         {from: "sequencesCollected", to: "gameWon", onCondition: ({values}) => values.isWon()},

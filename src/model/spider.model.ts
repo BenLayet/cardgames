@@ -266,13 +266,33 @@ export const findHints = (table: Table): Hint[] => {
     return [canDealRow(table) ? {kind: "deal"} : {kind: "none"}];
 };
 
+// A position the player saved to go back to it later, with what the undo needs from there
+export type SavedPosition = {
+    table: Table;
+    // the tables before the moves that led to this position, for the undo after going back to it
+    history: Table[];
+    moveCount: number;
+    // when it was saved, in milliseconds since 1970
+    savedAt: number;
+};
+
 // A game in progress, as it is saved to be resumed later
 export type SavedSpiderGame = {
     table: Table;
     // the tables before the last moves, for the undo
     history: Table[];
     moveCount: number;
+    // the positions saved by the player, the oldest first
+    positions: SavedPosition[];
 };
+
+// the player keeps a few positions at most: a new one beyond that replaces the oldest
+export const MAX_SAVED_POSITIONS = 3;
+export const withSavedPosition = (positions: SavedPosition[], position: SavedPosition): SavedPosition[] =>
+    [...positions, position].slice(-MAX_SAVED_POSITIONS);
+// the position that a new one replaces, null while there is room
+export const replacedPosition = (positions: SavedPosition[]): SavedPosition | null =>
+    positions.length < MAX_SAVED_POSITIONS ? null : positions[0];
 
 const isSpiderCard = (value: unknown): value is SpiderCard => {
     const card = value as Partial<SpiderCard> | null;
@@ -292,11 +312,21 @@ const isTable = (value: unknown): value is Table => {
         && table.columns.length === spiderLayout(cardCountOf(table as Table)).columnCount;
 };
 
+const isSavedPosition = (value: unknown): value is SavedPosition => {
+    const position = value as Partial<SavedPosition> | null;
+    return typeof position === "object" && position !== null
+        && isTable(position.table)
+        && Array.isArray(position.history) && position.history.every(isTable)
+        && typeof position.moveCount === "number"
+        && typeof position.savedAt === "number";
+};
+
 // Data read back from the storage may have been written by another version of the game, or changed by hand
 export const isSavedSpiderGame = (value: unknown): value is SavedSpiderGame => {
     const game = value as Partial<SavedSpiderGame> | null;
     return typeof game === "object" && game !== null
         && isTable(game.table)
         && Array.isArray(game.history) && game.history.every(isTable)
-        && typeof game.moveCount === "number";
+        && typeof game.moveCount === "number"
+        && Array.isArray(game.positions) && game.positions.every(isSavedPosition);
 };

@@ -1,8 +1,8 @@
 import {useSofter} from "@softer-components/redux-adapter";
 import {useTranslation} from "react-i18next";
-import {type CSSProperties, type KeyboardEvent, useEffect, useEffectEvent, useRef} from "react";
+import {type CSSProperties, type KeyboardEvent, useEffect, useEffectEvent, useRef, useState} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faLightbulb, faRotateLeft} from "@fortawesome/free-solid-svg-icons";
+import {faBookmark, faLightbulb, faRotateLeft} from "@fortawesome/free-solid-svg-icons";
 
 import type {GameContract} from "./game.component.ts";
 import {CardView} from "../../../card/CardView.tsx";
@@ -18,6 +18,7 @@ import {EndMessage} from "../../../end-message/EndMessage.tsx";
 import {spiderRank} from "../../../../model/spider.model.ts";
 import {useCardPointer} from "./useCardPointer.ts";
 import {usePressRepeat} from "../../../../hooks/usePressRepeat.ts";
+import {SpiderPositions} from "./SpiderPositions.tsx";
 
 // columns always have room for this many card heights, even on a short screen
 const MIN_COLUMN_ROOM = 2;
@@ -40,6 +41,7 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
     const [v, d] = useSofter<GameContract>(path);
     const {t} = useTranslation();
     const undoPress = usePressRepeat(() => d.undoRequested(), v.canUndo, UNDO_REPEAT_MS);
+    const [arePositionsOpen, setPositionsOpen] = useState(false);
     const pointer = useCardPointer(v.movableRunStarts, outcome => {
         if (outcome.kind === "cardClicked") d.cardClicked(outcome.position);
         if (outcome.kind === "columnClicked") d.columnClicked(outcome.column);
@@ -190,6 +192,19 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
                 <FontAwesomeIcon icon={faRotateLeft}/>
                 <span>{t("undo")}</span>
             </button>
+            <button className="btn table-action" disabled={v.hasGameEnded} aria-haspopup="dialog"
+                    onClick={() => setPositionsOpen(true)}>
+                <FontAwesomeIcon icon={faBookmark}/>
+                <span>{t("positions.button")}</span>
+            </button>
         </TableActions>
+        {arePositionsOpen && <SpiderPositions positions={v.positions} replaced={v.replacedPosition}
+                                              onSave={() => d.positionSaveRequested(Date.now())}
+                                              onRestore={index => {
+                                                  setPositionsOpen(false);
+                                                  d.positionRestoreRequested(index);
+                                              }}
+                                              onDelete={index => d.positionDeleted(index)}
+                                              onClose={() => setPositionsOpen(false)}/>}
     </div>;
 };

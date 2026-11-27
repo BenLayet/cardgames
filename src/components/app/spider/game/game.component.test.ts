@@ -291,6 +291,58 @@ describe("spider game", () => {
         expect(resumed.getValues("").columns()[0].map(c => c.card)).toEqual(["4D", "8S"]);
     });
 
+    it("saves the current position and goes back to it with its undo, counting one move", async () => {
+        await deal([cards("_4D", "8S", "7S"), cards("8H"), cards("9D")]);
+        await store.when(event("cardsDropped", {from: {column: 0, index: 2}, to: 1}));
+        await store.when(event("positionSaveRequested", 1000));
+        await store.when(event("cardsDropped", {from: {column: 0, index: 1}, to: 2}));
+        expect(column(0)).toEqual(["4D"]);
+        expect(values().moveCount()).toBe(2);
+
+        await store.when(event("positionRestoreRequested", 0));
+
+        expect(column(0)).toEqual(["_4D", "8S"]);
+        expect(column(1)).toEqual(["8H", "7S"]);
+        expect(values().moveCount()).toBe(3);
+        expect(values().positions()).toHaveLength(1);
+        await store.when(event("undoRequested"));
+        expect(column(0)).toEqual(["_4D", "8S", "7S"]);
+        expect(values().canUndo()).toBe(false);
+    });
+
+    it("keeps three positions at most, a new one replacing the oldest", async () => {
+        await deal([cards("8S"), cards("9H"), cards("9D")]);
+        for (const savedAt of [1, 2, 3]) await store.when(event("positionSaveRequested", savedAt));
+        expect(values().replacedPosition()?.savedAt).toBe(1);
+
+        await store.when(event("positionSaveRequested", 4));
+
+        expect(values().positions().map(p => p.savedAt)).toEqual([2, 3, 4]);
+    });
+
+    it("deletes a saved position", async () => {
+        await deal([cards("8S"), cards("9H")]);
+        await store.when(event("positionSaveRequested", 1));
+        await store.when(event("positionSaveRequested", 2));
+
+        await store.when(event("positionDeleted", 0));
+
+        expect(values().positions().map(p => p.savedAt)).toEqual([2]);
+        expect(spiderSaveService.load(ONE_SUIT)?.positions).toHaveLength(1);
+    });
+
+    it("keeps the saved positions with the game, and drops them for a new game", async () => {
+        await deal([cards("_4D", "8S"), cards("9H")]);
+        await store.when(event("positionSaveRequested", 1));
+        const resumed = initTestStore(gameDef({audioService, spiderSaveService}));
+
+        await resumed.when(event("restoreRequested", ONE_SUIT));
+        expect(resumed.getValues("").positions()).toHaveLength(1);
+
+        await resumed.when(event("dealRequested", ONE_SUIT));
+        expect(resumed.getValues("").positions()).toEqual([]);
+    });
+
     it("forgets the saved game once it is won", async () => {
         const completed = Array<Table["completed"][number]>(7).fill("S");
         await deal([cards(...SEQUENCE_WITHOUT_ACE), cards("AS"), ...NO_OTHER_CARDS], {completed});

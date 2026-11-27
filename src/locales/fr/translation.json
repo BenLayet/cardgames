@@ -59,6 +59,22 @@
   "moves_one": "{{count}} coup",
   "moves_other": "{{count}} coups",
   "undo": "Annuler",
+  "positions": {
+    "button": "Positions",
+    "title": "Positions",
+    "none": "Enregistre la position actuelle pour pouvoir y revenir plus tard.",
+    "move_one": "Coup {{count}}",
+    "move_other": "Coup {{count}}",
+    "savedAt": "Enregistrée à {{time}}",
+    "restore": "Revenir",
+    "restoreLabel": "Revenir à la position du {{name}}",
+    "delete": "Effacer",
+    "deleteLabel": "Effacer la position du {{name}}",
+    "free": "Emplacement libre",
+    "save": "Enregistrer la position actuelle",
+    "replaces": "Remplace le {{name}}, la plus ancienne",
+    "note": "Revenir compte comme un coup et ne s'annule pas. Annuler continue ensuite depuis la position retrouvée."
+  },
   "dealRow_one": "Distribuer une rangée ({{count}} restante)",
   "dealRow_other": "Distribuer une rangée ({{count}} restantes)",
   "dealBlocked": "Remplis chaque rangée avant de distribuer",
@@ -181,7 +197,7 @@
       },
       {
         "title": "Aide",
-        "text": "L'ampoule propose un coup\u00a0; touche-la encore pour le coup suivant, puis pour cacher l'indice. La flèche annule le dernier coup\u00a0; garde-la appuyée pour annuler en boucle, deux coups par seconde. Annuler compte comme un coup."
+        "text": "L'ampoule propose un coup\u00a0; touche-la encore pour le coup suivant, puis pour cacher l'indice. La flèche annule le dernier coup\u00a0; garde-la appuyée pour annuler en boucle, deux coups par seconde. Annuler compte comme un coup. Le marque-page « Positions » garde jusqu'à trois positions ; revenir à l'une d'elles compte comme un coup, ne s'annule pas, et Annuler continue ensuite depuis cette position. Une nouvelle partie les efface."
       },
       {
         "title": "Au clavier",

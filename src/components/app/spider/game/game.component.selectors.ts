@@ -10,6 +10,7 @@ import {
     movableRunStart,
     sequenceCountOf,
     stockRowCount,
+    replacedPosition,
     type SavedSpiderGame,
 } from "../../../../model/spider.model.ts";
 
@@ -36,6 +37,9 @@ export const selectors = {
     moveCount: (state: State) => state.moveCount,
     canUndo: (state: State) => state.history.length > 0 && !state.gameEnded,
     hasGameEnded: (state: State) => state.gameEnded,
+    positions: (state: State) => state.positions,
+    // the saved position that saving one more would replace, null while there is room
+    replacedPosition: (state: State) => replacedPosition(state.positions),
     variant: (state: State) => state.variant,
     // the places for the completed sequences
     sequenceCount: (state: State) => sequenceCountOf(state.table),
@@ -44,6 +48,7 @@ export const selectors = {
         table: state.table,
         history: state.history,
         moveCount: state.moveCount,
+        positions: state.positions,
     }),
 } satisfies Selectors<State>;
 export type Values = ExtractComponentValuesContract<typeof selectors>;

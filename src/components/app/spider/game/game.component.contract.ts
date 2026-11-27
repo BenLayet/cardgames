@@ -10,6 +10,10 @@ export const uiEvents = [
     "stockClicked",
     "undoRequested",
     "hintRequested",
+    // the positions saved by the player: save the current one (at this time), go back to one, delete one
+    "positionSaveRequested",
+    "positionRestoreRequested",
+    "positionDeleted",
     // the end of a game: a new game with the same options, or the menu of the game
     "playAgainRequested",
     "menuRequested",
@@ -28,6 +32,7 @@ export const allEvents = [
     "rowDealt",
     "sequencesCollected",
     "moveUndone",
+    "positionRestored",
     "gameWon",
     "gameEnded",
 ] as const;
@@ -43,6 +48,10 @@ export type Events = EventsContract<
         gameRestored: SavedSpiderGame,
         moveRequested: Move,
         cardsMoved: Move,
+        positionSaveRequested: number,
+        positionRestoreRequested: number,
+        positionRestored: number,
+        positionDeleted: number,
     }, typeof uiEvents
 >;
 
