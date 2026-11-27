@@ -27,16 +27,6 @@
     padding-bottom: var(--app-space-4);
 }
 
-/* the choice between human and computer, under the name, written in words */
-.seat-kind {
-    display: flex;
-    flex-wrap: nowrap;
-}
-
-.seat-kind > .btn {
-    flex: 1 1 0;
-}
-
 /* Solo, then 2 to 6 players */
 .setup-player-count {
     display: flex;

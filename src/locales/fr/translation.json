@@ -22,8 +22,6 @@
     "pouilleux": "Évite de garder la dernière carte"
   },
   "players": "Joueurs",
-  "addPlayer": "Ajouter un joueur",
-  "removePlayer": "Retirer un joueur",
   "playerName": "Nom du joueur {{number}}",
   "playerNumber": "Joueur {{number}}",
   "human": "Humain",

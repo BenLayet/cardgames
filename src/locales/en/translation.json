@@ -22,8 +22,6 @@
     "pouilleux": "Don't be left with the last card"
   },
   "players": "Players",
-  "addPlayer": "Add a player",
-  "removePlayer": "Remove a player",
   "playerName": "Name of player {{number}}",
   "playerNumber": "Player {{number}}",
   "human": "Human",

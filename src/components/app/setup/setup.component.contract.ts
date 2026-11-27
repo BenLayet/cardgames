@@ -7,9 +7,6 @@ export const uiEvents = [
     "backRequested",
     "setCardCountRequested",
     "setSuitCountRequested",
-    "addPlayerRequested",
-    "removePlayerRequested",
-    "toggleSeatRequested",
     "renamePlayerRequested",
     "setPlayersRequested",
 ] as const;
@@ -17,7 +14,7 @@ export const allEvents = [
     ...uiEvents,
 ] as const;
 export type Events = EventsContract<
-    typeof allEvents, { setCardCountRequested: number, setSuitCountRequested: number, toggleSeatRequested: number, setPlayersRequested: number, renamePlayerRequested: { index: number, name: string } }, typeof uiEvents
+    typeof allEvents, { setCardCountRequested: number, setSuitCountRequested: number, setPlayersRequested: number, renamePlayerRequested: { index: number, name: string } }, typeof uiEvents
 >;
 
 export type Contract = {

@@ -63,7 +63,7 @@ describe("battle", () => {
     });
 
     it("starts a game between two humans when the second seat is a human", async () => {
-        await store.when({name: "toggleSeatRequested", payload: 1, statePath: setupPath});
+        await store.when({name: "setPlayersRequested", payload: 2, statePath: setupPath});
         await store.when({name: "startGameRequested", statePath: setupPath});
         await vi.runAllTimersAsync();
 
@@ -82,7 +82,7 @@ describe("battle", () => {
     });
 
     it("gives the names typed on the setup screen to the game", async () => {
-        await store.when({name: "toggleSeatRequested", payload: 1, statePath: setupPath});
+        await store.when({name: "setPlayersRequested", payload: 2, statePath: setupPath});
         await store.when({name: "renamePlayerRequested", payload: {index: 0, name: "Tom"}, statePath: setupPath});
         await store.when({name: "startGameRequested", statePath: setupPath});
         await vi.runAllTimersAsync();
@@ -131,7 +131,7 @@ describe("battle", () => {
         await battle.when({name: "goHomeRequested", statePath: []});
 
         // with two humans, there is no game to resume; a new one is started and left
-        await battle.when({name: "toggleSeatRequested", payload: 1, statePath: setupPath});
+        await battle.when({name: "setPlayersRequested", payload: 2, statePath: setupPath});
         expect(battle.getValues("").canResume()).toBe(false);
         await battle.when({name: "startGameRequested", statePath: setupPath});
         await vi.runAllTimersAsync();
@@ -140,7 +140,7 @@ describe("battle", () => {
         expect(battleSaveService.savedVariants()).toHaveLength(2);
 
         // back to Solo: the game against the computer is still there
-        await battle.when({name: "toggleSeatRequested", payload: 1, statePath: setupPath});
+        await battle.when({name: "setPlayersRequested", payload: 1, statePath: setupPath});
         expect(battle.getValues("").canResume()).toBe(true);
         await battle.when({name: "resumeRequested", statePath: []});
         await vi.runAllTimersAsync();
