@@ -205,8 +205,9 @@ const Table = ({path}: { path: string }) => {
                 <h2>{t("battleEnd.playerWon", {name: seatName(v.gameWinner)})}</h2>
             </>}
             {v.isTiedGame && <h2>{t("tie")}</h2>}
-            {/* between humans, the place of each player, with the colour of their seat */}
-            {!v.isSolo && <ol className="battle-ranking">
+            {/* between three humans or more, the place of each player, with the colour of their seat;
+                with two, the title already says who won */}
+            {!v.isSolo && v.seats.length > 2 && <ol className="battle-ranking">
                 {v.ranking.map(index => {
                     const seat = v.seats[index];
                     return <li key={index} className={seat.rank === 1 ? "battle-ranking-first" : undefined}
