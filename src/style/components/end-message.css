@@ -5,7 +5,7 @@
     bottom: 0;
     right: 0;
     left: 0;
-    z-index: 10000;
+    z-index: var(--z-end-message);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -27,10 +27,19 @@
     text-shadow: 0 0 20px rgba(0, 0, 0, 0.8), 0 0 40px rgba(242, 212, 138, 0.5), 4px 4px 8px rgba(0, 0, 0, 0.5);
 }
 
-/* what to do next, above the fireworks */
-.end-message-actions {
+/* the title, texts and buttons are drawn over the fireworks and tomatoes, which stay behind them */
+.end-message-overlay > * {
     position: relative;
-    z-index: 10000;
+    z-index: var(--z-end-content);
+}
+
+.end-message-overlay > :is(.fireworks, .tomatoes) {
+    position: absolute;
+    z-index: var(--z-end-effects);
+}
+
+/* what to do next */
+.end-message-actions {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -45,8 +54,6 @@
 
 /* the place of each player at the end of a Bataille between humans */
 .battle-ranking {
-    position: relative;
-    z-index: 10000;
     display: grid;
     gap: 4px;
     width: min(20rem, calc(100% - 2 * var(--app-space-3)));

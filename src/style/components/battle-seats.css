@@ -23,7 +23,7 @@
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 1;
+    z-index: var(--z-table-cards);
     pointer-events: none;
 }
 
@@ -31,15 +31,26 @@
     display: contents;
 }
 
-/* the place of the pile: the cards lie in it */
+/* the place of a stack: the cards lie in it, over its outline;
+   its marks (name, key, count, outline of a tie or a winner, veil) are drawn at the same place, over the cards */
 .battle-pile,
-.battle-played {
+.battle-played,
+.battle-marks {
     position: absolute;
     width: var(--battle-card-w);
     height: var(--battle-card-h);
     translate: -50% -50%;
     border-radius: var(--app-radius-sm);
-    z-index: 2;
+}
+
+.battle-pile,
+.battle-played {
+    z-index: var(--z-table-slot);
+}
+
+.battle-marks {
+    z-index: var(--z-table-marks);
+    pointer-events: none;
 }
 
 /* the slot of each player in the middle of the table, in the player's colour */
@@ -57,7 +68,7 @@
 }
 
 /* the outline of a pile: ruby in a battle, gold for the round winner */
-.battle-pile::after {
+.battle-marks--pile::after {
     content: "";
     position: absolute;
     inset: -5px;
@@ -67,13 +78,13 @@
     pointer-events: none;
 }
 
-.battle-seat--tied .battle-pile::after {
+.battle-seat--tied .battle-marks--pile::after {
     opacity: 1;
     border-color: #d9475c;
     border-width: 3px;
 }
 
-.battle-seat--winner .battle-pile::after {
+.battle-seat--winner .battle-marks--pile::after {
     opacity: 1;
     border-color: var(--app-gold);
     border-width: 3px;
@@ -81,8 +92,7 @@
 }
 
 /* out of the battle: a veil of felt over the pile and the cards played, which stay there for the winner */
-.battle-seat--dimmed .battle-pile,
-.battle-seat--dimmed .battle-played {
+.battle-seat--dimmed .battle-marks {
     background: #0a2a1fa0;
 }
 
@@ -112,26 +122,26 @@
     pointer-events: none;
 }
 
-.battle-pile--label-below .battle-seat-label {
+.battle-marks--label-below .battle-seat-label {
     top: calc(100% + 6px);
     left: 50%;
     translate: -50% 0;
 }
 
-.battle-pile--label-above .battle-seat-label {
+.battle-marks--label-above .battle-seat-label {
     bottom: calc(100% + 14px);
     left: 50%;
     translate: -50% 0;
 }
 
-.battle-pile--label-left .battle-seat-label {
+.battle-marks--label-left .battle-seat-label {
     right: calc(100% + 8px);
     top: 50%;
     translate: 0 -50%;
     align-items: flex-end;
 }
 
-.battle-pile--label-right .battle-seat-label {
+.battle-marks--label-right .battle-seat-label {
     left: calc(100% + 8px);
     top: 50%;
     translate: 0 -50%;
@@ -223,7 +233,6 @@
     left: 50%;
     top: -14px;
     translate: -50% 0;
-    z-index: 1;
     font-weight: 700;
     font-size: .8rem;
     color: #2a1d06;

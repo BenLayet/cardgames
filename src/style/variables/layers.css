@@ -1,0 +1,47 @@
+/* The order in which things are drawn (z-index), from the bottom up. Every z-index of the app comes from this scale:
+   never write a number. A new layer is added here, at its place, with what it holds. */
+:root {
+    /* ---- on the table: inside the table only (.battle-table and .spider-table isolate them) ---- */
+    /* the places of the stacks: the outline of a pile, of a slot, of an empty column */
+    --z-table-slot: 1;
+    /* the cards, laid out and moving between stacks */
+    --z-table-cards: 2;
+    /* a card flying from one place of the table to another, over the cards that lie still (useCardFlight.ts) */
+    --z-table-moving: 3;
+    /* what is written or shown over the cards: names, keys, counts, outlines of a tie or a winner, veils */
+    --z-table-marks: 4;
+    /* the message in the middle of the table ("Battle!") */
+    --z-table-message: 5;
+    /* the card dragged by the player, over everything on the table */
+    --z-table-dragged: 6;
+
+    /* ---- on the page ---- */
+    /* the cards that fly from the table to a place outside it (a completed Spider sequence) */
+    --z-card-flight: 100;
+    /* the status line, at the bottom */
+    --z-status: 200;
+    /* the actions of the game, in the bottom right corner */
+    --z-table-actions: 300;
+    /* the end of a game: victory or defeat, over the table, under the top bar */
+    --z-end-message: 400;
+    /* a newer version is ready: over the actions and the end message */
+    --z-update-banner: 500;
+    /* the top bar, with its Settings panel */
+    --z-app-bar: 600;
+    /* the windows (rules, about), over everything the player can touch */
+    --z-modal: 700;
+    /* the wooden edge of the table around the screen: drawn over all, touches go through it */
+    --z-frame: 800;
+
+    /* ---- inside the top bar ---- */
+    /* the backdrop that closes the Settings panel when touched beside it */
+    --z-menu-backdrop: 1;
+    /* the Settings button and panel, over their backdrop */
+    --z-menu: 2;
+
+    /* ---- inside the end message ---- */
+    /* fireworks and tomatoes, behind the text */
+    --z-end-effects: 0;
+    /* the title, texts and buttons */
+    --z-end-content: 1;
+}

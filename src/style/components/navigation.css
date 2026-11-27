@@ -11,7 +11,7 @@
 
 .app-bar {
     position: fixed;
-    z-index: 1000;
+    z-index: var(--z-app-bar);
     top: var(--app-frame);
     left: var(--app-frame);
     right: var(--app-frame);
@@ -109,7 +109,7 @@ body:has(.table-status) #root {
 /* the actions of the game, in the bottom right corner, under the right thumb */
 .table-actions {
     position: fixed;
-    z-index: 900;
+    z-index: var(--z-table-actions);
     right: calc(var(--app-frame) + max(var(--app-space-2), env(safe-area-inset-right, 0px)));
     bottom: calc(var(--app-frame) + max(var(--app-space-2), env(safe-area-inset-bottom, 0px)));
     display: flex;
@@ -139,7 +139,7 @@ body:has(.table-status) #root {
 /* the status line of every game, at the bottom in the middle: count of moves, hints, whose turn it is */
 .table-status {
     position: fixed;
-    z-index: 800;
+    z-index: var(--z-status);
     left: calc(var(--app-frame) + var(--app-space-3));
     right: calc(var(--app-frame) + var(--app-space-3));
     bottom: calc(var(--app-frame) + var(--table-action-size) + var(--app-space-2) * 2 + env(safe-area-inset-bottom, 0px));
@@ -171,7 +171,7 @@ body:has(.table-status) #root {
 
 .update-banner {
     position: fixed;
-    z-index: 1100;
+    z-index: var(--z-update-banner);
     left: 50%;
     bottom: calc(var(--app-frame) + max(var(--app-space-2), env(safe-area-inset-bottom, 0px)));
     transform: translateX(-50%);

@@ -73,7 +73,9 @@ movement.current = element.animate([{transform: current}, {transform: target}], 
   The rotation is the same for a given index on every render, so cards do not jitter.
 
 The z-index is `index + stackIndex * 100`, so cards higher in a stack are drawn on top, and
-stacks being played are drawn above the others.
+stacks being played are drawn above the others. It only orders the cards among themselves: the cards
+container sits in the `--z-table-cards` layer of `src/style/variables/layers.css`, over the outlines of
+the stacks and under what is written about them.
 
 ### 4. Turning a card over (CSS transition)
 

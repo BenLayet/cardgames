@@ -143,8 +143,10 @@ const Table = ({path}: { path: string }) => {
                 const key = v.isSolo ? null : playerKeys(v.seatCount)[index];
                 const isPlayable = !seat.isComputer && seat.rank === null;
                 return <div key={index} className={seatClass(seat)} style={{"--seat-color": `var(--app-seat-${index})`} as CSSProperties}>
+                    {/* the places of the stacks lie under the cards, what is written about them over the cards (layers.css) */}
                     {hasSlot && <div className="battle-played" style={{left: played.x, top: played.y}}/>}
-                    <div className={`battle-pile battle-pile--label-${labelSide}`} style={{left: pile.x, top: pile.y}}
+                    {hasSlot && <div className="battle-marks battle-marks--played" style={{left: played.x, top: played.y}}/>}
+                    <div className="battle-pile" style={{left: pile.x, top: pile.y}}
                          {...(isPlayable ? {
                              tabIndex: 0,
                              role: "button",
@@ -152,7 +154,8 @@ const Table = ({path}: { path: string }) => {
                              "aria-keyshortcuts": key?.toUpperCase(),
                              title: key ? t("battleStatus.playPileWithKey", {key: key.toUpperCase()}) : undefined,
                              onKeyDown: onPileKey(index),
-                         } : {})}>
+                         } : {})}/>
+                    <div className={`battle-marks battle-marks--pile battle-marks--label-${labelSide}`} style={{left: pile.x, top: pile.y}}>
                         {key && isPlayable && <span className="battle-keycap" aria-hidden="true">{key.toUpperCase()}</span>}
                         {seat.isRoundWinner && <span className="battle-won-count">+{v.lastWonCount}</span>}
                         <div className="battle-seat-label">

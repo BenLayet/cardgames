@@ -1,9 +1,11 @@
 import {type ReactNode, useEffect} from "react";
+import {createPortal} from "react-dom";
 import {useTranslation} from "react-i18next";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faXmark} from "@fortawesome/free-solid-svg-icons";
 
-// A window over the screen, closed by its button, the Escape key or a click beside it
+// A window over the screen, closed by its button, the Escape key or a click beside it.
+// It is drawn at the end of the page, so that it lies over everything (layers.css), whoever opens it
 export const Modal = ({title, onClose, children}: { title: string, onClose: () => void, children: ReactNode }) => {
     const {t} = useTranslation();
     useEffect(() => {
@@ -13,7 +15,7 @@ export const Modal = ({title, onClose, children}: { title: string, onClose: () =
         window.addEventListener("keydown", onKeyDown);
         return () => window.removeEventListener("keydown", onKeyDown);
     }, [onClose]);
-    return <div className="modal-overlay" onClick={onClose}>
+    return createPortal(<div className="modal-overlay" onClick={onClose}>
         <div className="modal-panel" role="dialog" aria-modal="true" aria-label={title} onClick={event => event.stopPropagation()}>
             <div className="modal-header">
                 <h2 className="modal-title display-font">{title}</h2>
@@ -23,5 +25,5 @@ export const Modal = ({title, onClose, children}: { title: string, onClose: () =
             </div>
             <div className="modal-body">{children}</div>
         </div>
-    </div>;
+    </div>, document.body);
 };

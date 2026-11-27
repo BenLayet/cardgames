@@ -7,6 +7,8 @@
     --spider-card-h: calc(var(--spider-card-w) * 200 / 143);
     user-select: none;
     -webkit-user-select: none;
+    /* the cards are stacked among themselves only (layers.css): the status line, the actions and the top bar stay over them */
+    isolation: isolate;
 }
 
 /* a phone held upright: the columns take the whole width */
@@ -125,7 +127,7 @@
 }
 
 .spider-card--dragged {
-    z-index: 1000;
+    z-index: var(--z-table-dragged);
     animation: none;
     pointer-events: none;
     cursor: grabbing;
@@ -256,7 +258,7 @@
 .card-flight-layer {
     position: fixed;
     inset: 0;
-    z-index: 60;
+    z-index: var(--z-card-flight);
     pointer-events: none;
 }
 
