@@ -233,3 +233,17 @@ const PLAYER_KEYS = ["l", "a", "g", "p", "x", "m"] as const;
 // player 1 (bottom left) with A, player 2 (top right) with L
 const TWO_PLAYER_KEYS = ["a", "l"] as const;
 export const playerKeys = (seatCount: number): readonly string[] => seatCount === 2 ? TWO_PLAYER_KEYS : PLAYER_KEYS;
+
+// how far from the centre of a pile the cards won land, before going under it: part of the card, on the side of the centre of the table
+const LANDING_PART = 0.55;
+// The centre of where the cards won in a round land against the pile of the winner, on the side of the centre of the table,
+// half covering the pile, before they slide under it
+export const landingPoint = (layout: TableLayout, seat: number, tableCentre: Point): Point => {
+    const {pile} = layout.seats[seat];
+    const dx = tableCentre.x - pile.x, dy = tableCentre.y - pile.y;
+    const distance = Math.hypot(dx, dy);
+    if (distance === 0) return pile;
+    // across the card when the centre is beside the pile, along it when the centre is above or below
+    const reach = (Math.abs(dx) > Math.abs(dy) ? layout.cardWidth : layout.cardHeight) * LANDING_PART;
+    return {x: pile.x + dx / distance * reach, y: pile.y + dy / distance * reach};
+};

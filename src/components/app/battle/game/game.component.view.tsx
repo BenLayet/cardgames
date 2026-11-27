@@ -6,7 +6,9 @@ import {faRobot} from "@fortawesome/free-solid-svg-icons";
 
 import type {GameContract} from "./game.component.ts";
 import {useMeasure} from "../../../../hooks/useMeasure.ts";
-import {AnimatedCardView, type LayoutState} from "../../../card/AnimatedCardView.tsx";
+import {AnimatedCardView, type Coordinates, type LayoutState} from "../../../card/AnimatedCardView.tsx";
+import {LANDED_MS, RAISE} from "../../../card/card-motion.ts";
+import {Sparks, type SparksHandle} from "../../../sparks/Sparks.tsx";
 import type {CardPlacement} from "../../../../model/deck.model.ts";
 import type {BattleStackLocation} from "./game.component.state.ts";
 import {Fireworks} from "../../../fireworks/Fireworks.tsx";
@@ -14,7 +16,7 @@ import {Tomatoes} from "../../../tomatoes/Tomatoes.tsx";
 import {EndMessage} from "../../../end-message/EndMessage.tsx";
 import {TableActions} from "../../../navigation/TableActions.tsx";
 import {isCompactWidth} from "../../../card/card-size.ts";
-import {nearestSeat, playerKeys, type TableLayout, tableLayout} from "./game.component.layout.ts";
+import {landingPoint, nearestSeat, playerKeys, type TableLayout, tableLayout} from "./game.component.layout.ts";
 import type {SeatView} from "./game.component.selectors.ts";
 
 
@@ -23,6 +25,9 @@ const DEAL_STAGGER_MS = 20;
 const seatOf = (location: BattleStackLocation) => Number(/^seat(\d+)/.exec(location)?.[1] ?? 0);
 const dealDelayMs = (seatCount: number) => ({stackLocation, index}: CardPlacement<BattleStackLocation>) =>
     (index * seatCount + seatOf(stackLocation)) * DEAL_STAGGER_MS;
+// the sparks for the winner of a round: how many, and how fast in part of the card width per frame
+const WIN_SPARKS = {count: 70, speed: 0.045};
+const LANDING_SPARKS = {count: 50, speed: 0.04};
 
 export const View = ({path = ""}) => {
     const [v] = useSofter<GameContract>(path);
@@ -57,6 +62,41 @@ const Table = ({path}: { path: string }) => {
         });
         return {table: {left: 0, top: 0}, stackLocations};
     }, [layout, size]);
+
+    // the cards won land against the pile of the winner, on the side of the centre of the table, then go under it
+    const winner = v.roundWinner;
+    const landing: { centre: { x: number, y: number }, corner: Coordinates } | null = useMemo(() => {
+        if (winner === null || !layout || !size) return null;
+        const centre = landingPoint(layout, winner, {x: size.width / 2, y: size.height / 2});
+        return {centre, corner: {left: centre.x - layout.cardWidth / 2, top: centre.y - layout.cardHeight / 2}};
+    }, [winner, layout, size]);
+
+    // sparks, gold and in the colour of the winner: from the winning card, then from the pile when the cards land on it.
+    // A game resumed while its cards are being collected shows none.
+    const sparks = useRef<SparksHandle>(null);
+    const celebratedCard = useRef(v.winningCard);
+    useEffect(() => {
+        if (v.winningCard === celebratedCard.current) return;
+        celebratedCard.current = v.winningCard;
+        if (v.winningCard === null || winner === null || !layout) return;
+        const {played} = layout.seats[winner];
+        sparks.current?.burst({
+            x: played.x, y: played.y - layout.cardHeight * RAISE.height, color: `--app-seat-${winner}`,
+            count: WIN_SPARKS.count, speed: layout.cardWidth * WIN_SPARKS.speed,
+        });
+    }, [v.winningCard, winner, layout]);
+    const playedCount = v.cardsWithLocation.filter(c => c.placement.stackLocation.endsWith("Played")).length;
+    const lastPlayedCount = useRef(playedCount);
+    useEffect(() => {
+        const collected = playedCount < lastPlayedCount.current;
+        lastPlayedCount.current = playedCount;
+        if (!collected || landing === null || winner === null || !layout) return;
+        const timer = setTimeout(() => sparks.current?.burst({
+            x: landing.centre.x, y: landing.centre.y, color: `--app-seat-${winner}`,
+            count: LANDING_SPARKS.count, speed: layout.cardWidth * LANDING_SPARKS.speed,
+        }), LANDED_MS);
+        return () => clearTimeout(timer);
+    }, [playedCount, landing, winner, layout]);
 
     const humanSeats = v.seats.flatMap((seat, index) => !seat.isComputer && seat.rank === null ? [index] : []);
     // against the computer the whole table plays for the player; between humans each one taps near their own pile.
@@ -142,14 +182,13 @@ const Table = ({path}: { path: string }) => {
     return <>
         <div ref={tableRef} className="battle-table" onPointerDown={onTableClicked}
              style={layout ? {"--battle-card-w": `${layout.cardWidth}px`} as CSSProperties : undefined}>
+            {/* the places of the stacks lie under the cards; what is written about them is drawn with the cards, over them (layers.css) */}
             {layout && v.seats.map((seat, index) => {
-                const {pile, played, hasSlot, labelSide} = layout.seats[index];
+                const {pile, played, hasSlot} = layout.seats[index];
                 const key = v.isSolo ? null : playerKeys(v.seatCount)[index];
                 const isPlayable = !seat.isComputer && seat.rank === null;
                 return <div key={index} className={seatClass(seat)} style={{"--seat-color": `var(--app-seat-${index})`} as CSSProperties}>
-                    {/* the places of the stacks lie under the cards, what is written about them over the cards (layers.css) */}
                     {hasSlot && <div className="battle-played" style={{left: played.x, top: played.y}}/>}
-                    {hasSlot && <div className="battle-marks battle-marks--played" style={{left: played.x, top: played.y}}/>}
                     <div className="battle-pile" style={{left: pile.x, top: pile.y}}
                          {...(isPlayable ? {
                              tabIndex: 0,
@@ -159,19 +198,6 @@ const Table = ({path}: { path: string }) => {
                              title: key ? t("battleStatus.playPileWithKey", {key: key.toUpperCase()}) : undefined,
                              onKeyDown: onPileKey(index),
                          } : {})}/>
-                    <div className={`battle-marks battle-marks--pile battle-marks--label-${labelSide}`} style={{left: pile.x, top: pile.y}}>
-                        {key && isPlayable && <span className="battle-keycap" aria-hidden="true">{key.toUpperCase()}</span>}
-                        <div className="battle-seat-label">
-                            <div className="battle-seat-name">
-                                <i className="battle-seat-dot"/>
-                                {seat.isComputer && <FontAwesomeIcon icon={faRobot} className="battle-seat-bot"/>}
-                                <span>{seatName(index)}</span>
-                            </div>
-                            {/* no card count under the name, to keep some suspense (#165) */}
-                            {seat.rank !== null && !v.hasGameEnded &&
-                                <span className="battle-seat-tag">{t("battleStatus.eliminatedTag", {place: place(seat.rank)})}</span>}
-                        </div>
-                    </div>
                 </div>;
             })}
             {/* the message of a battle, just above the cards played: the layout keeps room for it */}
@@ -182,12 +208,37 @@ const Table = ({path}: { path: string }) => {
                         {battleName()}
                     </div>
                 </div>}
+            {/* the cards, then what is written about them; a card won flies over both (layers.css) */}
             <div className="battle-cards">
                 {layoutState && v.cardsWithLocation.map(c =>
                     <AnimatedCardView key={c.card} card={c.card} placement={c.placement} layoutState={layoutState}
                                       entry={v.isRestored ? "inPlace" : dealDelayMs(v.seatCount)(c.placement)}
-                                      compact={layout !== null && isCompactWidth(layout.cardWidth)}/>)}
+                                      compact={layout !== null && isCompactWidth(layout.cardWidth)}
+                                      raised={c.card === v.winningCard}
+                                      landing={landing !== null && c.placement.stackLocation === `seat${winner}Pile` ? landing.corner : undefined}/>)}
+                {layout && v.seats.map((seat, index) => {
+                    const {pile, played, hasSlot, labelSide} = layout.seats[index];
+                    const key = v.isSolo ? null : playerKeys(v.seatCount)[index];
+                    const isPlayable = !seat.isComputer && seat.rank === null;
+                    return <div key={index} className={seatClass(seat)} style={{"--seat-color": `var(--app-seat-${index})`} as CSSProperties}>
+                        {hasSlot && <div className="battle-marks battle-marks--played" style={{left: played.x, top: played.y}}/>}
+                        <div className={`battle-marks battle-marks--pile battle-marks--label-${labelSide}`} style={{left: pile.x, top: pile.y}}>
+                            {key && isPlayable && <span className="battle-keycap" aria-hidden="true">{key.toUpperCase()}</span>}
+                            <div className="battle-seat-label">
+                                <div className="battle-seat-name">
+                                    <i className="battle-seat-dot"/>
+                                    {seat.isComputer && <FontAwesomeIcon icon={faRobot} className="battle-seat-bot"/>}
+                                    <span>{seatName(index)}</span>
+                                </div>
+                                {/* no card count under the name, to keep some suspense (#165) */}
+                                {seat.rank !== null && !v.hasGameEnded &&
+                                    <span className="battle-seat-tag">{t("battleStatus.eliminatedTag", {place: place(seat.rank)})}</span>}
+                            </div>
+                        </div>
+                    </div>;
+                })}
             </div>
+            <Sparks ref={sparks} className="battle-sparks"/>
         </div>
         <TableActions status={status()}/>
         {v.hasGameEnded && <EndMessage onPlayAgain={() => d.playAgainRequested()} onMenu={() => d.menuRequested()}>
