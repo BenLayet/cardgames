@@ -1,5 +1,5 @@
 import {useSofter} from "@softer-components/redux-adapter";
-import type {CSSProperties} from "react";
+import type {CSSProperties, KeyboardEvent} from "react";
 import {useTranslation} from "react-i18next";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPlay, faRobot} from "@fortawesome/free-solid-svg-icons";
@@ -17,6 +17,16 @@ const SUIT_SYMBOLS = "♠♥♦♣";
 const OptionHint = ({hint}: { hint: OptionHintKey | null }) => {
     const {t} = useTranslation();
     return hint && <span className="choice-hint">{t(`optionHints.${hint}`)}</span>;
+};
+
+// on a phone, the keyboard's OK key goes to the next name, and closes the keyboard after the last one
+const onNameEnter = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== "Enter" || event.nativeEvent.isComposing) return;
+    event.preventDefault();
+    const names = [...(event.currentTarget.closest(".setup-player-names")?.querySelectorAll<HTMLInputElement>(".seat-name") ?? [])];
+    const next = names.at(names.indexOf(event.currentTarget) + 1);
+    if (next) next.focus();
+    else event.currentTarget.blur();
 };
 
 export const View = ({path = "", onResume}: { path?: string, onResume?: () => void }) => {
@@ -53,7 +63,9 @@ export const View = ({path = "", onResume}: { path?: string, onResume?: () => vo
                                            value={v.playerNames[index]} maxLength={MAX_NAME_LENGTH}
                                            placeholder={t("playerNumber", {number: index + 1})}
                                            aria-label={t("playerName", {number: index + 1})}
-                                           autoComplete="off" enterKeyHint="done"
+                                           autoComplete="off"
+                                           enterKeyHint={index < v.seats.length - 1 ? "next" : "done"}
+                                           onKeyDown={onNameEnter}
                                            onChange={event => d.renamePlayerRequested({index, name: event.target.value})}/>
                                 </div>)}
                             </div>}
