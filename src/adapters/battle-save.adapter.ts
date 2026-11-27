@@ -1,4 +1,5 @@
 import {DECK} from "../model/deck.model.ts";
+import {LocalStorageVariantStore} from "./local-storage-variant-store.ts";
 import {type BattleSaveService, type BattleVariant, type SavedBattleGame, variantOfSavedGame} from "../services/battle-save.service.ts";
 
 // version 1, without a version number, was a game between two players with a pile of won cards each
@@ -72,72 +73,27 @@ export const decodeSavedBattleGame = (text: string): SavedBattleGame | null => {
 export const encodeSavedBattleGame = (game: SavedBattleGame): string => JSON.stringify({version: VERSION, ...game});
 
 // one game for each kind of game
-const KEY_PREFIX = "cardgames.bataille.game.";
-const storageKey = ({players, cardCount}: BattleVariant) => `${KEY_PREFIX}${players}.${cardCount}`;
+const storageKey = ({players, cardCount}: BattleVariant) => `cardgames.bataille.game.${players}.${cardCount}`;
 const variantOfKey = (key: string): BattleVariant | null => {
     const match = /^cardgames\.bataille\.game\.(solo|\d)\.(\d+)$/.exec(key);
     if (!match) return null;
     return {players: match[1] === "solo" ? "solo" : Number(match[1]), cardCount: Number(match[2])};
 };
-// where the single game was kept before
-const LEGACY_STORAGE_KEY = "cardgames.bataille.game";
 
 // Stores the games in the browser; without storage (private mode, blocked...) the games are simply not kept
 export class LocalStorageBattleSaveAdapter implements BattleSaveService {
-    constructor() {
-        this.moveLegacyGame();
-    }
+    private readonly store = new LocalStorageVariantStore<BattleVariant, SavedBattleGame>({
+        name: "Bataille",
+        storageKey,
+        variantOfKey,
+        encode: encodeSavedBattleGame,
+        decode: decodeSavedBattleGame,
+        // where the single game was kept before
+        legacy: {key: "cardgames.bataille.game", variantOf: variantOfSavedGame},
+    });
 
-    load(variant: BattleVariant): SavedBattleGame | null {
-        try {
-            const stored = localStorage.getItem(storageKey(variant));
-            return stored === null ? null : decodeSavedBattleGame(stored);
-        } catch {
-            return null;
-        }
-    }
-
-    savedVariants(): BattleVariant[] {
-        try {
-            return Array.from({length: localStorage.length}, (_, index) => localStorage.key(index))
-                .flatMap(key => {
-                    const variant = key === null ? null : variantOfKey(key);
-                    return variant ? [variant] : [];
-                });
-        } catch {
-            return [];
-        }
-    }
-
-    // the single game saved before goes to the key of its kind, once when the application starts
-    private moveLegacyGame(): void {
-        try {
-            const stored = localStorage.getItem(LEGACY_STORAGE_KEY);
-            if (stored === null) return;
-            const game = decodeSavedBattleGame(stored);
-            if (game !== null) {
-                const key = storageKey(variantOfSavedGame(game));
-                if (localStorage.getItem(key) === null) localStorage.setItem(key, encodeSavedBattleGame(game));
-            }
-            localStorage.removeItem(LEGACY_STORAGE_KEY);
-        } catch {
-            // the legacy game is simply not kept
-        }
-    }
-
-    save(variant: BattleVariant, game: SavedBattleGame): void {
-        try {
-            localStorage.setItem(storageKey(variant), encodeSavedBattleGame(game));
-        } catch (error) {
-            console.error("Failed to save the Bataille game:", error);
-        }
-    }
-
-    clear(variant: BattleVariant): void {
-        try {
-            localStorage.removeItem(storageKey(variant));
-        } catch (error) {
-            console.error("Failed to clear the Bataille game:", error);
-        }
-    }
+    load = (variant: BattleVariant) => this.store.load(variant);
+    savedVariants = () => this.store.savedVariants();
+    save = (variant: BattleVariant, game: SavedBattleGame) => this.store.save(variant, game);
+    clear = (variant: BattleVariant) => this.store.clear(variant);
 }

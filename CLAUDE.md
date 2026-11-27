@@ -17,7 +17,7 @@ Every new game follows these rules, so that all games look and behave the same w
 - When a game in progress exists for the chosen options, **Resume** is the main (default) action of the setup screen, and **New game** the second one. The game passes `onResume` to `Setup` when it can resume, as `spider.component.view.tsx` and `battle.component.view.tsx` do.
 - The game in progress is saved after each move, in the browser, and is resumed without the deal animation.
 - Games are saved **per game type**: each combination of options that makes a different game (for example the number of players, or the number of cards) has its own save. Spider does this: `LocalStorageSpiderSaveAdapter` keeps one game per number of cards and of suits, under `cardgames.spider.game.<cardCount>.<suitCount>`, and `savedVariants()` tells which ones can be resumed.
-- Saving goes through a service interface in `src/services/` (`<game>-save.service.ts`) and a `localStorage` adapter in `src/adapters/`, wired in `src/configuration.tsx`. Without storage (private mode, storage full), the game is simply not kept and must not fail.
+- Saving goes through a service interface in `src/services/` (`<game>-save.service.ts`) and a `localStorage` adapter in `src/adapters/` built on the shared `LocalStorageVariantStore` (`local-storage-variant-store.ts`: one key per game type, older single save moved, retry with a smaller game when full), wired in `src/configuration.tsx`. Without storage (private mode, storage full), the game is simply not kept and must not fail.
 - The saved format carries a version number; a saved game of an older shape is migrated or ignored, never a crash (see `battle-save.adapter.ts`).
 - Back from the game goes to the game's setup screen, and the game stays saved.
 
