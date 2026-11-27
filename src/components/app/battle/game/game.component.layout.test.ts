@@ -1,6 +1,6 @@
 import {describe, expect, it} from "vitest";
 
-import {nearestSeat, playerKeys, tableLayout} from "./game.component.layout.ts";
+import {nearestSeat, playerKeys, tableLayout, TILT_DEG} from "./game.component.layout.ts";
 
 const sizes = [[390, 760], [844, 300], [1280, 680]] as const;
 
@@ -92,7 +92,7 @@ describe("tilted cards in the middle", () => {
     it.each(sizes)("never overlap the card of the next slot, on %i x %i", (width, height) => {
         for (const players of [2, 3, 4, 5, 6]) {
             const layout = tableLayout(players, width, height);
-            const angle = 6 * Math.PI / 180;
+            const angle = TILT_DEG * Math.PI / 180;
             // the half size of a card tilted by the largest angle; a stack of cards played rises by 8 px and shifts right by 4 px
             const halfWidth = layout.cardWidth / 2 * Math.cos(angle) + layout.cardHeight / 2 * Math.sin(angle);
             const halfHeight = layout.cardHeight / 2 * Math.cos(angle) + layout.cardWidth / 2 * Math.sin(angle);
