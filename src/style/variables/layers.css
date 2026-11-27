@@ -25,6 +25,8 @@
     /* ---- on the page ---- */
     /* the cards that fly from the table to a place outside it (a completed Spider sequence) */
     --z-card-flight: 100;
+    /* the sparks of a completed Spider sequence, over its cards flying to their place (Sparks.tsx) */
+    --z-card-flight-sparks: 150;
     /* the status line, at the bottom */
     --z-status: 200;
     /* the actions of the game, in the bottom right corner */

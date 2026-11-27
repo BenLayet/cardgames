@@ -255,6 +255,14 @@
 
 
 /* the cards of a completed sequence fly over the table to its place */
+/* the sparks of a completed sequence (Sparks.tsx), over the whole screen: touches go through them */
+.spider-sparks {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-card-flight-sparks);
+    pointer-events: none;
+}
+
 .card-flight-layer {
     position: fixed;
     inset: 0;
