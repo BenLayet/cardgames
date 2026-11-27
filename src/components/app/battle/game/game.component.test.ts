@@ -9,6 +9,7 @@ import {fakeAudioService, fakeBattleSaveService} from "../../../../test/fakes.ts
 import {TimeoutSchedulerAdapter} from "../../../../adapters/scheduler.adapter.ts";
 import {dealPiles, dealPlayableGame} from "./game.component.effects.ts";
 import {simulateGame} from "./game.component.simulation.ts";
+import {DELAYS_MS} from "./game.component.timings.ts";
 
 const event = <N extends ExtractEventNameUnion<GameContract>>(name: N, payload?: ExtractPayload<GameContract, N>) =>
     ({name, payload, statePath: []});
@@ -42,6 +43,8 @@ const dealToHumans = async (...piles: Card[][]) => {
     await deal(...piles);
 };
 const click = (seat: number) => store.when(event("playerClicked", seat));
+// the game runs until it waits for a tap, without the steps of a collection done on their own when nobody taps
+const settle = () => vi.advanceTimersByTimeAsync(DELAYS_MS.autoCollect - 1);
 
 // once a round is won, the player taps until every layer of cards is collected, the hidden ones turned over first
 const collect = async () => {
@@ -141,7 +144,7 @@ describe("game", () => {
         await everyonePlays(0, 1); // face down cards 3S and 5H
         await click(0);
         await click(1); // 2S vs 4H
-        await vi.runAllTimersAsync();
+        await settle();
         const hiddenCount = () => values().cardsWithLocation().filter(c => c.placement.stackLocation.endsWith("Played") && !c.placement.faceUp).length;
         // the round is won, but nothing moves without a tap
         expect(values().roundWinner()).toBe(1);
@@ -151,7 +154,7 @@ describe("game", () => {
 
         // any player taps: the top layer, 2S and 4H, goes to the winner
         await click(0);
-        await vi.runAllTimersAsync();
+        await settle();
         expect(played(0)).toEqual(["AS", "3S"]);
         expect(played(1)).toEqual(["AH", "5H"]);
         expect([...pile(1)].sort()).toEqual(["2S", "4H"]);
@@ -162,15 +165,54 @@ describe("game", () => {
         expect(played(0)).toHaveLength(2);
         // then a tap for each layer
         await click(0);
-        await vi.runAllTimersAsync();
+        await settle();
         expect(played(0)).toEqual(["AS"]);
         expect(pile(1)).toHaveLength(4);
         // each layer goes under the cards collected before
         expect([...pile(1)].slice(2).sort()).toEqual(["2S", "4H"]);
         expect(values().hasGameEnded()).toBe(false);
         await click(0);
-        await vi.runAllTimersAsync();
+        await settle();
         expect(played(0)).toEqual([]);
+        expect(pile(1)).toHaveLength(6);
+        expect(values().hasGameEnded()).toBe(true);
+    });
+
+    it("tells which card won the round until it is collected", async () => {
+        await dealToHumans(["2S", "3S", "AS"], ["4H", "5H", "AH"]);
+        await click(0);
+        await click(1); // AS vs AH: a battle, no winning card
+        await settle();
+        expect(values().winningCard()).toBeNull();
+        await everyonePlays(0, 1); // face down cards 3S and 5H
+        await click(0);
+        await click(1); // 2S vs 4H
+        await settle();
+        expect(values().winningCard()).toBe("4H");
+        // the winning card goes with the top layer
+        await click(0);
+        expect(values().winningCard()).toBeNull();
+    });
+
+    it("collects the cards on its own, step by step, when nobody taps", async () => {
+        await dealToHumans(["2S", "3S", "AS"], ["4H", "5H", "AH"]);
+        await everyonePlays(0, 1); // AS vs AH
+        await everyonePlays(0, 1); // face down cards 3S and 5H
+        await click(0);
+        await click(1); // 2S vs 4H
+        await settle();
+        expect(values().canCollectCards()).toBe(true);
+        // the top layer goes after the delay
+        await vi.advanceTimersByTimeAsync(DELAYS_MS.autoCollect);
+        expect(played(1)).toEqual(["AH", "5H"]);
+        // a tap turns the hidden layer over at once, and the delay starts again for the next step
+        await click(0);
+        expect(values().canCollectCards()).toBe(true);
+        await vi.advanceTimersByTimeAsync(DELAYS_MS.autoCollect - 1);
+        expect(played(1)).toEqual(["AH", "5H"]);
+        await vi.advanceTimersByTimeAsync(1);
+        expect(played(1)).toEqual(["AH"]);
+        await vi.runAllTimersAsync();
         expect(pile(1)).toHaveLength(6);
         expect(values().hasGameEnded()).toBe(true);
     });
@@ -179,10 +221,10 @@ describe("game", () => {
         await dealToHumans(["2S", "3S"], ["4H", "AH"]);
         await click(0);
         await click(1);
-        await vi.runAllTimersAsync();
+        await settle();
         expect(values().canCollectCards()).toBe(true);
         await click(1);
-        await vi.runAllTimersAsync();
+        await settle();
         expect(played(0)).toEqual([]);
         expect(played(1)).toEqual([]);
         expect(pile(1)).toHaveLength(3);

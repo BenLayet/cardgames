@@ -29,6 +29,7 @@ export const allEvents = [
     "roundWon",
     "hiddenCardsRevealed",
     "layerCollected",
+    "collectionTimedOut",
     "cardsSetAside",
     "roundCompleted",
     "gameWon",
@@ -43,6 +44,8 @@ export type Events = EventsContract<
         // dealSeed: how the cards collected in each round are shuffled; without it, they are collected in seat order
         dealCompleted: { piles: Card[][], setAsideCount: number, dealSeed?: number },
         gameRestored: SavedBattleGame,
+        // nobody tapped during the step of the collection given by its key (collectionStep): it is done on its own
+        collectionTimedOut: string,
     }, typeof uiEvents
 >;
 

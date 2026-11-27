@@ -61,6 +61,25 @@ test("between two players, the end screen names the winner without a ranking", a
     await expect(page.locator(".battle-ranking")).toHaveCount(0);
 });
 
+test("the winning card rises and its player's name shines, then the cards go to the winner on their own", async ({page}) => {
+    // Léa's ace beats Ben's four, and Ben has no card left
+    const twoPlayers = {
+        version: 2,
+        seats: [seat(["4S"]), seat(["2H", "AH"])],
+        contenders: [0, 1], step: "up", battleCount: 0, roundNumber: 9, lastRoundWinner: 1, lastWonCount: 2, setAsideCount: 9,
+        hasPlayed: true, isSolo: false, playerNames: ["Ben", "Léa"],
+    };
+    await resume(page, twoPlayers, "2 joueurs", "12", twoPlayers.playerNames);
+    await page.keyboard.press("l");
+    await page.keyboard.press("a");
+    await expect(page.getByRole("status")).toHaveText("Léa remporte les cartes · touche la table pour ramasser");
+    await expect(page.locator(".animated-card--raised").getByRole("img", {name: "As de cœur"})).toBeVisible();
+    await expect(page.locator(".battle-seat--winner .battle-seat-name")).toHaveText("Léa");
+
+    // nobody taps: the cards are collected on their own
+    await expect(page.getByRole("heading", {name: "Léa a gagné !"})).toBeVisible({timeout: 6000});
+});
+
 test("the setup screen offers Solo or 2 to 6 players, and leaves out decks too small for them", async ({page}) => {
     await page.addInitScript(() => {
         localStorage.setItem("cardgames.settings", JSON.stringify({schemaVersion: 3, language: "fr"}));
