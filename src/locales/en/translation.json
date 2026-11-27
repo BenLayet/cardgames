@@ -59,6 +59,22 @@
   "moves_one": "{{count}} move",
   "moves_other": "{{count}} moves",
   "undo": "Undo",
+  "positions": {
+    "button": "Positions",
+    "title": "Positions",
+    "none": "Save the current position to come back to it later.",
+    "move_one": "Move {{count}}",
+    "move_other": "Move {{count}}",
+    "savedAt": "Saved at {{time}}",
+    "restore": "Go back",
+    "restoreLabel": "Go back to the position of {{name}}",
+    "delete": "Delete",
+    "deleteLabel": "Delete the position of {{name}}",
+    "free": "Free slot",
+    "save": "Save the current position",
+    "replaces": "Replaces {{name}}, the oldest",
+    "note": "Going back counts as a move and cannot be undone. Undo then goes on from the position you went back to."
+  },
   "dealRow_one": "Deal a row ({{count}} left)",
   "dealRow_other": "Deal a row ({{count}} left)",
   "dealBlocked": "Fill every column before dealing",
@@ -181,7 +197,7 @@
       },
       {
         "title": "Help",
-        "text": "The light bulb suggests a move; press it again for the next move, then to hide the hint. The arrow undoes the last move; hold it to keep undoing, two moves a second. Each undo counts as a move."
+        "text": "The light bulb suggests a move; press it again for the next move, then to hide the hint. The arrow undoes the last move; hold it to keep undoing, two moves a second. Each undo counts as a move. The \"Positions\" bookmark keeps up to three positions; going back to one counts as a move, cannot be undone, and Undo then goes on from that position. A new game clears them."
       },
       {
         "title": "With a keyboard",

@@ -45,6 +45,12 @@ export const effects = ({audioService, spiderSaveService}: Dependencies): Effect
             audioService.playCardSlide();
             save(values);
         },
+        positionSaveRequested: (_, {values}) => save(values),
+        positionRestored: (_, {values}) => {
+            audioService.playCardSlide();
+            save(values);
+        },
+        positionDeleted: (_, {values}) => save(values),
         // the applause goes with the victory message, not with the winning move
         victoryShown: () => audioService.playApplause(),
     };

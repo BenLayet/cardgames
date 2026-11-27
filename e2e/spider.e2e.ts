@@ -233,3 +233,21 @@ test.describe("on a touch screen", () => {
         await expect(victory).toBeHidden();
     });
 });
+
+test("a saved position is kept and the player goes back to it, which counts as a move", async ({page}) => {
+    await resume(page, PLAYING);
+    await page.getByRole("button", {name: "Positions"}).click();
+    await page.getByRole("button", {name: "Enregistrer la position actuelle"}).click();
+    await expect(page.getByText("Coup 0")).toBeVisible();
+    await page.keyboard.press("Escape");
+
+    await card(page, 4, 1).click();
+    await expect(cardsIn(page, 5)).toHaveCount(2);
+
+    await page.getByRole("button", {name: "Positions"}).click();
+    await page.getByRole("button", {name: "Revenir à la position du Coup 0"}).click();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await expect(cardsIn(page, 4)).toHaveCount(2);
+    await expect(cardsIn(page, 5)).toHaveCount(1);
+    await expect(page.getByRole("status")).toHaveText("2 coups");
+});

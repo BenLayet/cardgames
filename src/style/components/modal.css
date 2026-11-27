@@ -85,3 +85,26 @@
     color: var(--app-muted);
     font-size: .875rem;
 }
+
+/* a sheet sits above the actions of the game, in the bottom right corner, near the button that opened it */
+.modal-overlay--sheet {
+    align-items: flex-end;
+    justify-content: flex-end;
+    padding-right: calc(var(--app-frame) + var(--app-space-2));
+    padding-bottom: calc(var(--app-frame) + var(--table-action-size) + var(--app-space-5));
+}
+
+/* on a phone held upright, it rises from the bottom, across the whole width */
+@media (max-width: 575.98px) and (orientation: portrait) {
+    .modal-overlay--sheet {
+        padding: var(--app-frame) var(--app-frame) 0;
+    }
+
+    .modal-overlay--sheet .modal-panel {
+        max-width: none;
+        max-height: 85%;
+        border-bottom: none;
+        border-radius: calc(var(--app-radius) * 1.75) calc(var(--app-radius) * 1.75) 0 0;
+        padding-bottom: max(var(--app-space-4), env(safe-area-inset-bottom, 0px));
+    }
+}

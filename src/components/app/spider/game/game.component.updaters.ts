@@ -11,6 +11,7 @@ import {
     findHints,
     moveCards,
     type Table,
+    withSavedPosition,
 } from "../../../../model/spider.model.ts";
 
 // The model returns a new table, the previous one is kept to be restored by an undo
@@ -75,6 +76,25 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
         state.hintIndex = next < hints.length ? next : null;
         const hint = state.hintIndex === null ? null : hints[state.hintIndex];
         state.selected = hint?.kind === "move" ? hint.from : null;
+    },
+    positionSaveRequested: ({state, payload: savedAt}) => {
+        if (state.gameEnded) return;
+        state.positions = withSavedPosition(state.positions, {
+            table: state.table, history: [...state.history], moveCount: state.moveCount, savedAt,
+        });
+    },
+    // the position comes back with its undo history, so that the undo goes on from there;
+    // going back counts as a move, as an undo does, and the position stays saved
+    positionRestored: ({state, payload: index}) => {
+        const position = state.positions[index];
+        state.table = position.table;
+        state.history = [...position.history];
+        state.moveCount++;
+        state.selected = null;
+        state.hintIndex = null;
+    },
+    positionDeleted: ({state, payload: index}) => {
+        state.positions.splice(index, 1);
     },
     gameEnded: ({state}) => {
         state.gameEnded = true;
