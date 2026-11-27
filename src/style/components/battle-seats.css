@@ -33,7 +33,7 @@
 }
 
 /* the place of a stack: the cards lie in it, over its outline;
-   its marks (name, key, count, outline of a tie or a winner, veil) are drawn at the same place, over the cards */
+   its marks (name, key, veil) are drawn at the same place, over the cards (no outline in a battle, #186) */
 .battle-pile,
 .battle-played,
 .battle-marks {
@@ -66,23 +66,6 @@
 /* the cards lie over the pile: its focus outline is drawn around them */
 .battle-pile:focus-visible {
     outline-offset: 8px;
-}
-
-/* the outline of a pile: ruby in a battle */
-.battle-marks--pile::after {
-    content: "";
-    position: absolute;
-    inset: -5px;
-    border-radius: calc(var(--app-radius-sm) + 5px);
-    border: 2px solid var(--seat-color);
-    opacity: 0;
-    pointer-events: none;
-}
-
-.battle-seat--tied .battle-marks--pile::after {
-    opacity: 1;
-    border-color: #d9475c;
-    border-width: 3px;
 }
 
 /* the winner of the round: the name grows and shines gold (the pile has no outline, Ben 2026-11-27, #174) */
