@@ -13,6 +13,9 @@ export const eventForwarders = {
         // or turns it over first when its cards are face down
         {from: "playerClicked", to: "hiddenCardsRevealed", onCondition: ({values}) => values.canRevealHiddenCards()},
         {from: "playerClicked", to: "layerCollected", onCondition: ({values}) => values.canCollectCards()},
+        // the same steps on their own, when nobody tapped since the step was waited for
+        {from: "collectionTimedOut", to: "hiddenCardsRevealed", onCondition: ({values, payload}) => values.canRevealHiddenCards() && payload === values.collectionStep()},
+        {from: "collectionTimedOut", to: "layerCollected", onCondition: ({values, payload}) => values.canCollectCards() && payload === values.collectionStep()},
         {from: "playerPlayed", to: "allPlayed", onCondition: ({values}) => values.haveAllPlayed()},
         // between two rounds or two steps of a battle
         {from: "readyForNextCards", to: "gameWon", onCondition: ({values}) => values.hasGameWinner()},

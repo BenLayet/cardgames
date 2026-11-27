@@ -151,11 +151,11 @@
       },
       {
         "title": "A round",
-        "text": "Each player turns over their top card. The highest card wins all the cards of the round. Tap the table to send them, shuffled, under the pile of its player. Ace is highest, 2 is lowest."
+        "text": "Each player turns over their top card. The highest card wins all the cards of the round. They go, shuffled, under the pile of its player: tap the table to collect them at once, or they go on their own after 2 seconds. Ace is highest, 2 is lowest."
       },
       {
         "title": "Battle",
-        "text": "When several players have the highest card, only they lay one card face down, then one face up. The highest card takes them all, the other players' cards included. If you have a single card left, it is your face up card. Without any card, you lose the battle. Once the battle is won, each tap on the table collects one layer of cards, from the top; a layer of hidden cards is turned over first."
+        "text": "When several players have the highest card, only they lay one card face down, then one face up. The highest card takes them all, the other players' cards included. If you have a single card left, it is your face up card. Without any card, you lose the battle. Once the battle is won, each tap on the table collects one layer of cards, from the top; a layer of hidden cards is turned over first. Without a tap, each step happens on its own after 2 seconds."
       },
       {
         "title": "Out",

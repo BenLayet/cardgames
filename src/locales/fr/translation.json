@@ -151,11 +151,11 @@
       },
       {
         "title": "Un tour",
-        "text": "Chacun retourne sa carte du dessus. La plus forte remporte toutes les cartes du tour. Touche la table pour qu'elles aillent sous le paquet de son joueur, mélangées. L'as est la plus forte, le 2 la plus faible."
+        "text": "Chacun retourne sa carte du dessus. La plus forte remporte toutes les cartes du tour. Elles vont sous le paquet de son joueur, mélangées\u00a0: touche la table pour les ramasser tout de suite, sinon elles partent seules au bout de 2 secondes. L'as est la plus forte, le 2 la plus faible."
       },
       {
         "title": "Bataille",
-        "text": "Si plusieurs joueurs ont la plus forte carte, eux seuls posent une carte cachée puis une visible. La plus forte prend tout, y compris les cartes des autres joueurs. S'il te reste une seule carte, elle sert de carte visible. Sans carte, tu perds la bataille. Une fois la bataille gagnée, chaque toucher sur la table ramasse une couche de cartes, en commençant par le dessus\u00a0; une couche de cartes cachées est d'abord révélée."
+        "text": "Si plusieurs joueurs ont la plus forte carte, eux seuls posent une carte cachée puis une visible. La plus forte prend tout, y compris les cartes des autres joueurs. S'il te reste une seule carte, elle sert de carte visible. Sans carte, tu perds la bataille. Une fois la bataille gagnée, chaque toucher sur la table ramasse une couche de cartes, en commençant par le dessus\u00a0; une couche de cartes cachées est d'abord révélée. Sans toucher, chaque étape se fait seule au bout de 2 secondes."
       },
       {
         "title": "Éliminé",

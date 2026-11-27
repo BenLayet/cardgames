@@ -40,6 +40,12 @@ export const effects = ({audioService, schedulerService, battleSaveService}: Dep
     const after = (delayMs: number, callback: () => void) => {
         schedulerService.schedule(callback, delayMs);
     };
+    // once a round is won, the next step of the collection is done on its own if nobody taps before
+    const collectLater = ({collectionTimedOut}: { collectionTimedOut: (step: string) => void }, values: { canRevealHiddenCards: () => boolean, canCollectCards: () => boolean, collectionStep: () => string }) => {
+        if (!values.canRevealHiddenCards() && !values.canCollectCards()) return;
+        const step = values.collectionStep();
+        after(DELAYS_MS.autoCollect, () => collectionTimedOut(step));
+    };
     return {
         dealRequested: ({dealCompleted}, {payload: {cardCount, playerCount, isSolo}}) => {
             // forget whatever was still pending from a previous game
@@ -58,6 +64,9 @@ export const effects = ({audioService, schedulerService, battleSaveService}: Dep
             if (saved === null) return;
             gameRestored({...saved, isSolo, playerNames});
         },
+        // a game resumed while the cards of a round are being collected goes on collecting them
+        gameRestored: (dispatchers, {values}) => collectLater(dispatchers, values),
+        roundWon: (dispatchers, {values}) => collectLater(dispatchers, values),
         // the game is saved between two rounds and two steps of a battle,
         // so that it can be resumed after going back or closing the application
         readyForNextCards: ({playerClicked}, {values}) => {
@@ -84,11 +93,15 @@ export const effects = ({audioService, schedulerService, battleSaveService}: Dep
         // Card flips
         suspenseStarted: ({suspenseCompleted}) => after(DELAYS_MS.suspense, suspenseCompleted),
         reviewWinnerStarted: ({reviewWinnerCompleted}) => after(DELAYS_MS.reviewWinner, reviewWinnerCompleted),
-        hiddenCardsRevealed: () => audioService.playCardSlide(),
-        // the round is over once its last layer is collected
-        layerCollected: ({roundCompleted}, {values}) => {
+        hiddenCardsRevealed: (dispatchers, {values}) => {
             audioService.playCardSlide();
-            if (!values.areCardsOnTable()) after(DELAYS_MS.collected, roundCompleted);
+            collectLater(dispatchers, values);
+        },
+        // the round is over once its last layer is collected
+        layerCollected: (dispatchers, {values}) => {
+            audioService.playCardSlide();
+            if (!values.areCardsOnTable()) after(DELAYS_MS.collected, dispatchers.roundCompleted);
+            else collectLater(dispatchers, values);
         },
         // against the computer, the crowd is disappointed when the computer wins; any human deserves applause
         gameWon: (_, {values}) => {
