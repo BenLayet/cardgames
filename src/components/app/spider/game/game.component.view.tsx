@@ -17,6 +17,7 @@ import {Fireworks} from "../../../fireworks/Fireworks.tsx";
 import {EndMessage} from "../../../end-message/EndMessage.tsx";
 import {spiderRank} from "../../../../model/spider.model.ts";
 import {useCardPointer} from "./useCardPointer.ts";
+import {usePressRepeat} from "../../../../hooks/usePressRepeat.ts";
 
 // columns always have room for this many card heights, even on a short screen
 const MIN_COLUMN_ROOM = 2;
@@ -29,12 +30,16 @@ const bottomLimit = (columns: DOMRect, below: (Element | null)[]) => Math.min(wi
     return rect && rect.height > 0 && rect.left < columns.right && rect.right > columns.left ? rect.top : window.innerHeight;
 }));
 
+// holding Undo undoes two moves a second
+const UNDO_REPEAT_MS = 500;
+
 // a dragged card follows the pointer, it does not fly
 const isDraggedElement = (element: HTMLElement) => element.classList.contains("spider-card--dragged");
 
 export const View = ({path = "", onBack}: { path?: string, onBack: () => void }) => {
     const [v, d] = useSofter<GameContract>(path);
     const {t} = useTranslation();
+    const undoPress = usePressRepeat(() => d.undoRequested(), v.canUndo, UNDO_REPEAT_MS);
     const pointer = useCardPointer(v.movableRunStarts, outcome => {
         if (outcome.kind === "cardClicked") d.cardClicked(outcome.position);
         if (outcome.kind === "columnClicked") d.columnClicked(outcome.column);
@@ -181,8 +186,7 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
                 <FontAwesomeIcon icon={faLightbulb}/>
                 <span>{t("hint")}</span>
             </button>
-            <button className="btn table-action" disabled={!v.canUndo}
-                    onClick={() => d.undoRequested()}>
+            <button className="btn table-action table-action--repeat" disabled={!v.canUndo} {...undoPress}>
                 <FontAwesomeIcon icon={faRotateLeft}/>
                 <span>{t("undo")}</span>
             </button>

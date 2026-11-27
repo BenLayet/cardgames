@@ -41,12 +41,12 @@ const ALMOST_WON: Table = {
     completed: Array.from({length: 7}, () => "S"),
 };
 
-const resume = async (page: Page, table: Table) => {
-    await page.addInitScript(saved => {
+const resume = async (page: Page, table: Table, history: Table[] = []) => {
+    await page.addInitScript(({table: saved, history}) => {
         localStorage.setItem("cardgames.settings", JSON.stringify({schemaVersion: 3, language: "fr"}));
         // a game saved in the first format, plain JSON, which every version reads
-        localStorage.setItem("cardgames.spider.game.104.1", JSON.stringify({table: saved, history: [], moveCount: 0}));
-    }, table);
+        localStorage.setItem("cardgames.spider.game.104.1", JSON.stringify({table: saved, history, moveCount: 0}));
+    }, {table, history});
     await page.goto("/");
     await page.getByText("Spider").first().click();
     await page.getByRole("button", {name: "Reprendre la partie"}).click();
@@ -75,6 +75,28 @@ test("a clicked card that can only go to one column goes there right away", asyn
     await card(page, 4, 1).click();
     await expect(cardsIn(page, 5)).toHaveCount(2);
     await expect(cardsIn(page, 4)).toHaveCount(1);
+});
+
+test("a tap on Undo undoes one move, holding it undoes two moves a second until released", async ({page}) => {
+    await resume(page, PLAYING, Array.from({length: 6}, () => PLAYING));
+    const undo = page.getByRole("button", {name: "Annuler"});
+    await undo.click();
+    await expect(page.getByText("1 coup", {exact: true})).toBeVisible();
+
+    await undo.hover();
+    await page.mouse.down();
+    // undone at the press, then after 500 and 1000 ms
+    await page.waitForTimeout(1250);
+    await page.mouse.up();
+    await expect(page.getByText("4 coups", {exact: true})).toBeVisible();
+    await page.waitForTimeout(800);
+    await expect(page.getByText("4 coups", {exact: true})).toBeVisible();
+
+    // held again, it stops by itself once nothing is left to undo
+    await page.mouse.down();
+    await expect(undo).toBeDisabled();
+    await page.mouse.up();
+    await expect(page.getByText("6 coups", {exact: true})).toBeVisible();
 });
 
 test("the keyboard plays a card as a tap would, and Escape puts raised cards down", async ({page}) => {
