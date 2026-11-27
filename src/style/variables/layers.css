@@ -17,7 +17,7 @@
 
     /* ---- inside the cards of a Bataille table (.battle-cards): the cards and what is written about them ---- */
     /* (the cards lying in their stacks are ordered by AnimatedCardView, by stack and by place in the stack, from 0 to 999) */
-    /* what is written or shown over the cards lying in their stacks: names, keys, outlines of a tie, veils */
+    /* what is written or shown over the cards lying in their stacks: names, keys, veils */
     --z-cards-marks: 1000;
     /* a card won in a round, flying over everything to the pile of the winner, before it goes under the pile (AnimatedCardView) */
     --z-cards-landing: 2000;

@@ -173,7 +173,6 @@ const Table = ({path}: { path: string }) => {
 
     const seatClass = (seat: SeatView) => [
         "battle-seat",
-        seat.isTied && "battle-seat--tied",
         seat.isDimmed && "battle-seat--dimmed",
         seat.isRoundWinner && "battle-seat--winner",
         seat.rank !== null && !v.hasGameEnded && "battle-seat--out",
