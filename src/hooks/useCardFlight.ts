@@ -11,6 +11,8 @@ const DEAL_STAGGER_MS = COLLECT_STAGGER_MS;
 const CELEBRATION_MS = 1100;
 // the completed sequence rests a moment in its column before it leaves
 const JOIN_PAUSE_MS = 120;
+// a flying card is drawn over the cards that lie still: the layer of the moving cards (layers.css)
+const movingLayer = (element: HTMLElement) => getComputedStyle(element).getPropertyValue("--z-table-moving").trim() || "auto";
 
 // The places of the completed sequences: one child of the element for each sequence, in order
 export type Sequences = { count: number, slots: RefObject<HTMLElement | null> };
@@ -96,9 +98,10 @@ export const useCardFlight = (
             if (Math.abs(dx) < JITTER_PX && Math.abs(dy) < JITTER_PX) return;
             // the cards that come from the stock are dealt column after column, each waiting on the stock for its turn
             const delay = known ? 0 : dealt++ * DEAL_STAGGER_MS;
+            const zIndex = movingLayer(element);
             flights.current.set(element, element.animate([
-                {transform: `translate(${dx}px, ${dy}px)`, zIndex: 50},
-                {transform: "translate(0, 0)", zIndex: 50},
+                {transform: `translate(${dx}px, ${dy}px)`, zIndex},
+                {transform: "translate(0, 0)", zIndex},
             ], {duration: FLIGHT_MS, delay, easing: EASING, fill: "backwards"}));
         });
     });

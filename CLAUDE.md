@@ -46,14 +46,21 @@ Every new game follows these rules, so that all games look and behave the same w
 - Both come from the shared `TableActions` component (`src/components/navigation/TableActions.tsx`): `status` for the line, its children for the buttons (`btn table-action`, an icon and a label). Its `statusRef` and `actionsRef` let the game measure the room left above them, as Spider does.
 - The top bar is the shared `AppBar` (`src/components/navigation/AppBar.tsx`): Back, title, rules and Settings. No game buttons in it.
 
-### 6. Animations to move cards
+### 6. Layers: what is drawn over what
+
+- Every z-index comes from the scale of `src/style/variables/layers.css` (`var(--z-…)`); never write a number. A new layer is added there, at its place, with a comment saying what it holds.
+- The table isolates its content (`isolation: isolate`), so that the status line, the actions, the end message, the top bar and the windows always stay over the cards. Inside the table, from the bottom up: the places of the stacks (dotted outlines), the cards, the moving cards, what is written about them (names, keys, counts, outlines of a tie or a winner), the message in the middle, the dragged card. Bataille draws the outline of a pile and its marks as two elements at the same place, one under the cards and one over them.
+- In the end message, the effects (`Fireworks`, `Tomatoes`) stay behind the title, the texts and the buttons.
+- A window (`Modal`) is drawn at the end of the page, so that it covers the end message and the update banner.
+
+### 7. Animations to move cards
 
 - Every card that changes place moves there, so that the eye can follow it: dealing, playing, a move, an undo. A card never jumps.
 - The game state holds no animation flag, only where each card is; the view animates with the Web Animations API, without a library (`docs/ANIMATIONS.md`).
 - Reuse what exists: `AnimatedCardView` (`src/components/card/AnimatedCardView.tsx`) for cards placed on a table by stack, as in Bataille, or `useCardFlight` (`src/hooks/useCardFlight.ts`) for cards laid out by the page, as in Spider (flight from the old place to the new one, deal from the stock).
 - A resumed game appears in place, without the deal animation.
 
-### 7. Victory and defeat screen
+### 8. Victory and defeat screen
 
 - The end of a game uses the shared `EndMessage` component (`src/components/end-message/EndMessage.tsx`), which offers Play again (same options) and Menu, and keeps the top bar usable.
 - Inside it, the game puts its title and details, with the shared effects: `Fireworks` (`src/components/fireworks/`) for a victory, `Tomatoes` (`src/components/tomatoes/`) for a defeat against the computer.
