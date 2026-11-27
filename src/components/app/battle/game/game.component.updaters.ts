@@ -2,7 +2,7 @@ import type {StateUpdaters} from "@softer-components/types";
 
 import type {Contract} from "./game.component.contract.ts";
 import {initialSeatState, initialState, type SeatState, type State} from "./game.component.state.ts";
-import {gameWinner, highestContenders, isInGame, mustPlay, roundLeader, seatsInGame, topLayerDepth} from "./game.component.rules.ts";
+import {areCardsOnTable, gameWinner, highestContenders, isInGame, mustPlay, roundLeader, seatsInGame, topLayerDepth} from "./game.component.rules.ts";
 import {type Card, seededRandom, shuffleDeck} from "../../../../model/deck.model.ts";
 import {assertIsNotUndefined} from "../../../../utils/assert.functions.ts";
 import {battleVariant} from "../../../../services/battle-save.service.ts";
@@ -34,6 +34,18 @@ const eliminatePlayers = (state: State): void => {
         seat.rank = rank;
         seat.eliminatedRound = state.roundNumber - 1;
     });
+};
+// a single player left in the game takes whatever lies on the table, so that the game ends;
+// a game saved by an older version could be left with cards played after the last opponent was out (#195)
+const giveTableToLastPlayer = (state: State): void => {
+    const left = seatsInGame(state);
+    if (left.length !== 1 || state.roundWinner !== null || !areCardsOnTable(state)) return;
+    const cards = state.seats.flatMap(seat => seat.played);
+    state.seats.forEach(seat => {
+        seat.played = [];
+        seat.playedUp = [];
+    });
+    state.seats[left[0]].pile = [...cards, ...state.seats[left[0]].pile];
 };
 // a different shuffle for each layer of each round of a deal
 const layerSeed = (dealSeed: number, roundNumber: number, depth: number) =>
@@ -73,6 +85,7 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
     // the players without cards leave the game, then each contender who has to lay a card can play it
     readyForNextCards: ({state}) => {
         eliminatePlayers(state);
+        giveTableToLastPlayer(state);
         state.contenders = state.contenders.filter(index => isInGame(state.seats[index]));
         // in a battle, a contender without any card loses it
         if (state.step === "down") state.contenders = state.contenders.filter(index => state.seats[index].pile.length > 0);
@@ -97,6 +110,10 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
         if (winner === null) throw new Error("A round can only be won by a single player");
         state.roundWinner = winner;
         state.lastRoundWinner = winner;
+        // nobody lays a card while the cards of the round are collected (#195)
+        state.seats.forEach(seat => {
+            seat.canPlay = false;
+        });
         state.lastWonCount = state.seats.reduce((count, seat) => count + seat.played.length, 0);
     },
     // the cards of the round are collected layer by layer, from the top;
