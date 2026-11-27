@@ -110,7 +110,9 @@ const Table = ({path}: { path: string }) => {
         if (v.canRevealHiddenCards) return t("battleStatus.tapToReveal");
         if (v.canCollectCards && v.roundWinner !== null) return t("battleStatus.tapToCollect", {won: wonCards(v.roundWinner)});
         if (v.roundWinner !== null) return wonCards(v.roundWinner);
-        if (v.battleCount > 0) return v.isSolo || waiting.length === 0 ? t("battleStatus.battle") : t("battleStatus.battleToPlay", {names: names(waiting)});
+        if (v.battleCount > 0) return v.isSolo || waiting.length === 0
+            ? t("battleStatus.battle", {battle: battleName()})
+            : t("battleStatus.battleToPlay", {battle: battleName(), names: names(waiting)});
         if (!v.hasPlayed) return v.isSolo ? t("battleStatus.tapYourPile") : t("battleStatus.tapYourPiles");
         if (!v.isSolo && v.areCardsOnTable && waiting.length > 0) return t("battleStatus.toPlay", {names: names(waiting)});
         const eliminated = v.seats.flatMap((seat, index) => seat.eliminatedRound === v.roundNumber - 1 ? [index] : []);
@@ -120,6 +122,8 @@ const Table = ({path}: { path: string }) => {
         if (v.isSolo && waiting.includes(0)) return lastRound === null ? t("battleStatus.yourTurn") : `${lastRound} · ${t("battleStatus.yourTurn")}`;
         return lastRound;
     };
+    // a battle after a battle is a double battle, then a triple one, then "Battle x4", "Battle x5"…
+    const battleName = () => t(`battle.${v.battleCount <= 3 ? v.battleCount : "more"}`, {count: v.battleCount});
     const wonCards = (seat: number) => {
         const count = v.lastWonCount;
         if (v.isSolo && !v.seats[seat].name) return seat === 0 ? t("battleStatus.youWonCards", {count}) : t("battleStatus.computerWonCards", {count});
@@ -176,7 +180,7 @@ const Table = ({path}: { path: string }) => {
                 <div className="battle-message-anchor"
                      style={{left: layout.message.x, top: layout.message.bottom, "--battle-message-size": `${layout.message.fontSize}px`} as CSSProperties}>
                     <div key={v.battleCount} className="battle-message">
-                        {t("battle")}{v.battleCount > 1 && ` x${v.battleCount}`}
+                        {battleName()}
                     </div>
                 </div>}
             <div className="battle-cards">
