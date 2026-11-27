@@ -75,13 +75,14 @@ movement.current = element.animate([{transform: current}, {transform: target}], 
 The z-index is `index + stackIndex * 100`, so cards higher in a stack are drawn on top, and
 stacks being played are drawn above the others. It only orders the cards among themselves: the cards
 container sits in the `--z-table-cards` layer of `src/style/variables/layers.css`, over the outlines of
-the stacks. In Bataille, what is written about the cards (names, keys, outlines of a tie, veils) is drawn in the
+the stacks. In Bataille, what is written about the cards (names, keys) is drawn in the
 same container, at `--z-cards-marks`, over every card lying in its stack.
 
 ### 3b. A card won, and the card that won (Bataille)
 
-`AnimatedCardView` takes two more props:
+`AnimatedCardView` takes three more props:
 - `raised`: the card that won the round (`winningCard` selector) rises a little, grows and shines gold.
+- `dimmed`: the cards of a player out of a battle are greyed one by one, so that the grey follows each tilted card and a card being played moves over them.
 - `landing`: where the cards won land against the pile of the winner (`landingPoint` in the layout).
   A card that comes from another stack flies there in an arc, face up, at `--z-cards-landing`, over every card and mark,
   then slides to its place under the pile, at its own z-index, turning over (`LANDING_MS`, `LANDED_AT` in `card-motion.ts`).

@@ -50,7 +50,7 @@ Every new game follows these rules, so that all games look and behave the same w
 ### 6. Layers: what is drawn over what
 
 - Every z-index comes from the scale of `src/style/variables/layers.css` (`var(--z-…)`); never write a number. A new layer is added there, at its place, with a comment saying what it holds.
-- The table isolates its content (`isolation: isolate`), so that the status line, the actions, the end message, the top bar and the windows always stay over the cards. Inside the table, from the bottom up: the places of the stacks (dotted outlines), the cards, the moving cards, the sparks, the message in the middle, the dragged card. Bataille draws the outline of a pile and its marks as two elements at the same place: the outline under the cards, the marks (names, keys, veils) inside the cards container, over the cards lying in their stacks and under a card won flying to the winner's pile (`--z-cards-…`).
+- The table isolates its content (`isolation: isolate`), so that the status line, the actions, the end message, the top bar and the windows always stay over the cards. Inside the table, from the bottom up: the places of the stacks (dotted outlines), the cards, the moving cards, the sparks, the message in the middle, the dragged card. Bataille draws the outline of a pile and its marks as two elements at the same place: the outline under the cards, the marks (names, keys) inside the cards container, over the cards lying in their stacks and under a card won flying to the winner's pile (`--z-cards-…`).
 - In the end message, the effects (`Fireworks`, `Tomatoes`) stay behind the title, the texts and the buttons.
 - A window (`Modal`) is drawn at the end of the page, so that it covers the end message and the update banner.
 

@@ -33,7 +33,7 @@
 }
 
 /* the place of a stack: the cards lie in it, over its outline;
-   its marks (name, key, veil) are drawn at the same place, over the cards (no outline in a battle, #186) */
+   its marks (name, key) are drawn at the same place, over the cards (no outline in a battle, #186) */
 .battle-pile,
 .battle-played,
 .battle-marks {
@@ -102,9 +102,16 @@
     transition: filter .3s ease-out;
 }
 
-/* out of the battle: a veil of felt over the pile and the cards played, which stay there for the winner */
-.battle-seat--dimmed .battle-marks {
-    background: #0a2a1fa0;
+/* out of the battle: the pile and the cards played, which stay there for the winner, are greyed card by card,
+   so that the grey covers each card exactly and a card being played moves over them (#189) */
+.battle-table .animated-card--dimmed .card-image,
+.battle-table .animated-card--dimmed .compact-card {
+    filter: brightness(.55) saturate(.6);
+}
+
+.battle-table .animated-card .card-image,
+.battle-table .animated-card .compact-card {
+    transition: filter .25s ease-out;
 }
 
 .battle-seat--dimmed .battle-seat-label {
