@@ -2,7 +2,7 @@ import type {SavedBattleGame} from "../../../../services/battle-save.service.ts"
 import type {ExtractComponentValuesContract, Selectors} from "@softer-components/types";
 
 import type {BattleStackLocation, State} from "./game.component.state.ts";
-import type {CardWithPlacement} from "../../../../model/deck.model.ts";
+import type {Card, CardWithPlacement} from "../../../../model/deck.model.ts";
 import {TILT_DEG} from "./game.component.layout.ts";
 import {
     areCardsOnTable,
@@ -37,6 +37,15 @@ const cardsWithLocation = (state: State): CardWithPlacement<BattleStackLocation>
             placement: {stackLocation: `seat${seatIndex}Played` as const, stackIndex: 3, index, faceUp: seat.playedUp[index], messyLevel: MESSY_LEVEL},
         })),
     ]);
+
+// the card that won the round, while it is on the table: the face up card on top of the winner's stack,
+// as long as no layer has been collected (the winner laid one card, then two more for each battle)
+const winningCard = (state: State): Card | null => {
+    if (state.roundWinner === null) return null;
+    const {played, playedUp} = state.seats[state.roundWinner];
+    const top = played.length - 1;
+    return top === 2 * state.battleCount && playedUp[top] ? played[top] : null;
+};
 
 const savedGame = (state: State): SavedBattleGame => ({
     seats: state.seats.map(({pile, played, playedUp, rank, eliminatedRound}) => ({pile, played, playedUp, rank, eliminatedRound})),
@@ -96,6 +105,12 @@ export const selectors = {
     // the round is won: the players send the cards to the winner layer by layer, turning over a face down layer first
     canRevealHiddenCards: (state: State) => isWaitingForCollection(state) && isTopLayerHidden(state),
     canCollectCards: (state: State) => isWaitingForCollection(state) && !isTopLayerHidden(state),
+    // which step of the collection the table waits for: it changes with each step done, by a tap or on its own
+    collectionStep: (state: State) => [
+        state.roundNumber,
+        state.seats.reduce((count, seat) => count + seat.played.length, 0),
+        state.seats.reduce((count, seat) => count + seat.playedUp.filter(up => !up).length, 0),
+    ].join(":"),
     isGameOver,
     hasGameWinner: (state: State) => gameWinner(state) !== null,
     // the seat of the winner once the game has ended, null on a tie
@@ -114,6 +129,7 @@ export const selectors = {
     isRestored: (state: State) => state.isRestored,
     playerNames: (state: State) => state.playerNames,
     roundWinner: (state: State) => state.roundWinner,
+    winningCard,
     lastRoundWinner: (state: State) => state.lastRoundWinner,
     lastWonCount: (state: State) => state.lastWonCount,
     roundNumber: (state: State) => state.roundNumber,

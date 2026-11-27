@@ -19,6 +19,7 @@
     --spider-card-h: var(--battle-card-h);
 }
 
+/* the cards, and what is written about them: a card won in a round flies over the names and outlines (layers.css) */
 .battle-cards {
     position: absolute;
     top: 0;
@@ -49,7 +50,7 @@
 }
 
 .battle-marks {
-    z-index: var(--z-table-marks);
+    z-index: var(--z-cards-marks);
     pointer-events: none;
 }
 
@@ -67,7 +68,7 @@
     outline-offset: 8px;
 }
 
-/* the outline of a pile: ruby in a battle, gold for the round winner */
+/* the outline of a pile: ruby in a battle */
 .battle-marks--pile::after {
     content: "";
     position: absolute;
@@ -84,11 +85,38 @@
     border-width: 3px;
 }
 
-.battle-seat--winner .battle-marks--pile::after {
-    opacity: 1;
-    border-color: var(--app-gold);
-    border-width: 3px;
-    box-shadow: 0 0 18px var(--app-gold);
+/* the winner of the round: the name grows and shines gold (the pile has no outline, Ben 2026-11-27, #174) */
+.battle-seat-name {
+    transition: color .25s ease-out, scale .25s ease-out, text-shadow .25s ease-out;
+}
+
+.battle-seat--winner .battle-seat-name {
+    color: var(--app-gold);
+    scale: 1.2;
+    text-shadow: 0 0 12px #f2d48aaa;
+}
+
+.battle-marks--label-left .battle-seat-name {
+    transform-origin: right center;
+}
+
+.battle-marks--label-right .battle-seat-name {
+    transform-origin: left center;
+}
+
+.battle-marks--label-below .battle-seat-name {
+    transform-origin: center top;
+}
+
+.battle-marks--label-above .battle-seat-name {
+    transform-origin: center bottom;
+}
+
+/* the card that won the round rises and shines (AnimatedCardView raised) */
+.battle-table .animated-card--raised .card-image,
+.battle-table .animated-card--raised .compact-card {
+    filter: drop-shadow(0 0 calc(var(--battle-card-w) * .08) var(--app-gold)) drop-shadow(0 0 calc(var(--battle-card-w) * .2) #f2d48acc);
+    transition: filter .3s ease-out;
 }
 
 /* out of the battle: a veil of felt over the pile and the cards played, which stay there for the winner */
@@ -227,4 +255,9 @@ body:has(.table-status):not(:has(.table-actions)) {
 
 body:not(:has(.table-actions)) .table-status {
     bottom: calc(var(--app-frame) + var(--app-space-2) + env(safe-area-inset-bottom, 0px));
+}
+
+/* the sparks for the winner of a round, over the cards (Sparks.tsx) */
+.battle-sparks {
+    z-index: var(--z-table-sparks);
 }

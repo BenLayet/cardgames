@@ -75,7 +75,19 @@ movement.current = element.animate([{transform: current}, {transform: target}], 
 The z-index is `index + stackIndex * 100`, so cards higher in a stack are drawn on top, and
 stacks being played are drawn above the others. It only orders the cards among themselves: the cards
 container sits in the `--z-table-cards` layer of `src/style/variables/layers.css`, over the outlines of
-the stacks and under what is written about them.
+the stacks. In Bataille, what is written about the cards (names, keys, outlines of a tie, veils) is drawn in the
+same container, at `--z-cards-marks`, over every card lying in its stack.
+
+### 3b. A card won, and the card that won (Bataille)
+
+`AnimatedCardView` takes two more props:
+- `raised`: the card that won the round (`winningCard` selector) rises a little, grows and shines gold.
+- `landing`: where the cards won land against the pile of the winner (`landingPoint` in the layout).
+  A card that comes from another stack flies there in an arc, face up, at `--z-cards-landing`, over every card and mark,
+  then slides to its place under the pile, at its own z-index, turning over (`LANDING_MS`, `LANDED_AT` in `card-motion.ts`).
+
+The view also bursts `Sparks` (`src/components/sparks/`), gold and in the winner's colour, from the winning card
+when the round is won, and from the pile when the cards land; none for a resumed game, nor with reduced motion.
 
 ### 4. Turning a card over (CSS transition)
 
@@ -109,7 +121,8 @@ The pauses between the steps of a round are delays in effects, not animation cal
 | `suspense`          | 600 ms  | every card played and the cards being turned over            |
 | `reviewWinner`      | 1000 ms | the cards being turned over and the round being resolved     |
 | `revealedCards`     | 1500 ms | the face down cards being shown and going to the winner      |
-| `collected`         | 600 ms  | the cards going to the winner's pile and the next round      |
+| `collected`         | 1000 ms | the cards going under the winner's pile and the next round   |
+| `autoCollect`       | 2000 ms | a round won (or a step of its collection) and the next step done on its own, without a tap |
 
 Effects schedule the next action through `SchedulerService`
 (`src/services/scheduler.service.ts`, implemented with `setTimeout` by

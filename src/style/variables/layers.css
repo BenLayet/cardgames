@@ -4,16 +4,23 @@
     /* ---- on the table: inside the table only (.battle-table and .spider-table isolate them) ---- */
     /* the places of the stacks: the outline of a pile, of a slot, of an empty column */
     --z-table-slot: 1;
-    /* the cards, laid out and moving between stacks */
+    /* the cards, laid out and moving between stacks; on a Bataille table, also what is written about them (see below) */
     --z-table-cards: 2;
     /* a card flying from one place of the table to another, over the cards that lie still (useCardFlight.ts) */
     --z-table-moving: 3;
-    /* what is written or shown over the cards: names, keys, counts, outlines of a tie or a winner, veils */
-    --z-table-marks: 4;
+    /* the sparks that celebrate the winner of a Bataille round, over the cards (Sparks.tsx) */
+    --z-table-sparks: 4;
     /* the message in the middle of the table ("Battle!") */
     --z-table-message: 5;
     /* the card dragged by the player, over everything on the table */
     --z-table-dragged: 6;
+
+    /* ---- inside the cards of a Bataille table (.battle-cards): the cards and what is written about them ---- */
+    /* (the cards lying in their stacks are ordered by AnimatedCardView, by stack and by place in the stack, from 0 to 999) */
+    /* what is written or shown over the cards lying in their stacks: names, keys, outlines of a tie, veils */
+    --z-cards-marks: 1000;
+    /* a card won in a round, flying over everything to the pile of the winner, before it goes under the pile (AnimatedCardView) */
+    --z-cards-landing: 2000;
 
     /* ---- on the page ---- */
     /* the cards that fly from the table to a place outside it (a completed Spider sequence) */

@@ -1,6 +1,6 @@
 import {describe, expect, it} from "vitest";
 
-import {nearestSeat, playerKeys, tableLayout, TILT_DEG} from "./game.component.layout.ts";
+import {landingPoint, nearestSeat, playerKeys, tableLayout, TILT_DEG} from "./game.component.layout.ts";
 
 const sizes = [[390, 760], [844, 300], [1280, 680]] as const;
 
@@ -143,4 +143,20 @@ describe("tilted cards in the middle", () => {
             }));
         }
     });
+
+    it.each(sizes.flatMap(([width, height]) => [2, 3, 4, 5, 6].map(count => [count, width, height])))(
+        "lands the cards won by each of the %i players of a %ix%i table against their pile, on the side of the centre",
+        (count, width, height) => {
+            const layout = tableLayout(count, width, height);
+            const centre = {x: width / 2, y: height / 2};
+            layout.seats.forEach(({pile}, seat) => {
+                const landing = landingPoint(layout, seat, centre);
+                // half over the pile: the card covers part of it, and is not lost under it
+                const distance = Math.hypot(landing.x - pile.x, landing.y - pile.y);
+                expect(distance).toBeGreaterThan(0);
+                expect(distance).toBeLessThan(layout.cardHeight);
+                // closer to the centre of the table than the pile
+                expect(Math.hypot(landing.x - centre.x, landing.y - centre.y)).toBeLessThan(Math.hypot(pile.x - centre.x, pile.y - centre.y));
+            });
+        });
 });
