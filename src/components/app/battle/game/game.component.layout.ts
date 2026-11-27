@@ -6,6 +6,7 @@ import {CARD_RATIO} from "../../../card/card-size.ts";
 // two players sit in opposite corners, player 1 at the bottom left and player 2 at the top right.
 // The cards played lie in the middle of the table, in a centred grid of slots, one per player still in the game,
 // in seat order, on 1, 2 or 3 rows: the one that gives the largest cards without any slot, pile or name overlapping another.
+// Room is kept above the slots for the message of a battle, so that it covers no card.
 // A player who leaves the game loses their slot: the others are centred again, and may grow.
 
 // the centre of each pile, in percent of the table, when the table is upright or wide
@@ -40,7 +41,9 @@ export type SeatLayout = {
     hasSlot: boolean,
     labelSide: LabelSide,
 };
-export type TableLayout = { cardWidth: number, cardHeight: number, rows: number, seats: SeatLayout[] };
+// the message of a battle: the middle of its bottom edge, just above the slots, and the size of its letters
+export type MessageLayout = { x: number, bottom: number, fontSize: number };
+export type TableLayout = { cardWidth: number, cardHeight: number, rows: number, seats: SeatLayout[], message: MessageLayout };
 
 // room for a label, in pixels
 const LABEL_HEIGHT = 34;
@@ -62,6 +65,16 @@ const slotGaps = (cardWidth: number, cardHeight: number) => {
     const overhang = tiltOverhang(cardWidth, cardHeight);
     return {x: GAP + 2 * overhang.x + MAX_STACK_DEPTH / 2, y: GAP + 2 * overhang.y + MAX_STACK_DEPTH};
 };
+
+// the message of a battle is written in letters sized from the cards, in a band above the slots;
+// its width is that of the longest message ("Double bataille !"), in letters
+const MESSAGE_FONT_PART = 0.3;
+const MESSAGE_FONT_MIN = 20;
+const MESSAGE_FONT_MAX = 64;
+const MESSAGE_LINE_HEIGHT = 1.15;
+const MESSAGE_WIDTH_EM = 8.5;
+const messageFontSize = (cardHeight: number) => clamp(cardHeight * MESSAGE_FONT_PART, MESSAGE_FONT_MIN, MESSAGE_FONT_MAX);
+const messageBand = (cardHeight: number) => messageFontSize(cardHeight) * MESSAGE_LINE_HEIGHT;
 
 const labelSide = (count: number, isWide: boolean, x: number, y: number): LabelSide => {
     // two players: each name is written beside the pile, towards the middle of the table
@@ -94,10 +107,8 @@ const slotGrid = (count: number, rows: number, width: number, height: number, ca
     const gap = slotGaps(cardWidth, cardHeight);
     const gridWidth = columns * cardWidth + (columns - 1) * gap.x;
     const gridHeight = rows * cardHeight + (rows - 1) * gap.y;
-    const box: Box = {
-        left: (width - gridWidth) / 2, top: (height - gridHeight) / 2,
-        right: (width + gridWidth) / 2, bottom: (height + gridHeight) / 2,
-    };
+    const top = (height - gridHeight) / 2;
+    const box: Box = {left: (width - gridWidth) / 2, top, right: (width + gridWidth) / 2, bottom: top + gridHeight};
     // the centre of each slot, row after row; a last row with fewer slots is centred
     const slots = Array.from({length: count}, (_, index): Point => {
         const row = Math.floor(index / columns);
@@ -112,10 +123,17 @@ const slotGrid = (count: number, rows: number, width: number, height: number, ca
     return {box, slots};
 };
 
+// the band of the message, above the grid and what goes past it
+const messageBox = (gridTop: number, width: number, cardHeight: number): Box => {
+    const fontSize = messageFontSize(cardHeight);
+    const halfWidth = fontSize * MESSAGE_WIDTH_EM / 2;
+    return {left: width / 2 - halfWidth, right: width / 2 + halfWidth, top: gridTop - messageBand(cardHeight), bottom: gridTop};
+};
+
 const fits = (count: number, slotCount: number, rows: number, isWide: boolean, width: number, height: number, cardWidth: number): boolean => {
     const cardHeight = cardWidth * CARD_RATIO;
     const {box} = slotGrid(slotCount, rows, width, height, cardWidth, cardHeight);
-    if (box.left < GAP || box.top < GAP) return false;
+    if (box.left < GAP) return false;
     const piles = (isWide ? WIDE : UPRIGHT)[count].map(([px, py]) =>
         placePile(px, py, labelSide(count, isWide, px, py), width, height, cardWidth, cardHeight));
     // a pile pushed against an edge of a too small table goes over it
@@ -127,7 +145,9 @@ const fits = (count: number, slotCount: number, rows: number, isWide: boolean, w
         left: box.left - GAP - overhang.x, right: box.right + GAP + overhang.x + MAX_STACK_DEPTH / 2,
         top: box.top - GAP - overhang.y - MAX_STACK_DEPTH, bottom: box.bottom + GAP + overhang.y,
     };
-    return piles.every((pile, index) => !overlap(pile.box, grid)
+    const message = messageBox(grid.top, width, cardHeight);
+    if (message.top < 0 || message.left < 0) return false;
+    return piles.every((pile, index) => !overlap(pile.box, grid) && !overlap(pile.box, message)
         && piles.slice(index + 1).every(other => !overlap(pile.box, other.box)));
 };
 
@@ -162,14 +182,16 @@ export const tableLayout = (playerCount: number, width: number, height: number, 
     const cardWidth = Math.max(MIN_CARD_WIDTH, best.cardWidth);
     const rows = best.cardWidth > 0 ? best.rows : Math.min(3, slotCount);
     const cardHeight = cardWidth * CARD_RATIO;
-    const {slots} = slotGrid(slotCount, rows, width, height, cardWidth, cardHeight);
+    const {box, slots} = slotGrid(slotCount, rows, width, height, cardWidth, cardHeight);
     const seats = (isWide ? WIDE : UPRIGHT)[count].map(([px, py], index): SeatLayout => {
         const side = labelSide(count, isWide, px, py);
         const {centre} = placePile(px, py, side, width, height, cardWidth, cardHeight);
         const slot = withSlot.indexOf(index);
         return {pile: centre, played: slot >= 0 ? slots[slot] : centre, hasSlot: slot >= 0, labelSide: side};
     });
-    return {cardWidth, cardHeight, rows, seats};
+    const overhang = tiltOverhang(cardWidth, cardHeight);
+    const message = {x: width / 2, bottom: box.top - GAP - overhang.y - MAX_STACK_DEPTH, fontSize: messageFontSize(cardHeight)};
+    return {cardWidth, cardHeight, rows, seats, message};
 };
 
 // the seat whose pile is the nearest to a point of the table, among the given ones
