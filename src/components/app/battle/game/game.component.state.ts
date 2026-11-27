@@ -3,6 +3,8 @@ import type {BattleVariant} from "../../../../services/battle-save.service.ts";
 
 // Bataille is played by 2 to 6 players, seated around the table: seat 0 at the bottom, the others clockwise
 export const MAX_SEATS = 6;
+// where the cards lie on a Bataille table: the deck, or a stack of a seat: its pile, or the cards it has played in the round
+export type BattleStackLocation = "deck" | `seat${number}Pile` | `seat${number}Played`;
 // in a game against the computer, the computer plays the second seat
 export const COMPUTER_SEAT = 1;
 
