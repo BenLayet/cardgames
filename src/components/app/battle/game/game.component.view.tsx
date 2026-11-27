@@ -214,6 +214,7 @@ const Table = ({path}: { path: string }) => {
                                       entry={v.isRestored ? "inPlace" : dealDelayMs(v.seatCount)(c.placement)}
                                       compact={layout !== null && isCompactWidth(layout.cardWidth)}
                                       raised={c.card === v.winningCard}
+                                      dimmed={v.seats[seatOf(c.placement.stackLocation)]?.isDimmed ?? false}
                                       landing={landing !== null && c.placement.stackLocation === `seat${winner}Pile` ? landing.corner : undefined}/>)}
                 {layout && v.seats.map((seat, index) => {
                     const {pile, played, hasSlot, labelSide} = layout.seats[index];

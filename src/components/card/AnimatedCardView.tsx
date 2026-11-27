@@ -19,6 +19,8 @@ interface CardProps {
     landing?: Coordinates;
     // the card rises from its stack, grows a little and shines (the card that won a round)
     raised?: boolean;
+    // the card is greyed, card by card so that the grey covers it exactly, tilted or not (a player out of a battle)
+    dimmed?: boolean;
 }
 
 export type Coordinates = { top: number, left: number };
@@ -66,7 +68,7 @@ const translationOf = (transform: string) => {
     return {x: matrix.e, y: matrix.f};
 };
 
-export function AnimatedCardView({card, placement, layoutState, entry = 0, compact = false, landing, raised = false}: CardProps) {
+export function AnimatedCardView({card, placement, layoutState, entry = 0, compact = false, landing, raised = false, dimmed = false}: CardProps) {
     const ref = useRef<HTMLDivElement>(null);
     const movement = useRef<Animation | null>(null);
     // only the first movement of the card is its entry on the table
@@ -126,7 +128,7 @@ export function AnimatedCardView({card, placement, layoutState, entry = 0, compa
     }, [card, stackLocation, index, messyLevel, layoutState, raised, landingLeft, landingTop, zIndex]);
 
     return (
-        <div ref={ref} className={raised ? "animated-card animated-card--raised" : "animated-card"} style={{position: "absolute", zIndex}}>
+        <div ref={ref} className={["animated-card", raised && "animated-card--raised", dimmed && "animated-card--dimmed"].filter(Boolean).join(" ")} style={{position: "absolute", zIndex}}>
             {compact ? <CompactCardView card={card} faceUp={faceUp}/> : <CardView card={card} faceUp={faceUp}/>}
         </div>
     );
