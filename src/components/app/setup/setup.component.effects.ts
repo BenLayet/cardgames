@@ -22,14 +22,11 @@ export const effects = ({settingsService}: Dependencies): Effects<Contract> => {
         setSuitCountRequested: (_, {values}) => {
             settingsService.save({suitCount: values.suitCount()});
         },
-        addPlayerRequested: (_, {values}) => saveSeats(values.gameId(), values.seats()),
         // the number of cards may have changed with the players
         setPlayersRequested: (_, {values}) => {
             saveSeats(values.gameId(), values.seats());
             settingsService.save({cardCounts: {...settingsService.load().cardCounts, [values.gameId()]: values.cardCount()}});
         },
-        removePlayerRequested: (_, {values}) => saveSeats(values.gameId(), values.seats()),
-        toggleSeatRequested: (_, {values}) => saveSeats(values.gameId(), values.seats()),
         // the names of the seats that this game does not show are kept
         renamePlayerRequested: (_, {payload: {index, name}}) => {
             const playerNames = [...settingsService.load().playerNames];

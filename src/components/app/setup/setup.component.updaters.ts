@@ -14,18 +14,6 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
         if (!isSuitCountAvailable(state.game, state.cardCount, suitCount)) return;
         state.suitCount = suitCount;
     },
-    addPlayerRequested: ({values, state}) => {
-        if (!values.canAddPlayer()) return;
-        state.seats.push(state.game.computerOpponents ? "computer" : "human");
-    },
-    removePlayerRequested: ({values, state}) => {
-        if (!values.canRemovePlayer()) return;
-        state.seats.pop();
-    },
-    toggleSeatRequested: ({payload: index, values, state}) => {
-        if (index >= state.seats.length || !values.changeableSeats()[index]) return;
-        state.seats[index] = state.seats[index] === "human" ? "computer" : "human";
-    },
     // one human against the computer, or 2 humans or more: the number of cards follows when it is too small for them
     setPlayersRequested: ({payload: humanCount, state}) => {
         if (!state.game.soloOrHumans || humanCount < 1 || humanCount > state.game.maxPlayers) return;

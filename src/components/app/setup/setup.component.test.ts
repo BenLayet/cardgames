@@ -3,12 +3,8 @@ import {initTestStore} from "@softer-components/test-utilities";
 
 import {setupDef} from "./setup.component.ts";
 import {fakeSettingsService} from "../../../test/fakes.ts";
-import {type GameDefinition, gameDefinition} from "../../../model/games.model.ts";
+import {gameDefinition} from "../../../model/games.model.ts";
 import type {Settings} from "../../../services/settings.service.ts";
-
-const upToFour: GameDefinition = {
-    id: "pouilleux", minPlayers: 2, maxPlayers: 4, computerOpponents: true, available: true, cardCountOptions: [], suitCountOptions: [],
-};
 
 const setup = (settings: Partial<Settings> = {}, game = gameDefinition("bataille")) => {
     const settingsService = fakeSettingsService(settings);
@@ -133,31 +129,14 @@ describe("setup screen", () => {
 
     it("lets a second human take the seat of the computer, and remembers it", async () => {
         const {store, values, settingsService} = setup();
-        await store.when({name: "toggleSeatRequested", payload: 1, statePath: []});
+        await store.when({name: "setPlayersRequested", payload: 2, statePath: []});
         expect(values().seats()).toEqual(["human", "human"]);
         expect(settingsService.load().seats.bataille).toEqual(["human", "human"]);
-    });
-
-    it("never gives the first seat to the computer", async () => {
-        const {store, values} = setup();
-        await store.when({name: "toggleSeatRequested", payload: 0, statePath: []});
-        expect(values().seats()).toEqual(["human", "computer"]);
     });
 
     it("ignores stored seats that the game does not allow", () => {
         const {values} = setup({seats: {bataille: ["human", "computer", "computer"]}});
         expect(values().seats()).toEqual(["human", "computer"]);
-    });
-
-    it("keeps the player count within the range of the game", async () => {
-        const {store, values} = setup({}, upToFour);
-        expect(values().canRemovePlayer()).toBe(false);
-        for (let i = 0; i < 3; i++) await store.when({name: "addPlayerRequested", statePath: []});
-        expect(values().playerCount()).toBe(4);
-        expect(values().canAddPlayer()).toBe(false);
-
-        await store.when({name: "removePlayerRequested", statePath: []});
-        expect(values().seats()).toEqual(["human", "computer", "computer"]);
     });
 
     it("remembers the names of the players for every game", async () => {
@@ -168,7 +147,7 @@ describe("setup screen", () => {
         // the computer plays under the name typed for it, and keeps it as a human
         expect(values().seatNames()).toEqual([null, "Léa"]);
 
-        await store.when({name: "toggleSeatRequested", payload: 1, statePath: []});
+        await store.when({name: "setPlayersRequested", payload: 2, statePath: []});
         expect(values().seatNames()).toEqual([null, "Léa"]);
     });
 

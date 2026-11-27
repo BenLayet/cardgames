@@ -31,12 +31,5 @@ export const selectors = {
     playerNames: (state: State) => state.seats.map((_, index) => state.playerNames[index] ?? ""),
     // the name shown for each seat during the game, null for a seat named after its number
     seatNames: (state: State) => state.seats.map((_, index) => state.playerNames[index]?.trim() || null),
-    minPlayers: (state: State) => state.game.minPlayers,
-    maxPlayers: (state: State) => state.game.maxPlayers,
-    isPlayerCountFixed: (state: State) => state.game.minPlayers === state.game.maxPlayers,
-    canAddPlayer: (state: State) => playerCount(state) < state.game.maxPlayers,
-    canRemovePlayer: (state: State) => playerCount(state) > state.game.minPlayers,
-    // whether each seat can switch between human and computer: the first seat is always a human
-    changeableSeats: (state: State) => state.seats.map((_, index) => index > 0 && state.game.computerOpponents),
 } satisfies Selectors<State>;
 export type Values = ExtractComponentValuesContract<typeof selectors>;
