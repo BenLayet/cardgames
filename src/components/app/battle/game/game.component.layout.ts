@@ -5,7 +5,7 @@ import {CARD_RATIO} from "../../../card/card-size.ts";
 // The piles sit around the table: seat 0 at the bottom, the others clockwise, as in the "Bataille à six" mockup;
 // two players sit in opposite corners, player 1 at the bottom left and player 2 at the top right.
 // The cards played lie in the middle of the table, in a centred grid of slots, one per player still in the game,
-// in seat order, on 1, 2 or 3 rows: the one that gives the largest cards without any slot, pile or name overlapping another.
+// each player taking the slot nearest to their pile, on 1, 2 or 3 rows: the one that gives the largest cards without any slot, pile or name overlapping another.
 // Room is kept above the slots for the message of a battle, so that it covers no card.
 // A player who leaves the game loses their slot: the others are centred again, and may grow.
 
@@ -165,6 +165,27 @@ const largestCardWidth = (count: number, slotCount: number, rows: number, isWide
     return low;
 };
 
+// gives each seat a slot, so that the piles are as near as possible to their slots: the shortest total distance;
+// among equal ones, the first in seat order. Six seats at most, so every way is tried.
+const nearestSlots = (piles: Point[], slots: Point[]): number[] => {
+    const distance = (pile: Point, slot: Point) => Math.hypot(pile.x - slot.x, pile.y - slot.y);
+    let best: number[] = slots.map((_, index) => index), bestTotal = Infinity;
+    const tryFrom = (taken: number[], total: number) => {
+        if (total >= bestTotal - 1e-6) return;
+        if (taken.length === piles.length) {
+            best = taken;
+            bestTotal = total;
+            return;
+        }
+        const pile = piles[taken.length];
+        slots.forEach((slot, index) => {
+            if (!taken.includes(index)) tryFrom([...taken, index], total + distance(pile, slot));
+        });
+    };
+    tryFrom([], 0);
+    return best;
+};
+
 // the seats with a slot in the middle: those still in the game (all of them when not given);
 // a seat without a slot has its cards played drawn on its pile
 export const tableLayout = (playerCount: number, width: number, height: number, slotSeats?: readonly number[]): TableLayout => {
@@ -183,11 +204,14 @@ export const tableLayout = (playerCount: number, width: number, height: number, 
     const rows = best.cardWidth > 0 ? best.rows : Math.min(3, slotCount);
     const cardHeight = cardWidth * CARD_RATIO;
     const {box, slots} = slotGrid(slotCount, rows, width, height, cardWidth, cardHeight);
-    const seats = (isWide ? WIDE : UPRIGHT)[count].map(([px, py], index): SeatLayout => {
+    const piles = (isWide ? WIDE : UPRIGHT)[count].map(([px, py]) => {
         const side = labelSide(count, isWide, px, py);
-        const {centre} = placePile(px, py, side, width, height, cardWidth, cardHeight);
+        return placePile(px, py, side, width, height, cardWidth, cardHeight);
+    });
+    const slotOf = nearestSlots(withSlot.map(seat => piles[seat].centre), slots);
+    const seats = piles.map(({centre, side}, index): SeatLayout => {
         const slot = withSlot.indexOf(index);
-        return {pile: centre, played: slot >= 0 ? slots[slot] : centre, hasSlot: slot >= 0, labelSide: side};
+        return {pile: centre, played: slot >= 0 ? slots[slotOf[slot]] : centre, hasSlot: slot >= 0, labelSide: side};
     });
     const overhang = tiltOverhang(cardWidth, cardHeight);
     const message = {x: width / 2, bottom: box.top - GAP - overhang.y - MAX_STACK_DEPTH, fontSize: messageFontSize(cardHeight)};
