@@ -7,7 +7,8 @@ import {faRobot} from "@fortawesome/free-solid-svg-icons";
 import type {GameContract} from "./game.component.ts";
 import {useMeasure} from "../../../../hooks/useMeasure.ts";
 import {AnimatedCardView, type LayoutState} from "../../../card/AnimatedCardView.tsx";
-import type {CardPlacement, StackLocation} from "../../../../model/deck.model.ts";
+import type {CardPlacement} from "../../../../model/deck.model.ts";
+import type {BattleStackLocation} from "./game.component.state.ts";
 import {Fireworks} from "../../../fireworks/Fireworks.tsx";
 import {Tomatoes} from "../../../tomatoes/Tomatoes.tsx";
 import {EndMessage} from "../../../end-message/EndMessage.tsx";
@@ -19,8 +20,8 @@ import type {SeatView} from "./game.component.selectors.ts";
 
 // the cards are dealt one after the other, to each player in turn
 const DEAL_STAGGER_MS = 20;
-const seatOf = (location: StackLocation) => Number(/^seat(\d+)/.exec(location)?.[1] ?? 0);
-const dealDelayMs = (seatCount: number) => ({stackLocation, index}: CardPlacement) =>
+const seatOf = (location: BattleStackLocation) => Number(/^seat(\d+)/.exec(location)?.[1] ?? 0);
+const dealDelayMs = (seatCount: number) => ({stackLocation, index}: CardPlacement<BattleStackLocation>) =>
     (index * seatCount + seatOf(stackLocation)) * DEAL_STAGGER_MS;
 
 export const View = ({path = ""}) => {

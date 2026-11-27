@@ -1,7 +1,7 @@
 import type {SavedBattleGame} from "../../../../services/battle-save.service.ts";
 import type {ExtractComponentValuesContract, Selectors} from "@softer-components/types";
 
-import type {State} from "./game.component.state.ts";
+import type {BattleStackLocation, State} from "./game.component.state.ts";
 import type {CardWithPlacement} from "../../../../model/deck.model.ts";
 import {PILE_TILT_DEG, PLAYED_TILT_DEG} from "./game.component.layout.ts";
 import {
@@ -26,7 +26,7 @@ const PILE_MESSY_LEVEL = 2 * PILE_TILT_DEG;
 const PLAYED_MESSY_LEVEL = 2 * PLAYED_TILT_DEG;
 
 // How each stack of a seat is drawn on the table: the cards played lie over the piles
-const cardsWithLocation = (state: State): CardWithPlacement[] =>
+const cardsWithLocation = (state: State): CardWithPlacement<BattleStackLocation>[] =>
     state.seats.flatMap((seat, seatIndex) => [
         ...seat.pile.map((card, index) => ({
             card,

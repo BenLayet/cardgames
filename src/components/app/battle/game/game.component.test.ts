@@ -3,7 +3,8 @@ import {initTestStore, type TestStore} from "@softer-components/test-utilities";
 import type {ExtractEventNameUnion, ExtractPayload} from "@softer-components/types";
 
 import {gameDef, type GameContract} from "./game.component.ts";
-import {type Card, seededRandom, type StackLocation} from "../../../../model/deck.model.ts";
+import {type Card, seededRandom} from "../../../../model/deck.model.ts";
+import type {BattleStackLocation} from "./game.component.state.ts";
 import {fakeAudioService, fakeBattleSaveService} from "../../../../test/fakes.ts";
 import {TimeoutSchedulerAdapter} from "../../../../adapters/scheduler.adapter.ts";
 import {dealPiles, dealPlayableGame} from "./game.component.effects.ts";
@@ -26,7 +27,7 @@ afterEach(() => {
 
 const values = () => store.getValues("");
 // cards of a stack, from the bottom to the top
-const stack = (location: StackLocation): Card[] => (values().cardsWithLocation())
+const stack = (location: BattleStackLocation): Card[] => (values().cardsWithLocation())
     .filter(c => c.placement.stackLocation === location)
     .sort((a, b) => a.placement.index - b.placement.index)
     .map(c => c.card);

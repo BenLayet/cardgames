@@ -3,19 +3,19 @@ export type Suit = (typeof SUITS)[number];
 export const RANKS = ["2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"] as const;
 export type Rank = (typeof RANKS)[number];
 export type Card = `${Rank}${Suit}`;
-// the deck, or a stack of a seat: its pile, or the cards it has played in the round
-export type StackLocation = "deck" | `seat${number}Pile` | `seat${number}Played`;
+// a stack of cards on the table; each game names its own stacks (Bataille: BattleStackLocation)
+export type StackLocation = string;
 
-export type CardPlacement = {
+export type CardPlacement<Location extends StackLocation = StackLocation> = {
     faceUp: boolean;
-    stackLocation: StackLocation;
+    stackLocation: Location;
     stackIndex: number;
     index: number;
     messyLevel: number;
 };
-export type CardWithPlacement = {
+export type CardWithPlacement<Location extends StackLocation = StackLocation> = {
     card: Card;
-    placement: CardPlacement;
+    placement: CardPlacement<Location>;
 };
 export const createDeck = (cardCount: number): Card[] => {
     if (cardCount % SUITS.length !== 0) {
