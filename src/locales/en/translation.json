@@ -197,7 +197,7 @@
       },
       {
         "title": "Help",
-        "text": "The light bulb suggests a move; press it again for the next move, then to hide the hint. The arrow undoes the last move; hold it to keep undoing, two moves a second. Each undo counts as a move. The \"Positions\" bookmark keeps up to three positions; going back to one counts as a move, cannot be undone, and Undo then goes on from that position. A new game clears them."
+        "text": "The light bulb suggests a move; press it again for the next move, then to hide the hint. The arrow undoes the last move; hold it to keep undoing, four moves a second. Each undo counts as a move. The \"Positions\" bookmark keeps up to three positions; going back to one counts as a move, cannot be undone, and Undo then goes on from that position. A new game clears them."
       },
       {
         "title": "With a keyboard",

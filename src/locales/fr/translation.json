@@ -197,7 +197,7 @@
       },
       {
         "title": "Aide",
-        "text": "L'ampoule propose un coup\u00a0; touche-la encore pour le coup suivant, puis pour cacher l'indice. La flèche annule le dernier coup\u00a0; garde-la appuyée pour annuler en boucle, deux coups par seconde. Annuler compte comme un coup. Le marque-page « Positions » garde jusqu'à trois positions ; revenir à l'une d'elles compte comme un coup, ne s'annule pas, et Annuler continue ensuite depuis cette position. Une nouvelle partie les efface."
+        "text": "L'ampoule propose un coup\u00a0; touche-la encore pour le coup suivant, puis pour cacher l'indice. La flèche annule le dernier coup\u00a0; garde-la appuyée pour annuler en boucle, quatre coups par seconde. Annuler compte comme un coup. Le marque-page « Positions » garde jusqu'à trois positions ; revenir à l'une d'elles compte comme un coup, ne s'annule pas, et Annuler continue ensuite depuis cette position. Une nouvelle partie les efface."
       },
       {
         "title": "Au clavier",
