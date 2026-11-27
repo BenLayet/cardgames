@@ -77,7 +77,7 @@ test("a clicked card that can only go to one column goes there right away", asyn
     await expect(cardsIn(page, 4)).toHaveCount(1);
 });
 
-test("a tap on Undo undoes one move, holding it undoes two moves a second until released", async ({page}) => {
+test("a tap on Undo undoes one move, holding it undoes four moves a second until released", async ({page}) => {
     await resume(page, PLAYING, Array.from({length: 6}, () => PLAYING));
     const undo = page.getByRole("button", {name: "Annuler"});
     await undo.click();
@@ -85,8 +85,8 @@ test("a tap on Undo undoes one move, holding it undoes two moves a second until 
 
     await undo.hover();
     await page.mouse.down();
-    // undone at the press, then after 500 and 1000 ms
-    await page.waitForTimeout(1250);
+    // undone at the press, then after 250 and 500 ms
+    await page.waitForTimeout(625);
     await page.mouse.up();
     await expect(page.getByText("4 coups", {exact: true})).toBeVisible();
     await page.waitForTimeout(800);

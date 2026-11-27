@@ -32,8 +32,8 @@ const bottomLimit = (columns: DOMRect, below: (Element | null)[]) => Math.min(wi
     return rect && rect.height > 0 && rect.left < columns.right && rect.right > columns.left ? rect.top : window.innerHeight;
 }));
 
-// holding Undo undoes two moves a second
-const UNDO_REPEAT_MS = 500;
+// holding Undo undoes four moves a second
+const UNDO_REPEAT_MS = 250;
 
 // the sparks of a completed sequence, as for the winner of a Bataille round: how many, and how fast in part of the card width
 // per frame; from the sequence whole in its column, then from its place when it lands there
