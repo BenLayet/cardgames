@@ -43,6 +43,7 @@ Every new game follows these rules, so that all games look and behave the same w
 
 - Everything the game says to the player (whose turn it is, the move counter, the hint, what to do next) goes in the status line at the bottom centre of the felt; no message elsewhere on the table.
 - The game's actions (Hint, Undo…) sit in the bottom right corner, under the right thumb (in a row upright, in a column sideways).
+- They are ordered from the least used to the most used: the most used one sits in the corner, on the right upright and at the bottom sideways. In code, the last child of `TableActions` is the most used action (Spider: Positions, Hint, Undo).
 - Both come from the shared `TableActions` component (`src/components/navigation/TableActions.tsx`): `status` for the line, its children for the buttons (`btn table-action`, an icon and a label). Its `statusRef` and `actionsRef` let the game measure the room left above them, as Spider does.
 - The top bar is the shared `AppBar` (`src/components/navigation/AppBar.tsx`): Back, title, rules and Settings. No game buttons in it.
 
