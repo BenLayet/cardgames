@@ -9,7 +9,8 @@ import {CardView} from "../../../card/CardView.tsx";
 import {CompactCardView} from "../../../card/CompactCardView.tsx";
 import {CARD_RATIO, isCompactWidth} from "../../../card/card-size.ts";
 import {useMeasure} from "../../../../hooks/useMeasure.ts";
-import {useCardFlight} from "../../../../hooks/useCardFlight.ts";
+import {type Celebration, type ScreenPoint, useCardFlight} from "../../../../hooks/useCardFlight.ts";
+import {Sparks, type SparksHandle} from "../../../sparks/Sparks.tsx";
 import {cardOffsets} from "./game.component.layout.ts";
 import {AppBar} from "../../../navigation/AppBar.tsx";
 import {TableActions} from "../../../navigation/TableActions.tsx";
@@ -33,6 +34,13 @@ const bottomLimit = (columns: DOMRect, below: (Element | null)[]) => Math.min(wi
 
 // holding Undo undoes two moves a second
 const UNDO_REPEAT_MS = 500;
+
+// the sparks of a completed sequence, as for the winner of a Bataille round: how many, and how fast in part of the card width
+// per frame; from the sequence whole in its column, then from its place when it lands there
+const WHOLE_SPARKS = {count: 70, speed: 0.045};
+const LANDED_SPARKS = {count: 50, speed: 0.04};
+// gold, mixed with the colour of the suit
+const suitColor = (suit: string | undefined) => suit === "H" || suit === "D" ? "--app-ruby" : "--app-ink";
 
 // a dragged card follows the pointer, it does not fly
 const isDraggedElement = (element: HTMLElement) => element.classList.contains("spider-card--dragged");
@@ -68,7 +76,13 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
     const tableRef = useRef<HTMLDivElement>(null);
     const stockRef = useRef<HTMLButtonElement>(null);
     const slotsRef = useRef<HTMLDivElement>(null);
-    const isCollecting = useCardFlight(tableRef, stockRef, {count: v.completed.length, slots: slotsRef}, isDraggedElement);
+    const sparks = useRef<SparksHandle>(null);
+    const celebrate = (at: ScreenPoint, sequence: number, moment: Celebration) => {
+        const cardWidth = (measured?.cardHeight ?? 0) / CARD_RATIO;
+        const {count, speed} = moment === "landed" ? LANDED_SPARKS : WHOLE_SPARKS;
+        sparks.current?.burst({...at, color: suitColor(v.completed[sequence]), count, speed: cardWidth * speed});
+    };
+    const isCollecting = useCardFlight(tableRef, stockRef, {count: v.completed.length, slots: slotsRef, celebrate}, isDraggedElement);
     const Face = compact ? CompactCardView : CardView;
     // the victory shows once the last sequence has reached its place
     const isVictoryShown = v.hasGameEnded && !isCollecting;
@@ -169,6 +183,8 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
                 </div>;
             })}
         </div>
+        {/* over the whole screen, so that its points are those of the screen; over the cards flying to their place */}
+        <div className="spider-sparks"><Sparks ref={sparks}/></div>
         {isVictoryShown && <EndMessage onPlayAgain={() => d.playAgainRequested()} onMenu={() => d.menuRequested()}>
             <Fireworks/>
             <h2>{t("victory")}</h2>

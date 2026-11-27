@@ -14,8 +14,18 @@ const JOIN_PAUSE_MS = 120;
 // a flying card is drawn over the cards that lie still: the layer of the moving cards (layers.css)
 const movingLayer = (element: HTMLElement) => getComputedStyle(element).getPropertyValue("--z-table-moving").trim() || "auto";
 
-// The places of the completed sequences: one child of the element for each sequence, in order
-export type Sequences = { count: number, slots: RefObject<HTMLElement | null> };
+// A point on the screen, in pixels from the top left corner of the window
+export type ScreenPoint = { x: number, y: number };
+// the moments a completed sequence is celebrated: whole in its column, then landed in its place
+export type Celebration = "whole" | "landed";
+// The places of the completed sequences: one child of the element for each sequence, in order.
+// celebrate is called where a completed sequence is whole in its column, just before it leaves,
+// then at its place when its cards land there (not on an undo, nor when the cards do not fly).
+export type Sequences = {
+    count: number,
+    slots: RefObject<HTMLElement | null>,
+    celebrate?: (at: ScreenPoint, sequence: number, moment: Celebration) => void,
+};
 
 type Rects = Map<string, DOMRect>;
 
@@ -76,7 +86,9 @@ export const useCardFlight = (
             const left = [...before.keys()].filter(id => !rects.has(id))
                 .map(id => ({rect: before.get(id), element: beforeElements.get(id)}))
                 .filter((card): card is { rect: DOMRect, element: HTMLElement } => card.rect !== undefined && card.element !== undefined && !card.element.isConnected);
-            const landing = collect(container.current, left, slotOf(count - 1));
+            const sequence = count - 1;
+            const celebrate = sequences?.celebrate;
+            const landing = collect(container.current, left, slotOf(sequence), celebrate && ((at, moment) => celebrate(at, sequence, moment)));
             if (landing) {
                 // counted before the browser paints: what waits for the sequence never shows before it
                 collecting.fly(1);
@@ -136,7 +148,8 @@ const collector = (initialCount: number) => {
 
 // The cards that left the table fly over it to the place of their sequence, then the place shines for a moment.
 // Returns when the cards have landed, or nothing when nothing flies.
-const collect = (table: HTMLElement, cards: { rect: DOMRect, element: HTMLElement }[], slot: HTMLElement | null | undefined): Promise<void> | undefined => {
+const collect = (table: HTMLElement, cards: { rect: DOMRect, element: HTMLElement }[], slot: HTMLElement | null | undefined,
+                 celebrate?: (at: ScreenPoint, moment: Celebration) => void): Promise<void> | undefined => {
     if (!slot || cards.length === 0 || typeof table.animate !== "function") return undefined;
     const target = slot.getBoundingClientRect();
     const layer = document.createElement("div");
@@ -168,6 +181,12 @@ const collect = (table: HTMLElement, cards: { rect: DOMRect, element: HTMLElemen
             {transform: `translate(${landing.left - rect.left}px, ${landing.top - rect.top}px)`},
         ], {duration: FLIGHT_MS, easing: EASING, fill: "forwards"})];
     });
+    // the middle of the sequence once whole in its column
+    const whole = (): ScreenPoint => {
+        const tops = landings.map(landing => landing.top);
+        const height = aceFirst[0].rect.height;
+        return {x: landings[0].left + landings[0].width / 2, y: (Math.min(...tops) + Math.max(...tops) + height) / 2};
+    };
     const leave = () => Promise.all(aceFirst.map(({element}, index) => {
         const from = landings[index];
         const scale = target.width / from.width;
@@ -180,9 +199,11 @@ const collect = (table: HTMLElement, cards: { rect: DOMRect, element: HTMLElemen
         layer.remove();
         slot.classList.remove("spider-slot--waiting");
         slot.classList.add("spider-slot--won");
+        celebrate?.({x: target.left + target.width / 2, y: target.top + target.height / 2}, "landed");
         setTimeout(() => slot.classList.remove("spider-slot--won"), CELEBRATION_MS);
     };
     return Promise.all(joins.map(join => join.finished))
+        .then(() => celebrate?.(whole(), "whole"))
         .then(() => new Promise(resolve => setTimeout(resolve, joins.length > 0 ? JOIN_PAUSE_MS : 0)))
         .then(leave)
         .then(landed, landed);

@@ -180,6 +180,20 @@ test("a completed sequence flies away with the ace on top and the king beneath",
     expect(ranks).toEqual([12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
 });
 
+test("a completed sequence throws gold sparks", async ({page}) => {
+    await resume(page, ALMOST_WON);
+    const sparkPixels = () => page.locator(".spider-sparks canvas").evaluate(element => {
+        const canvas = element as HTMLCanvasElement;
+        const pixels = canvas.getContext("2d")?.getImageData(0, 0, canvas.width, canvas.height).data ?? [];
+        let drawn = 0;
+        for (let i = 3; i < pixels.length; i += 4) if (pixels[i] > 0) drawn++;
+        return drawn;
+    });
+    expect(await sparkPixels()).toBe(0);
+    await card(page, 1, 0).click();
+    await expect.poll(sparkPixels, {intervals: [50]}).toBeGreaterThan(0);
+});
+
 test("the victory shows once the last sequence has reached its place", async ({page}) => {
     await resume(page, ALMOST_WON);
     // each frame, whether the sequence is still flying and whether the victory is on screen
