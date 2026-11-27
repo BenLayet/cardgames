@@ -5,7 +5,7 @@ import { execSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 
 // what was deployed, shown in the About window: the version of package.json and the build date,
-// and the commit, which the About link to the source code points to
+// and the commit it was built from, kept in version.json
 const commitOf = (): string => {
   // AWS Amplify gives the commit it builds; otherwise ask git
   if (process.env.AWS_COMMIT_ID) return process.env.AWS_COMMIT_ID.slice(0, 7)
