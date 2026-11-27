@@ -10,6 +10,7 @@ Every new game follows these rules, so that all games look and behave the same w
 
 - Before playing, the game shows its setup screen: the shared `Setup` component in `src/components/app/setup/`, not a screen of its own.
 - The options it offers come from the game's `GameDefinition` in `src/model/games.model.ts` (players, `cardCountOptions`, `suitCountOptions`, hints…). Add a field there when a new kind of option is needed, rather than a special case in the setup view.
+- Text fields of the setup (player names) chain on a phone: the keyboard's OK key (`enterKeyHint="next"`) goes to the next field, and on the last one (`"done"`) closes the keyboard without starting the game.
 - The game is listed on the home page only once it is playable (`available: true`).
 
 ### 2. Resume the last game or start a new one

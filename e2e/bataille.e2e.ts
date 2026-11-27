@@ -97,6 +97,28 @@ test("the setup screen offers Solo or 2 to 6 players, and leaves out decks too s
     await expect(page.locator(".battle-pile")).toHaveCount(6);
 });
 
+test("on the setup screen, the OK key goes to the next name and closes the keyboard after the last one", async ({page}) => {
+    await page.addInitScript(() => {
+        localStorage.setItem("cardgames.settings", JSON.stringify({schemaVersion: 3, language: "fr"}));
+    });
+    await page.goto("/");
+    await page.getByText("Bataille").first().click();
+    await page.getByRole("button", {name: "3 joueurs"}).click();
+    const names = page.getByRole("textbox");
+    await expect(names.nth(0)).toHaveAttribute("enterkeyhint", "next");
+    await expect(names.nth(2)).toHaveAttribute("enterkeyhint", "done");
+
+    await names.nth(0).fill("Ben");
+    await names.nth(0).press("Enter");
+    await expect(names.nth(1)).toBeFocused();
+    await names.nth(1).press("Enter");
+    await expect(names.nth(2)).toBeFocused();
+    await names.nth(2).press("Enter");
+    // the last OK only closes the keyboard: the game starts with the Start button
+    await expect(names.nth(2)).not.toBeFocused();
+    await expect(page.getByRole("button", {name: "Commencer"})).toBeVisible();
+});
+
 test("alone against the computer, the status line says when it is the player's turn", async ({page}) => {
     // the player's king beats the computer's queen
     const solo = {
