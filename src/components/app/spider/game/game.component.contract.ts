@@ -19,6 +19,8 @@ export const uiEvents = [
     "menuRequested",
     // the victory message is on screen, once the last sequence has reached its place
     "victoryShown",
+    // a completed sequence is whole in its column, with its sparks, just before it leaves for its place
+    "sequenceCelebrated",
 ] as const;
 export const allEvents = [
     ...uiEvents,

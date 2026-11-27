@@ -10,6 +10,7 @@ export const fakeAudioService = () => ({
     playApplause: vi.fn(),
     playCrowdDisappointment: vi.fn(),
     playCardSlide: vi.fn(),
+    playCheer: vi.fn(),
     setMusicVolume: vi.fn(),
     setSoundsVolume: vi.fn(),
 }) satisfies AudioService;

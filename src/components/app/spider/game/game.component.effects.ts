@@ -51,6 +51,8 @@ export const effects = ({audioService, spiderSaveService}: Dependencies): Effect
             save(values);
         },
         positionDeleted: (_, {values}) => save(values),
+        // the cheer goes with the sparks of the completed sequence, not with the move that completed it
+        sequenceCelebrated: () => audioService.playCheer(),
         // the applause goes with the victory message, not with the winning move
         victoryShown: () => audioService.playApplause(),
     };
