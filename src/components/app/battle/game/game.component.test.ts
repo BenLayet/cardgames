@@ -265,6 +265,29 @@ describe("game", () => {
         expect(pile(0)).toEqual(["KS", "QH", "2S", "3S"]);
     });
 
+    it("cheers the player who wins a round, not the computer", async () => {
+        await deal(["2S", "3S", "KS"], ["4H", "AH", "QH"]);
+        await playRound(); // KS vs QH: the player wins
+        expect(audioService.playCheer).toHaveBeenCalledOnce();
+
+        await playRound(); // 3S vs AH: the computer wins
+        expect(audioService.playCheer).toHaveBeenCalledOnce();
+    });
+
+    it("cheers every human who wins a round, but not a battle still going on", async () => {
+        await dealToHumans(["2S", "3S", "AS"], ["4H", "5H", "AH"]);
+        await click(0);
+        await click(1); // AS vs AH: a battle
+        await settle();
+        expect(audioService.playCheer).not.toHaveBeenCalled();
+
+        await everyonePlays(0, 1); // face down cards
+        await click(0);
+        await click(1); // 2S vs 4H: the second player wins
+        await settle();
+        expect(audioService.playCheer).toHaveBeenCalledOnce();
+    });
+
     describe("the computer never plays before the player", () => {
         it("when the player double clicks on a face down card of a battle", async () => {
             await deal(["2S", "3S", "KS"], ["5H", "4H", "KH"]);
