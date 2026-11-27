@@ -12,12 +12,11 @@ import {Fireworks} from "../../../fireworks/Fireworks.tsx";
 import {Tomatoes} from "../../../tomatoes/Tomatoes.tsx";
 import {EndMessage} from "../../../end-message/EndMessage.tsx";
 import {TableActions} from "../../../navigation/TableActions.tsx";
+import {isCompactWidth} from "../../../card/card-size.ts";
 import {nearestSeat, playerKeys, type TableLayout, tableLayout} from "./game.component.layout.ts";
 import type {SeatView} from "./game.component.selectors.ts";
 
 
-// a card narrower than this is drawn compact, as in the Spider
-const COMPACT_CARD_MAX_WIDTH_PX = 60;
 // the cards are dealt one after the other, to each player in turn
 const DEAL_STAGGER_MS = 20;
 const seatOf = (location: StackLocation) => Number(/^seat(\d+)/.exec(location)?.[1] ?? 0);
@@ -178,7 +177,7 @@ const Table = ({path}: { path: string }) => {
                 {layoutState && v.cardsWithLocation.map(c =>
                     <AnimatedCardView key={c.card} card={c.card} placement={c.placement} layoutState={layoutState}
                                       entry={v.isRestored ? "inPlace" : dealDelayMs(v.seatCount)(c.placement)}
-                                      compact={layout !== null && layout.cardWidth < COMPACT_CARD_MAX_WIDTH_PX}/>)}
+                                      compact={layout !== null && isCompactWidth(layout.cardWidth)}/>)}
             </div>
         </div>
         <TableActions status={status()}/>

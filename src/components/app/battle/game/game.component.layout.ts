@@ -1,4 +1,5 @@
 import {MAX_STACK_DEPTH} from "../../../card/AnimatedCardView.tsx";
+import {CARD_RATIO} from "../../../card/card-size.ts";
 
 // Where the piles and the cards played of a Bataille game lie on the table, for 2 to 6 players.
 // The piles sit around the table: seat 0 at the bottom, the others clockwise, as in the "Bataille à six" mockup;
@@ -26,7 +27,6 @@ const WIDE: Record<number, [number, number][]> = {
 const MAX_CARD_UPRIGHT: [number, number] = [0.3, 0.15];
 const MAX_CARD_WIDE: [number, number] = [0.13, 0.22];
 const MIN_CARD_WIDTH = 24;
-export const CARD_RATIO = 200 / 143;
 
 // where the name and the card count of a seat are written, next to its pile: away from the centre of the table
 export type LabelSide = "below" | "above" | "left" | "right";

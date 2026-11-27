@@ -7,6 +7,7 @@ import {faLightbulb, faRotateLeft} from "@fortawesome/free-solid-svg-icons";
 import type {GameContract} from "./game.component.ts";
 import {CardView} from "../../../card/CardView.tsx";
 import {CompactCardView} from "../../../card/CompactCardView.tsx";
+import {CARD_RATIO, isCompactWidth} from "../../../card/card-size.ts";
 import {useMeasure} from "../../../../hooks/useMeasure.ts";
 import {useCardFlight} from "../../../../hooks/useCardFlight.ts";
 import {cardOffsets} from "./game.component.layout.ts";
@@ -17,8 +18,6 @@ import {EndMessage} from "../../../end-message/EndMessage.tsx";
 import {spiderRank} from "../../../../model/spider.model.ts";
 import {useCardPointer} from "./useCardPointer.ts";
 
-// narrower cards are drawn with text only, the pictures would be unreadable
-const COMPACT_CARD_MAX_WIDTH_PX = 60;
 // columns always have room for this many card heights, even on a short screen
 const MIN_COLUMN_ROOM = 2;
 // space kept free below the columns
@@ -49,9 +48,9 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
         const columns = columnsRef.current?.getBoundingClientRect();
         const card = columnsRef.current?.firstElementChild?.getBoundingClientRect();
         if (!columns || !card || card.width === 0) return null;
-        const cardHeight = card.width * 200 / 143;
+        const cardHeight = card.width * CARD_RATIO;
         return {
-            compact: card.width < COMPACT_CARD_MAX_WIDTH_PX,
+            compact: isCompactWidth(card.width),
             cardHeight,
             // in card heights, below the top of the first card of a column
             room: Math.max(MIN_COLUMN_ROOM, (bottomLimit(columns, [statusRef.current, actionsRef.current]) - columns.top - BOTTOM_MARGIN_PX) / cardHeight - 1),
