@@ -2,6 +2,7 @@ import {describe, expect, it} from "vitest";
 
 import type {Card} from "./deck.model.ts";
 import {SOLVABLE_DEAL_SEEDS} from "./spider-deals.ts";
+import {gameDefinition} from "./games.model.ts";
 import {
     canDealRow,
     canMoveCards,
@@ -343,5 +344,14 @@ describe("saved game", () => {
         ["an unknown card", {table: {...EMPTY_TABLE, stock: cards("ZZ")}, history: [], moveCount: 0}],
     ])("rejects %s", (_, value) => {
         expect(isSavedSpiderGame(value)).toBe(false);
+    });
+});
+
+describe("Spider options", () => {
+    it("are the same on the setup screen as in the rules", () => {
+        const game = gameDefinition("spider");
+        expect(game.cardCountOptions).toEqual([26, 52, 104]);
+        expect(game.suitCountOptions).toEqual([1, 2, 4]);
+        expect(game.unavailableSuitCounts).toEqual({26: [4]});
     });
 });

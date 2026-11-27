@@ -6,9 +6,10 @@ import {SOLVABLE_DEAL_SEEDS} from "./spider-deals.ts";
 // A completed sequence is a run from the king down to the ace of the same suit; the game is won when every card is in one.
 // The functions below never change the given table, they return a new one.
 
+// from the easiest to the hardest, as on the setup screen
 export const SUIT_COUNT_OPTIONS = [1, 2, 4];
-// the first one is the usual game
-export const CARD_COUNT_OPTIONS = [104, 52, 26];
+// from the shortest game to the longest, as on the setup screen
+export const CARD_COUNT_OPTIONS = [26, 52, 104];
 // in Spider the ace is the lowest card
 const SPIDER_RANKS: readonly Rank[] = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K"];
 const SEQUENCE_LENGTH = SPIDER_RANKS.length;
@@ -30,6 +31,15 @@ const SUIT_COUNTS_BY_CARD_COUNT: Readonly<Record<number, readonly number[]>> = {
     26: [1, 2],
 };
 export const suitCountOptionsFor = (cardCount: number): readonly number[] => SUIT_COUNTS_BY_CARD_COUNT[cardCount] ?? [];
+// for each number of cards, the numbers of suits it cannot be played with
+export const unavailableSuitCounts = (): Partial<Record<number, readonly number[]>> => {
+    const unavailable: Partial<Record<number, readonly number[]>> = {};
+    CARD_COUNT_OPTIONS.forEach(cardCount => {
+        const suitCounts = SUIT_COUNT_OPTIONS.filter(suitCount => !suitCountOptionsFor(cardCount).includes(suitCount));
+        if (suitCounts.length > 0) unavailable[cardCount] = suitCounts;
+    });
+    return unavailable;
+};
 // every number of cards with every number of suits it can be played with
 export const SPIDER_VARIANTS: readonly SpiderVariant[] = CARD_COUNT_OPTIONS.flatMap(cardCount =>
     suitCountOptionsFor(cardCount).map(suitCount => ({cardCount, suitCount})));

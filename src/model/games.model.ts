@@ -1,3 +1,5 @@
+import {CARD_COUNT_OPTIONS, SUIT_COUNT_OPTIONS, unavailableSuitCounts} from "./spider.model.ts";
+
 export type SeatKind = "human" | "computer";
 
 export const GAME_IDS = ["bataille", "batailleCorse", "spider", "crapette", "pouilleux"] as const;
@@ -35,7 +37,9 @@ export const isSuitCountAvailable = (game: GameDefinition, cardCount: number, su
 export const GAMES: readonly GameDefinition[] = [
     {id: "bataille", minPlayers: 2, maxPlayers: 6, computerOpponents: true, soloOrHumans: true, minCardsPerPlayer: 4, available: true, cardCountOptions: [12, 16, 32, 52], suitCountOptions: []},
     {id: "batailleCorse", minPlayers: 2, maxPlayers: 6, computerOpponents: true, available: false, cardCountOptions: [], suitCountOptions: []},
-    {id: "spider", minPlayers: 1, maxPlayers: 1, computerOpponents: false, available: true, cardCountOptions: [26, 52, 104], suitCountOptions: [1, 2, 4], unavailableSuitCounts: {26: [4]},
+    {id: "spider", minPlayers: 1, maxPlayers: 1, computerOpponents: false, available: true,
+        // the options of the Spider are those of its rules
+        cardCountOptions: [...CARD_COUNT_OPTIONS], suitCountOptions: [...SUIT_COUNT_OPTIONS], unavailableSuitCounts: unavailableSuitCounts(),
         cardCountHints: {26: "short", 52: "medium", 104: "long"}, suitCountHints: {1: "easy", 2: "normal", 4: "hard"}},
     {id: "crapette", minPlayers: 2, maxPlayers: 2, computerOpponents: true, available: false, cardCountOptions: [], suitCountOptions: []},
     {id: "pouilleux", minPlayers: 2, maxPlayers: 6, computerOpponents: true, available: false, cardCountOptions: [], suitCountOptions: []},
