@@ -47,12 +47,11 @@ const LABEL_HEIGHT = 34;
 const LABEL_WIDTH = 112;
 const GAP = 8;
 
-// the cards lie a little askew, as when put down by hand: up to 3° on the piles, 6° in the middle of the table
-export const PILE_TILT_DEG = 3;
-export const PLAYED_TILT_DEG = 6;
+// the cards lie a little askew, as when put down by hand: up to 3° on each side, on the piles as in the middle of the table
+export const TILT_DEG = 3;
 // how far a card tilted by the largest angle goes past its slot, on each side
 const tiltOverhang = (cardWidth: number, cardHeight: number) => {
-    const angle = PLAYED_TILT_DEG * Math.PI / 180;
+    const angle = TILT_DEG * Math.PI / 180;
     return {
         x: cardWidth / 2 * (Math.cos(angle) - 1) + cardHeight / 2 * Math.sin(angle),
         y: cardHeight / 2 * (Math.cos(angle) - 1) + cardWidth / 2 * Math.sin(angle),

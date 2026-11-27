@@ -3,7 +3,7 @@ import type {ExtractComponentValuesContract, Selectors} from "@softer-components
 
 import type {BattleStackLocation, State} from "./game.component.state.ts";
 import type {CardWithPlacement} from "../../../../model/deck.model.ts";
-import {PILE_TILT_DEG, PLAYED_TILT_DEG} from "./game.component.layout.ts";
+import {TILT_DEG} from "./game.component.layout.ts";
 import {
     areCardsOnTable,
     cardCount,
@@ -22,20 +22,19 @@ const isBattleGoingOn = (state: State) => state.battleCount > 0 && state.roundWi
 const isWaitingForCollection = (state: State) => state.roundWinner !== null && areCardsOnTable(state) && !state.gameEnded;
 
 // a messy level is the full range of the tilt, from one side to the other
-const PILE_MESSY_LEVEL = 2 * PILE_TILT_DEG;
-const PLAYED_MESSY_LEVEL = 2 * PLAYED_TILT_DEG;
+const MESSY_LEVEL = 2 * TILT_DEG;
 
 // How each stack of a seat is drawn on the table: the cards played lie over the piles
 const cardsWithLocation = (state: State): CardWithPlacement<BattleStackLocation>[] =>
     state.seats.flatMap((seat, seatIndex) => [
         ...seat.pile.map((card, index) => ({
             card,
-            placement: {stackLocation: `seat${seatIndex}Pile` as const, stackIndex: 1, index, faceUp: false, messyLevel: PILE_MESSY_LEVEL},
+            placement: {stackLocation: `seat${seatIndex}Pile` as const, stackIndex: 1, index, faceUp: false, messyLevel: MESSY_LEVEL},
         })),
         ...seat.played.map((card, index) => ({
             card,
             // the cards of a battle are piled on each other
-            placement: {stackLocation: `seat${seatIndex}Played` as const, stackIndex: 3, index, faceUp: seat.playedUp[index], messyLevel: PLAYED_MESSY_LEVEL},
+            placement: {stackLocation: `seat${seatIndex}Played` as const, stackIndex: 3, index, faceUp: seat.playedUp[index], messyLevel: MESSY_LEVEL},
         })),
     ]);
 
