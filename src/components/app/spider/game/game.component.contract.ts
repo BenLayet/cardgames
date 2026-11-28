@@ -37,6 +37,8 @@ export const allEvents = [
     "positionRestored",
     "gameWon",
     "gameEnded",
+    // the game is kept, to be resumed: after its first move, and after each change since
+    "gameSaved",
 ] as const;
 export type Events = EventsContract<
     typeof allEvents, {

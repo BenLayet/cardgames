@@ -265,7 +265,6 @@ describe("spider game", () => {
 
     it("saves the game after each move, with what the undo needs", async () => {
         await deal([cards("_4D", "8S"), cards("9H")]);
-        expect(spiderSaveService.load(ONE_SUIT)?.moveCount).toBe(0);
 
         await store.when(event("cardsDropped", {from: {column: 0, index: 1}, to: 1}));
 
@@ -273,6 +272,17 @@ describe("spider game", () => {
         expect(saved?.moveCount).toBe(1);
         expect(saved?.table.columns[1].map(c => c.card)).toEqual(["9H", "8S"]);
         expect(saved?.history).toHaveLength(1);
+    });
+
+    it("does not keep a game before its first move, and a new game replaces the one to resume", async () => {
+        await deal([cards("8S"), cards("9H")]);
+        await store.when(event("cardsDropped", {from: {column: 0, index: 0}, to: 1}));
+        expect(spiderSaveService.load(ONE_SUIT)).not.toBeNull();
+
+        await store.when(event("dealRequested", ONE_SUIT));
+
+        expect(spiderSaveService.load(ONE_SUIT)).toBeNull();
+        expect(spiderSaveService.savedVariants()).toEqual([]);
     });
 
     it("saves every move for the undo, however long the game", async () => {

@@ -5,9 +5,13 @@ import type {State} from "./spider.component.state";
 import {sameVariant} from "../../../model/spider.model.ts";
 
 export const stateUpdaters: StateUpdaters<Contract, State> = {
-    // the new game is saved as soon as it is dealt, in place of the one with the same numbers of suits and cards
+    // the new game replaces the saved one with the same numbers of suits and cards;
+    // it is kept, to be resumed, only from its first move
     startGameRequested: ({state, values}) => {
         state.isStarted = true;
+        state.savedVariants = state.savedVariants.filter(saved => !sameVariant(saved, values.variant()));
+    },
+    gameSaved: ({state, values}) => {
         if (!state.savedVariants.some(saved => sameVariant(saved, values.variant()))) state.savedVariants.push(values.variant());
     },
     resumeRequested: ({state}) => {

@@ -11,46 +11,53 @@ export type Dependencies = {
 };
 export const effects = ({audioService, spiderSaveService}: Dependencies): Effects<Contract> => {
     // the game is saved after each change, so that closing the application loses nothing
-    // a won game cannot be resumed
-    const save = (values: {
+    // a won game cannot be resumed, and a game not started yet is not kept:
+    // the first save is at the first move (or the first position saved),
+    // and a new game replaces the one of the same kind that could be resumed
+    const save = (gameSaved: () => void, values: {
         savedGame: () => SavedSpiderGame, isWon: () => boolean, variant: () => SpiderVariant, hasCompletedSequence: () => boolean,
     }) => {
         // a completed sequence is collected right after, and that saves the game:
         // saving it here too could write it back after a won game was cleared
         if (values.hasCompletedSequence()) return;
-        if (values.isWon()) spiderSaveService.clear(values.variant());
-        else spiderSaveService.save(values.variant(), values.savedGame());
+        const game = values.savedGame();
+        const isStarted = game.moveCount > 0 || game.positions.length > 0;
+        if (values.isWon() || !isStarted) spiderSaveService.clear(values.variant());
+        else {
+            spiderSaveService.save(values.variant(), game);
+            gameSaved();
+        }
     };
     return {
         // picking the deal is random, so it happens here and not in the updaters
         dealRequested: ({dealCompleted}, {payload: {suitCount, cardCount}}) => {
             dealCompleted(dealSeededTable({suitCount, cardCount}, pickSolvableSeed({suitCount, cardCount})));
         },
-        dealCompleted: (_, {values}) => save(values),
+        dealCompleted: ({gameSaved}, {values}) => save(gameSaved, values),
         restoreRequested: ({gameRestored}, {payload: variant}) => {
             const saved = spiderSaveService.load(variant);
             if (saved === null) return;
             gameRestored(saved);
         },
-        cardsMoved: (_, {values}) => {
+        cardsMoved: ({gameSaved}, {values}) => {
             audioService.playCardSlide();
-            save(values);
+            save(gameSaved, values);
         },
-        rowDealt: (_, {values}) => {
+        rowDealt: ({gameSaved}, {values}) => {
             audioService.playCardSlide();
-            save(values);
+            save(gameSaved, values);
         },
-        sequencesCollected: (_, {values}) => save(values),
-        moveUndone: (_, {values}) => {
+        sequencesCollected: ({gameSaved}, {values}) => save(gameSaved, values),
+        moveUndone: ({gameSaved}, {values}) => {
             audioService.playCardSlide();
-            save(values);
+            save(gameSaved, values);
         },
-        positionSaveRequested: (_, {values}) => save(values),
-        positionRestored: (_, {values}) => {
+        positionSaveRequested: ({gameSaved}, {values}) => save(gameSaved, values),
+        positionRestored: ({gameSaved}, {values}) => {
             audioService.playCardSlide();
-            save(values);
+            save(gameSaved, values);
         },
-        positionDeleted: (_, {values}) => save(values),
+        positionDeleted: ({gameSaved}, {values}) => save(gameSaved, values),
         // the cheer goes with the sparks of the completed sequence, not with the move that completed it
         sequenceCelebrated: () => audioService.playCheer(),
         // the applause goes with the victory message, not with the winning move

@@ -52,6 +52,8 @@ describe("spider", () => {
         const first = initTestStore(spiderDef({audioService, settingsService: fakeSettingsService(), spiderSaveService}));
         expect(first.getValues("").canResume()).toBe(false);
         await first.when({name: "startGameRequested", statePath: setupPath});
+        // a game is kept from its first move: a row dealt from the stock
+        await first.when({name: "stockClicked", statePath: gamePath});
         const dealt = first.getValues("/game").columns();
 
         // the application is started again
@@ -74,20 +76,34 @@ describe("spider", () => {
 
     it("offers to resume the game left by going home", async () => {
         await store.when({name: "startGameRequested", statePath: setupPath});
+        await store.when({name: "stockClicked", statePath: gamePath});
         await store.when({name: "goHomeRequested", statePath: []});
 
         expect(store.getValues("").canResume()).toBe(true);
+    });
+
+    it("does not offer to resume a game left before its first move, and the new game replaces the one to resume", async () => {
+        await store.when({name: "startGameRequested", statePath: setupPath});
+        await store.when({name: "stockClicked", statePath: gamePath});
+        await store.when({name: "goHomeRequested", statePath: []});
+
+        await store.when({name: "startGameRequested", statePath: setupPath});
+        await store.when({name: "goHomeRequested", statePath: []});
+
+        expect(store.getValues("").canResume()).toBe(false);
     });
 
     it("keeps one game for each number of suits, and resumes the one of the chosen number", async () => {
         const spiderSaveService = fakeSpiderSaveService();
         const spider = initTestStore(spiderDef({audioService, settingsService: fakeSettingsService({suitCount: 1}), spiderSaveService}));
         await spider.when({name: "startGameRequested", statePath: setupPath});
+        await spider.when({name: "stockClicked", statePath: gamePath});
         await spider.when({name: "goHomeRequested", statePath: []});
         await spider.when({name: "setSuitCountRequested", payload: 4, statePath: setupPath});
         // no game was started with 4 suits
         expect(spider.getValues("").canResume()).toBe(false);
         await spider.when({name: "startGameRequested", statePath: setupPath});
+        await spider.when({name: "stockClicked", statePath: gamePath});
         const fourSuits = spider.getValues("/game").columns();
         await spider.when({name: "goHomeRequested", statePath: []});
 
@@ -104,12 +120,14 @@ describe("spider", () => {
         const spiderSaveService = fakeSpiderSaveService();
         const spider = initTestStore(spiderDef({audioService, settingsService: fakeSettingsService({suitCount: 1}), spiderSaveService}));
         await spider.when({name: "startGameRequested", statePath: setupPath});
+        await spider.when({name: "stockClicked", statePath: gamePath});
         await spider.when({name: "goHomeRequested", statePath: []});
         await spider.when({name: "setCardCountRequested", payload: 52, statePath: setupPath});
         expect(spider.getValues("").canResume()).toBe(false);
 
         await spider.when({name: "startGameRequested", statePath: setupPath});
         expect(spider.getValues("/game").columns()).toHaveLength(8);
+        await spider.when({name: "stockClicked", statePath: gamePath});
         await spider.when({name: "goHomeRequested", statePath: []});
 
         expect(spiderSaveService.savedVariants()).toEqual([{suitCount: 1, cardCount: 104}, {suitCount: 1, cardCount: 52}]);
@@ -121,6 +139,7 @@ describe("spider", () => {
         const spiderSaveService = fakeSpiderSaveService();
         const spider = initTestStore(spiderDef({audioService, settingsService: fakeSettingsService({suitCount: 1}), spiderSaveService}));
         await spider.when({name: "startGameRequested", statePath: setupPath});
+        await spider.when({name: "stockClicked", statePath: gamePath});
         await spider.when({name: "goHomeRequested", statePath: []});
         await spider.when({name: "setSuitCountRequested", payload: 2, statePath: setupPath});
         await spider.when({name: "startGameRequested", statePath: setupPath});
