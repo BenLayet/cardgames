@@ -174,7 +174,7 @@ describe("spider", () => {
             await winRecorded(spider, 110, 3);
 
             expect(spider.getValues("").victory()).toEqual({
-                win: win(110, 3), moveRank: 2, timeRank: 2, bestMoves: win(100, 2), bestTime: win(100, 2),
+                win: win(110, 3), moveRank: {rank: 2, period: "all"}, timeRank: {rank: 2, period: "all"}, bestMoves: win(100, 2), bestTime: win(100, 2),
             });
             expect(spiderRecordsService.load()).toEqual([win(120, 1), win(100, 2), win(110, 3)]);
         });
@@ -190,7 +190,7 @@ describe("spider", () => {
             });
 
             await winRecorded(spider, 90, 21);
-            expect(spider.getValues("").victory()?.moveRank).toBe(1);
+            expect(spider.getValues("").victory()?.moveRank).toEqual({rank: 1, period: "all"});
         });
 
         it("clears every record", async () => {

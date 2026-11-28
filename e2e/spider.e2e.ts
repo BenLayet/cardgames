@@ -265,3 +265,21 @@ test("a saved position is kept and the player goes back to it, which counts as a
     await expect(cardsIn(page, 5)).toHaveCount(1);
     await expect(page.getByRole("status")).toHaveText("2 coups");
 });
+
+test("a won game is ranked among the records, which the trophy of the top bar shows", async ({page}) => {
+    await resume(page, ALMOST_WON);
+    await card(page, 1, 0).click();
+    await expect(page.getByRole("heading", {name: "Victoire"})).toBeVisible();
+    await expect(page.getByText("104 cartes · 1 couleur")).toBeVisible();
+    await expect(page.getByText("Nouveau record de coups !")).toBeVisible();
+
+    await page.getByRole("button", {name: "Records"}).click();
+    const records = page.getByRole("dialog", {name: "Records"});
+    await expect(records.getByRole("button", {name: "104 cartes"})).toHaveAttribute("aria-pressed", "true");
+    await expect(records.getByRole("listitem")).toHaveCount(1);
+    await expect(records.getByRole("listitem")).toContainText("1 coup");
+
+    await records.getByRole("button", {name: "Réinitialiser"}).click();
+    await records.getByRole("button", {name: "Effacer", exact: true}).click();
+    await expect(records.getByRole("listitem")).toHaveCount(0);
+});

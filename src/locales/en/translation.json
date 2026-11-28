@@ -73,8 +73,20 @@
     "newRecord": "New record!",
     "newMoveRecord": "New move record!",
     "newTimeRecord": "New time record!",
-    "moveRank": "Moves: no. {{rank}} of all time",
-    "timeRank": "Time: no. {{rank}} of all time",
+    "moveRank": "Moves: no. {{rank}} {{period}}",
+    "timeRank": "Time: no. {{rank}} {{period}}",
+    "of": {
+      "all": "of all time",
+      "month": "of the month",
+      "week": "of the week"
+    },
+    "periods": {
+      "all": "All time",
+      "month": "30 days",
+      "week": "7 days"
+    },
+    "period": "Period",
+    "nonePeriod": "No game of this kind won in this period.",
     "byMoves": "By moves",
     "byTime": "By time",
     "measure": "Ranking",
@@ -219,6 +231,10 @@
       {
         "title": "Help",
         "text": "The light bulb suggests a move; press it again for the next move, then to hide the hint. The arrow undoes the last move; hold it to keep undoing, four moves a second. Each undo counts as a move. The \"Positions\" bookmark keeps up to three positions; going back to one counts as a move, cannot be undone, and Undo then goes on from that position. A new game clears them."
+      },
+      {
+        "title": "Records",
+        "text": "Each won game is ranked among the ten best of its kind (number of cards and of suits), by moves and by time, of all time, over 30 days and over 7 days. The clock starts with the deal and runs only while the game is on screen. The trophy at the top shows the rankings; Reset clears them all."
       },
       {
         "title": "With a keyboard",
