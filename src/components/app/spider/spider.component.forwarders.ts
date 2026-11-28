@@ -16,6 +16,7 @@ export const eventForwarders = {
                     to: "restoreRequested",
                     withPayload: ({values}) => values.variant(),
                 },
+                {from: "goHomeRequested", to: "gameLeft"},
             ],
             listeners: [
                 {from: "playAgainRequested", to: "startGameRequested"},

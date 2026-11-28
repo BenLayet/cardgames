@@ -8,7 +8,9 @@ import {isStoredObject, migrate, type Migration} from "./migrations.ts";
 // It takes about 650 characters per table, against about 4000 in plain JSON.
 // The positions saved by the player are written the same way, each with its own undo history.
 type EncodedPosition = { table: string, history: string[], moveCount: number, savedAt: number };
-type EncodedGame = { format: 3, table: string, history: string[], moveCount: number, positions: EncodedPosition[] };
+type EncodedGame = {
+    format: 4, table: string, history: string[], moveCount: number, positions: EncodedPosition[], elapsedMs: number | null,
+};
 
 const encodeCards = (cards: SpiderCard[]) => cards.map(c => `${c.card}${c.faceUp ? "+" : "-"}${c.id}`).join(",");
 const encodeTable = (table: Table) =>
@@ -35,11 +37,12 @@ const encodePosition = (position: SavedPosition): EncodedPosition => ({
     savedAt: position.savedAt,
 });
 const encode = (game: SavedSpiderGame): EncodedGame => ({
-    format: 3,
+    format: 4,
     table: encodeTable(game.table),
     history: game.history.map(encodeTable),
     moveCount: game.moveCount,
     positions: game.positions.map(encodePosition),
+    elapsedMs: game.elapsedMs,
 });
 
 class NotASavedGame extends Error {
@@ -51,7 +54,7 @@ const MIGRATIONS: readonly (Migration | undefined)[] = [
     undefined,
     // 1 → 2: the tables are written as short texts
     game => {
-        const withoutPositions = {...game, positions: []};
+        const withoutPositions = {...game, positions: [], elapsedMs: null};
         if (!isSavedSpiderGame(withoutPositions)) throw new NotASavedGame();
         return {
             format: 2,
@@ -62,6 +65,8 @@ const MIGRATIONS: readonly (Migration | undefined)[] = [
     },
     // 2 → 3: the positions saved by the player, none before
     game => ({...game, format: 3, positions: []}),
+    // 3 → 4: the time played, unknown before
+    game => ({...game, format: 4, elapsedMs: null}),
 ];
 
 export const encodeSavedGame = (game: SavedSpiderGame): string => JSON.stringify(encode(game));
@@ -72,7 +77,7 @@ const isEncodedPosition = (value: unknown): value is EncodedPosition => {
     return typeof position === "object" && position !== null
         && typeof position.table === "string" && isTextList(position.history);
 };
-const isEncodedGame = (data: Record<string, unknown>): data is EncodedGame => data.format === 3
+const isEncodedGame = (data: Record<string, unknown>): data is EncodedGame => data.format === 4
     && typeof data.table === "string"
     && isTextList(data.history)
     && Array.isArray(data.positions) && data.positions.every(isEncodedPosition);
@@ -94,6 +99,7 @@ export const decodeSavedGame = (text: string): SavedSpiderGame | null => {
                 moveCount: position.moveCount,
                 savedAt: position.savedAt,
             })),
+            elapsedMs: encoded.elapsedMs,
         };
         return isSavedSpiderGame(game) ? game : null;
     } catch {

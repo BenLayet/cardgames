@@ -5,6 +5,7 @@ import {I18nextLanguageAdapter} from "./adapters/language.adapter.ts";
 import {LocalStorageSpiderSaveAdapter} from "./adapters/spider-save.adapter.ts";
 import {LocalStorageSpiderRecordsAdapter} from "./adapters/spider-records.adapter.ts";
 import {BrowserClockAdapter} from "./adapters/clock.adapter.ts";
+import {PageStopwatchAdapter} from "./adapters/stopwatch.adapter.ts";
 import {LocalStorageBattleSaveAdapter} from "./adapters/battle-save.adapter.ts";
 import {registerSW} from "virtual:pwa-register";
 import {PwaAppUpdateAdapter} from "./adapters/app-update.adapter.ts";
@@ -19,6 +20,7 @@ const spiderSaveService = new LocalStorageSpiderSaveAdapter();
 const battleSaveService = new LocalStorageBattleSaveAdapter();
 const spiderRecordsService = new LocalStorageSpiderRecordsAdapter();
 const clockService = new BrowserClockAdapter();
+const stopwatchService = new PageStopwatchAdapter();
 // the views of the application ask it directly, outside the state of the games
 export const appUpdateService = new PwaAppUpdateAdapter(registerSW);
 appUpdateService.watchForeground(document);
@@ -37,4 +39,5 @@ export const configuration = {
     battleSaveService,
     spiderRecordsService,
     clockService,
+    stopwatchService,
 }

@@ -22,6 +22,8 @@ export const uiEvents = [
     "victoryShown",
     // a completed sequence is whole in its column, with its sparks, just before it leaves for its place
     "sequenceCelebrated",
+    // the application goes to the background: the game is kept with its time
+    "gameHidden",
 ] as const;
 export const allEvents = [
     ...uiEvents,
@@ -40,6 +42,8 @@ export const allEvents = [
     "gameEnded",
     // the won game is dated, to be ranked among the best ones
     "winRecorded",
+    // the player leaves the game for the menu: its time stops
+    "gameLeft",
     // the game is kept, to be resumed: after its first move, and after each change since
     "gameSaved",
 ] as const;

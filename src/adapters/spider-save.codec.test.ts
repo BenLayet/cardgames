@@ -5,7 +5,7 @@ import {shrinkGame} from "./spider-save.adapter.ts";
 import {createSpiderDeck, dealRow, dealTable, type SavedSpiderGame} from "../model/spider.model.ts";
 
 const dealt = dealTable(createSpiderDeck(4, 104));
-const game: SavedSpiderGame = {table: dealRow(dealt), history: [dealt], moveCount: 1, positions: []};
+const game: SavedSpiderGame = {table: dealRow(dealt), history: [dealt], moveCount: 1, positions: [], elapsedMs: 754_000};
 const position = {table: dealt, history: [], moveCount: 0, savedAt: 1764237600000};
 
 describe("saved game codec", () => {
@@ -14,7 +14,7 @@ describe("saved game codec", () => {
     });
 
     it("reads back a game of half a deck", () => {
-        const saved = {table: dealTable(createSpiderDeck(2, 26)), history: [], moveCount: 0, positions: []};
+        const saved = {table: dealTable(createSpiderDeck(2, 26)), history: [], moveCount: 0, positions: [], elapsedMs: 0};
         expect(decodeSavedGame(encodeSavedGame(saved))).toEqual(saved);
     });
 
@@ -22,7 +22,7 @@ describe("saved game codec", () => {
         const oneSuit = dealTable(createSpiderDeck(1, 104));
         // column 0 emptied and 13 cards gone with the completed sequence
         const table = {columns: [[], ...oneSuit.columns.slice(1)], stock: oneSuit.stock.slice(7), completed: ["S" as const]};
-        const saved = {table, history: [oneSuit], moveCount: 42, positions: []};
+        const saved = {table, history: [oneSuit], moveCount: 42, positions: [], elapsedMs: null};
         expect(decodeSavedGame(encodeSavedGame(saved))).toEqual(saved);
     });
 
@@ -38,18 +38,24 @@ describe("saved game codec", () => {
 
     it("still reads a game saved as plain JSON by the first version", () => {
         const {table, history, moveCount} = game;
-        expect(decodeSavedGame(JSON.stringify({table, history, moveCount}))).toEqual(game);
+        expect(decodeSavedGame(JSON.stringify({table, history, moveCount}))).toEqual({...game, elapsedMs: null});
     });
 
     it("still reads a game saved before the positions, without any", () => {
         const saved = JSON.parse(encodeSavedGame(game)) as Record<string, unknown>;
         delete saved.positions;
-        expect(decodeSavedGame(JSON.stringify({...saved, format: 2}))).toEqual(game);
+        expect(decodeSavedGame(JSON.stringify({...saved, format: 2}))).toEqual({...game, elapsedMs: null});
+    });
+
+    it("still reads a game saved before the time was measured, its time unknown", () => {
+        const saved = JSON.parse(encodeSavedGame(game)) as Record<string, unknown>;
+        delete saved.elapsedMs;
+        expect(decodeSavedGame(JSON.stringify({...saved, format: 3}))).toEqual({...game, elapsedMs: null});
     });
 
     it("ignores a game saved by a newer version", () => {
         const saved = JSON.parse(encodeSavedGame(game)) as Record<string, unknown>;
-        expect(decodeSavedGame(JSON.stringify({...saved, format: 4}))).toBeNull();
+        expect(decodeSavedGame(JSON.stringify({...saved, format: 5}))).toBeNull();
     });
 
     it.each(["", "[]", "{\"table\":1}", "not json", "{\"format\":2,\"table\":\"x\",\"history\":[],\"moveCount\":0}"])("ignores %j", text => {

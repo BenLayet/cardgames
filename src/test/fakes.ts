@@ -4,6 +4,7 @@ import {DEFAULT_SETTINGS, type Settings, type SettingsService} from "../services
 import type {SpiderSaveService} from "../services/spider-save.service.ts";
 import type {SavedSpiderGame, SpiderVariant} from "../model/spider.model.ts";
 import type {SpiderRecordsService} from "../services/spider-records.service.ts";
+import type {StopwatchService} from "../services/stopwatch.service.ts";
 import type {ClockService} from "../services/clock.service.ts";
 import type {SpiderWin} from "../model/spider-records.model.ts";
 import type {BattleSaveService, BattleVariant, SavedBattleGame} from "../services/battle-save.service.ts";
@@ -65,6 +66,27 @@ export const fakeClockService = (start = 1_764_000_000_000) => {
             time += ms;
         },
     } satisfies ClockService & { advance: (ms: number) => void };
+};
+
+// A stopwatch whose time the test sets: it tells whether it runs
+export const fakeStopwatchService = () => {
+    let elapsed = 0;
+    let isRunning = false;
+    return {
+        start: vi.fn((elapsedMs: number) => {
+            elapsed = elapsedMs;
+            isRunning = true;
+        }),
+        pause: vi.fn(() => {
+            isRunning = false;
+        }),
+        elapsedMs: () => elapsed,
+        isRunning: () => isRunning,
+        // time played while it runs
+        play: (ms: number) => {
+            if (isRunning) elapsed += ms;
+        },
+    } satisfies StopwatchService & { isRunning: () => boolean, play: (ms: number) => void };
 };
 
 // Keeps the Bataille games in memory so tests can check what was saved, one for each kind of game

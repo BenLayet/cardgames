@@ -70,9 +70,15 @@
     "clearWarning": "Every kind of game. This cannot be undone.",
     "clear": "Clear",
     "cancel": "Cancel",
+    "newRecord": "New record!",
     "newMoveRecord": "New move record!",
+    "newTimeRecord": "New time record!",
     "moveRank": "Moves: no. {{rank}} of all time",
-    "best": "Your record: {{moves}}"
+    "timeRank": "Time: no. {{rank}} of all time",
+    "byMoves": "By moves",
+    "byTime": "By time",
+    "measure": "Ranking",
+    "best": "Your record: {{best}}"
   },
   "positions": {
     "button": "Positions",

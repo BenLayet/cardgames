@@ -8,6 +8,11 @@ const STORAGE_KEY = "cardgames.spider.records";
 const MIGRATIONS: readonly (Migration | undefined)[] = [
     // there was no version 0
     undefined,
+    // 1 → 2: the time played, unknown before
+    records => ({
+        ...records, format: 2,
+        wins: Array.isArray(records.wins) ? (records.wins as unknown[]).map(win => isStoredObject(win) ? {...win, elapsedMs: null} : win) : [],
+    }),
 ];
 
 export const encodeRecords = (wins: SpiderWin[]): string => JSON.stringify({format: MIGRATIONS.length, wins});

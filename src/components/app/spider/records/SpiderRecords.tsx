@@ -4,7 +4,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faTrashCan, faTrophy} from "@fortawesome/free-solid-svg-icons";
 
 import {Modal} from "../../../modal/Modal.tsx";
-import {type SpiderWin, topWins} from "../../../../model/spider-records.model.ts";
+import {formatDuration, type RecordMeasure, type SpiderWin, topWins} from "../../../../model/spider-records.model.ts";
 import {CARD_COUNT_OPTIONS, SUIT_COUNT_OPTIONS, suitCountOptionsFor, type SpiderVariant} from "../../../../model/spider.model.ts";
 
 // a short date, with the year only when it is not this one
@@ -25,12 +25,15 @@ const RecordsWindow = ({wins, variant, latest, onClear, onClose}: {
     const winDate = useWinDate();
     // it opens on the kind of the game in progress, or the one chosen on the menu
     const [shown, setShown] = useState(variant);
+    const [measure, setMeasure] = useState<RecordMeasure>("moves");
     const [isClearAsked, setClearAsked] = useState(false);
     const chooseCardCount = (cardCount: number) => {
         const suitCounts = suitCountOptionsFor(cardCount);
         setShown({cardCount, suitCount: suitCounts.includes(shown.suitCount) ? shown.suitCount : suitCounts[0]});
     };
-    const top = topWins(wins, shown);
+    const top = topWins(wins, shown, measure);
+    const moves = (win: SpiderWin) => t("moves", {count: win.moveCount});
+    const time = (win: SpiderWin) => win.elapsedMs === null ? "" : formatDuration(win.elapsedMs);
     const isLatest = (win: SpiderWin) => latest !== null && latest.wonAt === win.wonAt;
     return <Modal title={t("records.title")} onClose={onClose}>
         <div className="records-filters">
@@ -49,13 +52,22 @@ const RecordsWindow = ({wins, variant, latest, onClear, onClose}: {
                     {t("suitCountOption", {count: suitCount})}
                 </button>)}
             </div>
+            <div className="choice-group" role="group" aria-label={t("records.measure")}>
+                <button className="btn btn-choice" aria-pressed={measure === "moves"} onClick={() => setMeasure("moves")}>
+                    {t("records.byMoves")}
+                </button>
+                <button className="btn btn-choice" aria-pressed={measure === "time"} onClick={() => setMeasure("time")}>
+                    {t("records.byTime")}
+                </button>
+            </div>
         </div>
         {top.length === 0
             ? <p className="records-empty">{t("records.none")}</p>
             : <ol className="records-list">
                 {top.map((win, index) => <li key={win.wonAt} className={isLatest(win) ? "records-latest" : undefined}>
                     <span className="records-rank">{index + 1}</span>
-                    <span className="records-main">{t("moves", {count: win.moveCount})}</span>
+                    <span className="records-main">{measure === "moves" ? moves(win) : time(win)}</span>
+                    <span className="records-other">{measure === "moves" ? time(win) : moves(win)}</span>
                     <span className="records-date">{winDate(win.wonAt)}</span>
                 </li>)}
             </ol>}

@@ -51,6 +51,9 @@ export const selectors = {
         history: state.history,
         moveCount: state.moveCount,
         positions: state.positions,
+        elapsedMs: state.elapsedMs,
     }),
+    // the time of the game is measured, unless it was started before the time was measured
+    isTimed: (state: State) => state.elapsedMs !== null,
 } satisfies Selectors<State>;
 export type Values = ExtractComponentValuesContract<typeof selectors>;

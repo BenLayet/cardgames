@@ -70,9 +70,15 @@
     "clearWarning": "Tous les types de partie. Ça ne se rattrape pas.",
     "clear": "Effacer",
     "cancel": "Annuler",
+    "newRecord": "Nouveau record\u00a0!",
     "newMoveRecord": "Nouveau record de coups\u00a0!",
+    "newTimeRecord": "Nouveau record de temps\u00a0!",
     "moveRank": "Coups\u00a0: n°\u00a0{{rank}} de tous les temps",
-    "best": "Ton record\u00a0: {{moves}}"
+    "timeRank": "Temps\u00a0: n°\u00a0{{rank}} de tous les temps",
+    "byMoves": "En coups",
+    "byTime": "En temps",
+    "measure": "Classement",
+    "best": "Ton record\u00a0: {{best}}"
   },
   "positions": {
     "button": "Positions",
