@@ -9,6 +9,7 @@ export const allEvents = [
     ...uiEvents,
     "startGameRequested",
     "homeRequested",
+    "gameSaved",
     "gameFinished",
 ] as const;
 export type Events = EventsContract<
