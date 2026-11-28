@@ -2,14 +2,16 @@ import type {Effects} from "@softer-components/types";
 
 import type {Contract} from "./game.component.contract.ts";
 import type {AudioService} from "../../../../services/audio.service.ts";
+import type {ClockService} from "../../../../services/clock.service.ts";
 import type {SpiderSaveService} from "../../../../services/spider-save.service.ts";
 import {dealSeededTable, pickSolvableSeed, type SavedSpiderGame, type SpiderVariant} from "../../../../model/spider.model.ts";
 
 export type Dependencies = {
     audioService: AudioService,
     spiderSaveService: SpiderSaveService,
+    clockService: ClockService,
 };
-export const effects = ({audioService, spiderSaveService}: Dependencies): Effects<Contract> => {
+export const effects = ({audioService, spiderSaveService, clockService}: Dependencies): Effects<Contract> => {
     // the game is saved after each change, so that closing the application loses nothing
     // a won game cannot be resumed, and a game not started yet is not kept:
     // the first save is at the first move (or the first position saved),
@@ -58,6 +60,10 @@ export const effects = ({audioService, spiderSaveService}: Dependencies): Effect
             save(gameSaved, values);
         },
         positionDeleted: ({gameSaved}, {values}) => save(gameSaved, values),
+        // the won game is dated when it is won, to be ranked among the best ones
+        gameWon: ({winRecorded}, {values}) => winRecorded({
+            ...values.variant(), moveCount: values.moveCount(), wonAt: clockService.now(),
+        }),
         // the cheer goes with the sparks of the completed sequence, not with the move that completed it
         sequenceCelebrated: () => audioService.playCheer(),
         // the applause goes with the victory message, not with the winning move

@@ -1,5 +1,5 @@
 import {useSofter} from "@softer-components/redux-adapter";
-import type {CSSProperties, KeyboardEvent} from "react";
+import type {CSSProperties, KeyboardEvent, ReactNode} from "react";
 import {useTranslation} from "react-i18next";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPlay, faRobot} from "@fortawesome/free-solid-svg-icons";
@@ -29,14 +29,15 @@ const onNameEnter = (event: KeyboardEvent<HTMLInputElement>) => {
     else event.currentTarget.blur();
 };
 
-export const View = ({path = "", onResume}: { path?: string, onResume?: () => void }) => {
+// barActions: what the game adds to the top bar, between the rules and the settings
+export const View = ({path = "", onResume, barActions}: { path?: string, onResume?: () => void, barActions?: ReactNode }) => {
     const [v, d] = useSofter<SetupContract>(path);
     const {t} = useTranslation();
     const suitCountLabel = (count: number, hint: OptionHintKey | null) =>
         [t("suitCountOption", {count}), hint && t(`optionHints.${hint}`)].filter(Boolean).join(", ");
     return (<div className="setup vstack position-relative">
             <AppBar title={t(`games.${v.gameId}`)} level={1} onBack={() => d.backRequested()}
-                    rulesOf={hasRules(v.gameId) ? v.gameId : undefined}/>
+                    rulesOf={hasRules(v.gameId) ? v.gameId : undefined} actions={barActions}/>
             <div className="setup-body vstack align-items-center">
                 <div className="setup-options d-flex flex-column text-center">
                     {/* a game for one player has nothing to choose about the players */}

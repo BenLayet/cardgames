@@ -96,6 +96,9 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
     positionDeleted: ({state, payload: index}) => {
         state.positions.splice(index, 1);
     },
+    winRecorded: ({state, payload}) => {
+        state.win = payload;
+    },
     gameEnded: ({state}) => {
         state.gameEnded = true;
     },

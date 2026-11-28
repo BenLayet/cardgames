@@ -1,3 +1,4 @@
+import type {SpiderWin} from "../../../../model/spider-records.model.ts";
 import {type CardPosition, EMPTY_TABLE, type SavedPosition, type SpiderVariant, type Table} from "../../../../model/spider.model.ts";
 
 export const initialState = {
@@ -14,6 +15,8 @@ export const initialState = {
     // the number of suits and of cards of the game, which has its own save
     variant: {suitCount: 1, cardCount: 104} as SpiderVariant,
     gameEnded: false,
+    // the game once won, with when it was won, to rank it among the best ones
+    win: null as SpiderWin | null,
 };
 
 export type State = typeof initialState;

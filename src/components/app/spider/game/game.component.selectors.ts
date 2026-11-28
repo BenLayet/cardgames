@@ -41,6 +41,8 @@ export const selectors = {
     // the saved position that saving one more would replace, null while there is room
     replacedPosition: (state: State) => replacedPosition(state.positions),
     variant: (state: State) => state.variant,
+    // the game once won, null before
+    win: (state: State) => state.win,
     // the places for the completed sequences
     sequenceCount: (state: State) => sequenceCountOf(state.table),
     // what is kept to resume the game, every move included so that all of them can still be undone

@@ -5,7 +5,7 @@ import type {ExtractEventNameUnion, ExtractPayload} from "@softer-components/typ
 import {gameDef, type GameContract} from "./game.component.ts";
 import type {Card} from "../../../../model/deck.model.ts";
 import type {SpiderCard, Table} from "../../../../model/spider.model.ts";
-import {fakeAudioService, fakeSpiderSaveService} from "../../../../test/fakes.ts";
+import {fakeAudioService, fakeClockService, fakeSpiderSaveService} from "../../../../test/fakes.ts";
 
 // the columns of the game with 104 cards
 const COLUMN_COUNT = 10;
@@ -17,12 +17,13 @@ const event = <N extends ExtractEventNameUnion<GameContract>>(name: N, payload?:
 
 let audioService: ReturnType<typeof fakeAudioService>;
 let spiderSaveService: ReturnType<typeof fakeSpiderSaveService>;
+const clockService = fakeClockService();
 let store: TestStore<GameContract>;
 
 beforeEach(() => {
     audioService = fakeAudioService();
     spiderSaveService = fakeSpiderSaveService();
-    store = initTestStore(gameDef({audioService, spiderSaveService}));
+    store = initTestStore(gameDef({audioService, spiderSaveService, clockService}));
 });
 
 const values = () => store.getValues("");
@@ -300,7 +301,7 @@ describe("spider game", () => {
     it("resumes the saved game, undo included", async () => {
         await deal([cards("_4D", "8S"), cards("9H")]);
         await store.when(event("cardsDropped", {from: {column: 0, index: 1}, to: 1}));
-        const resumed = initTestStore(gameDef({audioService, spiderSaveService}));
+        const resumed = initTestStore(gameDef({audioService, spiderSaveService, clockService}));
 
         await resumed.when(event("restoreRequested", {suitCount: 1, cardCount: 104}));
 
@@ -354,7 +355,7 @@ describe("spider game", () => {
     it("keeps the saved positions with the game, and drops them for a new game", async () => {
         await deal([cards("_4D", "8S"), cards("9H")]);
         await store.when(event("positionSaveRequested", 1));
-        const resumed = initTestStore(gameDef({audioService, spiderSaveService}));
+        const resumed = initTestStore(gameDef({audioService, spiderSaveService, clockService}));
 
         await resumed.when(event("restoreRequested", ONE_SUIT));
         expect(resumed.getValues("").positions()).toHaveLength(1);
@@ -370,5 +371,15 @@ describe("spider game", () => {
         await store.when(event("cardsDropped", {from: {column: 1, index: 0}, to: 0}));
 
         expect(spiderSaveService.load(ONE_SUIT)).toBeNull();
+    });
+
+    it("dates the won game, with its kind and its moves", async () => {
+        const completed = Array<Table["completed"][number]>(7).fill("S");
+        await deal([cards(...SEQUENCE_WITHOUT_ACE), cards("AS"), ...NO_OTHER_CARDS], {completed});
+        expect(values().win()).toBeNull();
+
+        await store.when(event("cardsDropped", {from: {column: 1, index: 0}, to: 0}));
+
+        expect(values().win()).toEqual({...ONE_SUIT, moveCount: 1, wonAt: clockService.now()});
     });
 });

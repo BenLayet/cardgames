@@ -22,6 +22,7 @@ export const eventForwarders = {
                 {from: "menuRequested", to: "goHomeRequested"},
                 {from: "gameSaved", to: "gameSaved"},
                 {from: "gameEnded", to: "gameFinished"},
+                {from: "winRecorded", to: "winRecorded"},
             ]
         },
         setup: {

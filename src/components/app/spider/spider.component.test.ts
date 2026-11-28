@@ -2,7 +2,7 @@ import {beforeEach, describe, expect, it} from "vitest";
 import {initTestStore, type TestStore} from "@softer-components/test-utilities";
 
 import {spiderDef, type SpiderContract} from "./spider.component.ts";
-import {fakeAudioService, fakeSettingsService, fakeSpiderSaveService} from "../../../test/fakes.ts";
+import {fakeAudioService, fakeClockService, fakeSettingsService, fakeSpiderRecordsService, fakeSpiderSaveService} from "../../../test/fakes.ts";
 
 const setupPath: [string, string][] = [["setup", "0"]];
 const gamePath: [string, string][] = [["game", "0"]];
@@ -16,6 +16,8 @@ beforeEach(() => {
         audioService,
         settingsService: fakeSettingsService({suitCount: 4}),
         spiderSaveService: fakeSpiderSaveService(),
+        spiderRecordsService: fakeSpiderRecordsService(),
+        clockService: fakeClockService(),
     }));
 });
 
@@ -49,7 +51,7 @@ describe("spider", () => {
 
     it("offers to resume a saved game, and resumes it", async () => {
         const spiderSaveService = fakeSpiderSaveService();
-        const first = initTestStore(spiderDef({audioService, settingsService: fakeSettingsService(), spiderSaveService}));
+        const first = initTestStore(spiderDef({audioService, settingsService: fakeSettingsService(), spiderSaveService, spiderRecordsService: fakeSpiderRecordsService(), clockService: fakeClockService()}));
         expect(first.getValues("").canResume()).toBe(false);
         await first.when({name: "startGameRequested", statePath: setupPath});
         // a game is kept from its first move: a row dealt from the stock
@@ -57,7 +59,7 @@ describe("spider", () => {
         const dealt = first.getValues("/game").columns();
 
         // the application is started again
-        const next = initTestStore(spiderDef({audioService, settingsService: fakeSettingsService(), spiderSaveService}));
+        const next = initTestStore(spiderDef({audioService, settingsService: fakeSettingsService(), spiderSaveService, spiderRecordsService: fakeSpiderRecordsService(), clockService: fakeClockService()}));
         expect(next.getValues("").canResume()).toBe(true);
         await next.when({name: "resumeRequested", statePath: []});
 
@@ -95,7 +97,7 @@ describe("spider", () => {
 
     it("keeps one game for each number of suits, and resumes the one of the chosen number", async () => {
         const spiderSaveService = fakeSpiderSaveService();
-        const spider = initTestStore(spiderDef({audioService, settingsService: fakeSettingsService({suitCount: 1}), spiderSaveService}));
+        const spider = initTestStore(spiderDef({audioService, settingsService: fakeSettingsService({suitCount: 1}), spiderSaveService, spiderRecordsService: fakeSpiderRecordsService(), clockService: fakeClockService()}));
         await spider.when({name: "startGameRequested", statePath: setupPath});
         await spider.when({name: "stockClicked", statePath: gamePath});
         await spider.when({name: "goHomeRequested", statePath: []});
@@ -118,7 +120,7 @@ describe("spider", () => {
 
     it("keeps one game for each number of cards, and deals the chosen number", async () => {
         const spiderSaveService = fakeSpiderSaveService();
-        const spider = initTestStore(spiderDef({audioService, settingsService: fakeSettingsService({suitCount: 1}), spiderSaveService}));
+        const spider = initTestStore(spiderDef({audioService, settingsService: fakeSettingsService({suitCount: 1}), spiderSaveService, spiderRecordsService: fakeSpiderRecordsService(), clockService: fakeClockService()}));
         await spider.when({name: "startGameRequested", statePath: setupPath});
         await spider.when({name: "stockClicked", statePath: gamePath});
         await spider.when({name: "goHomeRequested", statePath: []});
@@ -137,7 +139,7 @@ describe("spider", () => {
 
     it("forgets only the won game of its number of suits", async () => {
         const spiderSaveService = fakeSpiderSaveService();
-        const spider = initTestStore(spiderDef({audioService, settingsService: fakeSettingsService({suitCount: 1}), spiderSaveService}));
+        const spider = initTestStore(spiderDef({audioService, settingsService: fakeSettingsService({suitCount: 1}), spiderSaveService, spiderRecordsService: fakeSpiderRecordsService(), clockService: fakeClockService()}));
         await spider.when({name: "startGameRequested", statePath: setupPath});
         await spider.when({name: "stockClicked", statePath: gamePath});
         await spider.when({name: "goHomeRequested", statePath: []});
@@ -150,5 +152,60 @@ describe("spider", () => {
         expect(spider.getValues("").canResume()).toBe(false);
         await spider.when({name: "setSuitCountRequested", payload: 1, statePath: setupPath});
         expect(spider.getValues("").canResume()).toBe(true);
+    });
+
+    describe("records", () => {
+        const win = (moveCount: number, wonAt: number) => ({cardCount: 104, suitCount: 4, moveCount, wonAt});
+        const spiderWith = (spiderRecordsService: ReturnType<typeof fakeSpiderRecordsService>, clockService = fakeClockService()) =>
+            initTestStore(spiderDef({
+                audioService, settingsService: fakeSettingsService({suitCount: 4}), spiderSaveService: fakeSpiderSaveService(),
+                spiderRecordsService, clockService,
+            }));
+        const winRecorded = (spider: TestStore<SpiderContract>, moveCount: number, wonAt: number) =>
+            spider.when({name: "winRecorded", payload: win(moveCount, wonAt), statePath: gamePath});
+
+        it("keeps the won games, and ranks the last one among the best of its kind", async () => {
+            const spiderRecordsService = fakeSpiderRecordsService([win(120, 1), win(100, 2)]);
+            const spider = spiderWith(spiderRecordsService);
+            await spider.when({name: "startGameRequested", statePath: setupPath});
+
+            await winRecorded(spider, 110, 3);
+
+            expect(spider.getValues("").victory()).toEqual({win: win(110, 3), moveRank: 2, best: win(100, 2)});
+            expect(spiderRecordsService.load()).toEqual([win(120, 1), win(100, 2), win(110, 3)]);
+        });
+
+        it("tells a new record, and the best game when the won one is not among the best", async () => {
+            const wins = Array.from({length: 10}, (_, i) => win(100 + i, i));
+            const spider = spiderWith(fakeSpiderRecordsService(wins));
+            await spider.when({name: "startGameRequested", statePath: setupPath});
+
+            await winRecorded(spider, 150, 20);
+            expect(spider.getValues("").victory()).toEqual({win: win(150, 20), moveRank: null, best: win(100, 0)});
+
+            await winRecorded(spider, 90, 21);
+            expect(spider.getValues("").victory()?.moveRank).toBe(1);
+        });
+
+        it("clears every record", async () => {
+            const spiderRecordsService = fakeSpiderRecordsService([win(120, 1)]);
+            const spider = spiderWith(spiderRecordsService);
+
+            await spider.when({name: "recordsCleared", statePath: []});
+
+            expect(spider.getValues("").wins()).toEqual([]);
+            expect(spiderRecordsService.load()).toEqual([]);
+        });
+
+        it("records the game won to the end", async () => {
+            const spiderRecordsService = fakeSpiderRecordsService();
+            const clockService = fakeClockService(5000);
+            const spider = spiderWith(spiderRecordsService, clockService);
+            await spider.when({name: "startGameRequested", statePath: setupPath});
+
+            await spider.when({name: "gameWon", statePath: gamePath});
+
+            expect(spiderRecordsService.load()).toEqual([{cardCount: 104, suitCount: 4, moveCount: 0, wonAt: 5000}]);
+        });
     });
 });

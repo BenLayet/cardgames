@@ -1,6 +1,7 @@
 import type {EventsContract} from "@softer-components/types";
 
 import type {CardPosition, Move, SavedSpiderGame, SpiderVariant, Table} from "../../../../model/spider.model.ts";
+import type {SpiderWin} from "../../../../model/spider-records.model.ts";
 import type {Values} from "./game.component.selectors.ts";
 
 export const uiEvents = [
@@ -37,6 +38,8 @@ export const allEvents = [
     "positionRestored",
     "gameWon",
     "gameEnded",
+    // the won game is dated, to be ranked among the best ones
+    "winRecorded",
     // the game is kept, to be resumed: after its first move, and after each change since
     "gameSaved",
 ] as const;
@@ -56,6 +59,7 @@ export type Events = EventsContract<
         positionRestoreRequested: number,
         positionRestored: number,
         positionDeleted: number,
+        winRecorded: SpiderWin,
     }, typeof uiEvents
 >;
 
