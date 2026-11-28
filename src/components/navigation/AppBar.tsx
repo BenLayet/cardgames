@@ -1,4 +1,4 @@
-import {useContext, useState} from "react";
+import {type ReactNode, useContext, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faArrowLeft, faBook, faCircleInfo} from "@fortawesome/free-solid-svg-icons";
@@ -12,9 +12,10 @@ import type {GameWithRules} from "./rules.ts";
 // The bar at the top of every screen: the way back on the left, the name of the screen, and on the right
 // the rules of the game, then the settings.
 // The home page has no way back: it shows the logo of the application instead, and About on the right.
-// On the menu of a game and during the game, a book shows the rules of the game over the screen, which stays as it is.
-export const AppBar = ({title, level, onBack, rulesOf}: {
-    title: string, level: ScreenLevel, onBack?: () => void, rulesOf?: GameWithRules,
+// On the menu of a game and during the game, a book shows the rules of the game over the screen, which stays as it is;
+// a game may add its own windows between the rules and the settings (Spider: its records).
+export const AppBar = ({title, level, onBack, rulesOf, actions}: {
+    title: string, level: ScreenLevel, onBack?: () => void, rulesOf?: GameWithRules, actions?: ReactNode,
 }) => {
     const {t} = useTranslation();
     const settings = useContext(SettingsSlot);
@@ -37,6 +38,7 @@ export const AppBar = ({title, level, onBack, rulesOf}: {
                             onClick={() => setRulesOpen(true)}>
             <FontAwesomeIcon icon={faBook}/>
         </button>}
+        {actions}
         {settings}
         {isAboutOpen && <About onClose={() => setAboutOpen(false)}/>}
         {rulesOf && areRulesOpen && <RulesModal gameId={rulesOf} onClose={() => setRulesOpen(false)}/>}

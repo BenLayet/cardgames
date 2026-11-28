@@ -59,6 +59,21 @@
   "moves_one": "{{count}} coup",
   "moves_other": "{{count}} coups",
   "undo": "Annuler",
+  "records": {
+    "title": "Records",
+    "cardCount_one": "{{count}} carte",
+    "cardCount_other": "{{count}} cartes",
+    "kind": "{{cards}} · {{suits}}",
+    "none": "Pas encore de partie gagnée de ce type.",
+    "reset": "Réinitialiser",
+    "clearQuestion": "Effacer tous les records\u00a0?",
+    "clearWarning": "Tous les types de partie. Ça ne se rattrape pas.",
+    "clear": "Effacer",
+    "cancel": "Annuler",
+    "newMoveRecord": "Nouveau record de coups\u00a0!",
+    "moveRank": "Coups\u00a0: n°\u00a0{{rank}} de tous les temps",
+    "best": "Ton record\u00a0: {{moves}}"
+  },
   "positions": {
     "button": "Positions",
     "title": "Positions",

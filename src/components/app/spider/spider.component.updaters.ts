@@ -2,6 +2,7 @@ import type {StateUpdaters} from "@softer-components/types";
 
 import type {Contract} from "./spider.component.contract";
 import type {State} from "./spider.component.state";
+import {withWin} from "../../../model/spider-records.model.ts";
 import {sameVariant} from "../../../model/spider.model.ts";
 
 export const stateUpdaters: StateUpdaters<Contract, State> = {
@@ -23,5 +24,11 @@ export const stateUpdaters: StateUpdaters<Contract, State> = {
     // a won game is not kept
     gameFinished: ({state, values}) => {
         state.savedVariants = state.savedVariants.filter(saved => !sameVariant(saved, values.variant()));
+    },
+    winRecorded: ({state, payload}) => {
+        state.wins = withWin(state.wins, payload);
+    },
+    recordsCleared: ({state}) => {
+        state.wins = [];
     },
 };

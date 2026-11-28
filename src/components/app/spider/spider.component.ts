@@ -13,7 +13,7 @@ import {gameDefinition} from "../../../model/games.model.ts";
 
 export type SpiderDependencies = Dependencies & GameDependencies & SetupDependencies;
 export const spiderDef = (dependencies: SpiderDependencies): ComponentDef<Contract, State> => ({
-    initialState: createInitialState(dependencies.spiderSaveService.savedVariants()),
+    initialState: createInitialState(dependencies.spiderSaveService.savedVariants(), dependencies.spiderRecordsService.load()),
     selectors,
     uiEvents,
     stateUpdaters,

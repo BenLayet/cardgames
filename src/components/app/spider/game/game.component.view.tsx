@@ -1,6 +1,6 @@
 import {useSofter} from "@softer-components/redux-adapter";
 import {useTranslation} from "react-i18next";
-import {type CSSProperties, type KeyboardEvent, useEffect, useEffectEvent, useRef, useState} from "react";
+import {type CSSProperties, type KeyboardEvent, type ReactNode, useEffect, useEffectEvent, useRef, useState} from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faBookmark, faLightbulb, faRotateLeft} from "@fortawesome/free-solid-svg-icons";
 
@@ -45,7 +45,10 @@ const suitColor = (suit: string | undefined) => suit === "H" || suit === "D" ? "
 // a dragged card follows the pointer, it does not fly
 const isDraggedElement = (element: HTMLElement) => element.classList.contains("spider-card--dragged");
 
-export const View = ({path = "", onBack}: { path?: string, onBack: () => void }) => {
+// barActions: what is added to the top bar; victory: what the victory says about the won game
+export const View = ({path = "", onBack, barActions, victory}: {
+    path?: string, onBack: () => void, barActions?: ReactNode, victory?: ReactNode,
+}) => {
     const [v, d] = useSofter<GameContract>(path);
     const {t} = useTranslation();
     const undoPress = usePressRepeat(() => d.undoRequested(), v.canUndo, UNDO_REPEAT_MS);
@@ -122,7 +125,7 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
         v.selected !== null && v.selected.column === column && index >= v.selected.index;
 
     return <div ref={tableRef} className="spider-table vstack gap-3" style={{"--spider-columns": v.columns.length} as CSSProperties}>
-        <AppBar title={t("games.spider")} level={2} onBack={onBack} rulesOf="spider"/>
+        <AppBar title={t("games.spider")} level={2} onBack={onBack} rulesOf="spider" actions={barActions}/>
         <div className="spider-top-bar d-flex justify-content-between align-items-start gap-2">
             <div ref={slotsRef} className="spider-completed" role="group" aria-label={t("completedSequences", {count: v.completed.length})}>
                 {Array.from({length: v.sequenceCount}, (_, i) => <div key={i} className="spider-slot">
@@ -189,7 +192,7 @@ export const View = ({path = "", onBack}: { path?: string, onBack: () => void })
         {isVictoryShown && <EndMessage onPlayAgain={() => d.playAgainRequested()} onMenu={() => d.menuRequested()}>
             <Fireworks/>
             <h2>{t("victory")}</h2>
-            <p className="fs-4">{t("moves", {count: v.moveCount})}</p>
+            {victory ?? <p className="fs-4">{t("moves", {count: v.moveCount})}</p>}
         </EndMessage>}
         <TableActions statusRef={statusRef} actionsRef={actionsRef} status={<>
             {/* the hint names no destination: every possible one is shown, the solver cannot tell the best one for sure */}

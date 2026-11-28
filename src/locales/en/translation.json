@@ -59,6 +59,21 @@
   "moves_one": "{{count}} move",
   "moves_other": "{{count}} moves",
   "undo": "Undo",
+  "records": {
+    "title": "Records",
+    "cardCount_one": "{{count}} card",
+    "cardCount_other": "{{count}} cards",
+    "kind": "{{cards}} · {{suits}}",
+    "none": "No game of this kind won yet.",
+    "reset": "Reset",
+    "clearQuestion": "Clear all records?",
+    "clearWarning": "Every kind of game. This cannot be undone.",
+    "clear": "Clear",
+    "cancel": "Cancel",
+    "newMoveRecord": "New move record!",
+    "moveRank": "Moves: no. {{rank}} of all time",
+    "best": "Your record: {{moves}}"
+  },
   "positions": {
     "button": "Positions",
     "title": "Positions",
