@@ -73,11 +73,15 @@ export const effects = ({audioService, schedulerService, battleSaveService}: Dep
             collectLater(dispatchers, values);
         },
         // the game is saved between two rounds and two steps of a battle,
-        // so that it can be resumed after going back or closing the application
-        readyForNextCards: ({playerClicked}, {values}) => {
+        // so that it can be resumed after going back or closing the application;
+        // a game where nobody has played yet is not kept: the first save comes after the first card played
+        readyForNextCards: ({playerClicked, gameSaved}, {values}) => {
             if (values.isGameOver() || values.hasGameEnded()) return;
             const variant = values.variant();
-            if (variant !== null) battleSaveService.save(variant, values.savedGame());
+            if (variant !== null && values.hasPlayed()) {
+                battleSaveService.save(variant, values.savedGame());
+                gameSaved();
+            }
             // the computer may have to lay a card that the player does not: a battle when the player has a single card left
             const canPlay = values.canPlay();
             if (values.isSolo() && canPlay[COMPUTER_SEAT] && !canPlay[0]) after(DELAYS_MS.computerAnswer, () => playerClicked(COMPUTER_SEAT));

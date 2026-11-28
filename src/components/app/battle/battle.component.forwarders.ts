@@ -20,7 +20,7 @@ export const eventForwarders = {
             listeners: [
                 {from: "playAgainRequested", to: "startGameRequested"},
                 {from: "menuRequested", to: "goHomeRequested"},
-                {from: "gameStarted", to: "gameSaved"},
+                {from: "gameSaved", to: "gameSaved"},
                 {from: "gameEnded", to: "gameFinished"},
             ]
         },

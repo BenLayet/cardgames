@@ -345,6 +345,19 @@ describe("game", () => {
         expect(values().gameWinner()).toBe(0);
     });
 
+    it("keeps the game only once a card has been played", async () => {
+        const battleSaveService = fakeBattleSaveService();
+        store = initTestStore(gameDef({audioService, schedulerService: new TimeoutSchedulerAdapter(), battleSaveService}));
+        await store.when(event("dealRequested", {cardCount: 12, playerCount: 2, isSolo: false, playerNames: [null, null]}));
+        await vi.runAllTimersAsync();
+        await deal(["2S", "KS"], ["3H", "QH"]);
+        expect(battleSaveService.savedVariants()).toEqual([]);
+
+        await everyonePlays(0, 1);
+
+        expect(battleSaveService.savedVariants()).toEqual([{players: 2, cardCount: 12}]);
+    });
+
     it("ends a saved game stuck with the cards of the only player left on the table", async () => {
         const battleSaveService = fakeBattleSaveService();
         store = initTestStore(gameDef({audioService, schedulerService: new TimeoutSchedulerAdapter(), battleSaveService}));
