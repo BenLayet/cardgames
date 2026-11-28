@@ -284,6 +284,8 @@ export type SavedSpiderGame = {
     moveCount: number;
     // the positions saved by the player, the oldest first
     positions: SavedPosition[];
+    // the time played, null for a game started before the time was measured
+    elapsedMs: number | null;
 };
 
 // the player keeps a few positions at most: a new one beyond that replaces the oldest
@@ -328,5 +330,6 @@ export const isSavedSpiderGame = (value: unknown): value is SavedSpiderGame => {
         && isTable(game.table)
         && Array.isArray(game.history) && game.history.every(isTable)
         && typeof game.moveCount === "number"
-        && Array.isArray(game.positions) && game.positions.every(isSavedPosition);
+        && Array.isArray(game.positions) && game.positions.every(isSavedPosition)
+        && (game.elapsedMs === null || (typeof game.elapsedMs === "number" && Number.isFinite(game.elapsedMs) && game.elapsedMs >= 0));
 };

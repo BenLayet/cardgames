@@ -17,6 +17,9 @@ export const initialState = {
     gameEnded: false,
     // the game once won, with when it was won, to rank it among the best ones
     win: null as SpiderWin | null,
+    // the time played before the game was dealt or resumed, which the stopwatch goes on from;
+    // null for a game started before the time was measured
+    elapsedMs: 0 as number | null,
 };
 
 export type State = typeof initialState;

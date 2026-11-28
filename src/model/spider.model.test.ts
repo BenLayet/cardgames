@@ -327,13 +327,13 @@ describe("hints", () => {
 describe("saved game", () => {
     it("accepts a game that was saved", () => {
         const dealt = dealTable(createSpiderDeck(2, 104));
-        const saved = JSON.parse(JSON.stringify({table: dealt, history: [dealt], moveCount: 3, positions: [{table: dealt, history: [], moveCount: 0, savedAt: 1}]})) as unknown;
+        const saved = JSON.parse(JSON.stringify({table: dealt, history: [dealt], moveCount: 3, positions: [{table: dealt, history: [], moveCount: 0, savedAt: 1}], elapsedMs: 754_000})) as unknown;
         expect(isSavedSpiderGame(saved)).toBe(true);
     });
 
     it("accepts a game of 52 cards that was saved", () => {
         const dealt = dealTable(createSpiderDeck(1, 52));
-        expect(isSavedSpiderGame({table: dealt, history: [], moveCount: 0, positions: []})).toBe(true);
+        expect(isSavedSpiderGame({table: dealt, history: [], moveCount: 0, positions: [], elapsedMs: null})).toBe(true);
     });
 
     it.each([

@@ -1,8 +1,9 @@
 import {describe, expect, it} from "vitest";
 
-import {rankOf, type SpiderWin, TOP_SIZE, topWins, withWin} from "./spider-records.model.ts";
+import {formatDuration, rankOf, type SpiderWin, TOP_SIZE, topWins, withWin} from "./spider-records.model.ts";
 
-const win = (moveCount: number, wonAt: number, cardCount = 104, suitCount = 1): SpiderWin => ({cardCount, suitCount, moveCount, wonAt});
+const win = (moveCount: number, wonAt: number, cardCount = 104, suitCount = 1, elapsedMs: number | null = 600_000 + moveCount): SpiderWin =>
+    ({cardCount, suitCount, moveCount, elapsedMs, wonAt});
 
 describe("spider records", () => {
     it("ranks the games of a kind from the fewest moves, the first made first between equal games", () => {
@@ -26,5 +27,30 @@ describe("spider records", () => {
         expect(rankOf(better, win(99, 31))).toBe(1);
         expect(better).not.toContainEqual(win(109, 9));
         expect(better).toContainEqual(win(50, 20, 52));
+    });
+
+    it("ranks by time the games whose time is known", () => {
+        const slowFewMoves = win(100, 1, 104, 1, 900_000);
+        const fastManyMoves = win(150, 2, 104, 1, 300_000);
+        const untimed = win(90, 3, 104, 1, null);
+        const wins = [slowFewMoves, fastManyMoves, untimed];
+
+        expect(topWins(wins, {cardCount: 104, suitCount: 1}, "time")).toEqual([fastManyMoves, slowFewMoves]);
+        expect(rankOf(wins, untimed, "time")).toBeNull();
+        expect(rankOf(wins, untimed, "moves")).toBe(1);
+    });
+
+    it("keeps a game among the best by time even when it is not among the best by moves", () => {
+        let wins: SpiderWin[] = [];
+        for (let i = 0; i < TOP_SIZE; i++) wins = withWin(wins, win(100 + i, i, 104, 1, 900_000));
+        const fast = win(300, 50, 104, 1, 60_000);
+
+        expect(withWin(wins, fast)).toContainEqual(fast);
+    });
+
+    it("writes a time as minutes and seconds, with hours when needed", () => {
+        expect(formatDuration(545_400)).toBe("9:05");
+        expect(formatDuration(59_999)).toBe("0:59");
+        expect(formatDuration(3_760_000)).toBe("1:02:40");
     });
 });

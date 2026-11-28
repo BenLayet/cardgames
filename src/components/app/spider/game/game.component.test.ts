@@ -5,7 +5,7 @@ import type {ExtractEventNameUnion, ExtractPayload} from "@softer-components/typ
 import {gameDef, type GameContract} from "./game.component.ts";
 import type {Card} from "../../../../model/deck.model.ts";
 import type {SpiderCard, Table} from "../../../../model/spider.model.ts";
-import {fakeAudioService, fakeClockService, fakeSpiderSaveService} from "../../../../test/fakes.ts";
+import {fakeAudioService, fakeClockService, fakeSpiderSaveService, fakeStopwatchService} from "../../../../test/fakes.ts";
 
 // the columns of the game with 104 cards
 const COLUMN_COUNT = 10;
@@ -18,12 +18,14 @@ const event = <N extends ExtractEventNameUnion<GameContract>>(name: N, payload?:
 let audioService: ReturnType<typeof fakeAudioService>;
 let spiderSaveService: ReturnType<typeof fakeSpiderSaveService>;
 const clockService = fakeClockService();
+let stopwatchService: ReturnType<typeof fakeStopwatchService>;
 let store: TestStore<GameContract>;
 
 beforeEach(() => {
     audioService = fakeAudioService();
     spiderSaveService = fakeSpiderSaveService();
-    store = initTestStore(gameDef({audioService, spiderSaveService, clockService}));
+    stopwatchService = fakeStopwatchService();
+    store = initTestStore(gameDef({audioService, spiderSaveService, clockService, stopwatchService}));
 });
 
 const values = () => store.getValues("");
@@ -301,7 +303,7 @@ describe("spider game", () => {
     it("resumes the saved game, undo included", async () => {
         await deal([cards("_4D", "8S"), cards("9H")]);
         await store.when(event("cardsDropped", {from: {column: 0, index: 1}, to: 1}));
-        const resumed = initTestStore(gameDef({audioService, spiderSaveService, clockService}));
+        const resumed = initTestStore(gameDef({audioService, spiderSaveService, clockService, stopwatchService}));
 
         await resumed.when(event("restoreRequested", {suitCount: 1, cardCount: 104}));
 
@@ -355,7 +357,7 @@ describe("spider game", () => {
     it("keeps the saved positions with the game, and drops them for a new game", async () => {
         await deal([cards("_4D", "8S"), cards("9H")]);
         await store.when(event("positionSaveRequested", 1));
-        const resumed = initTestStore(gameDef({audioService, spiderSaveService, clockService}));
+        const resumed = initTestStore(gameDef({audioService, spiderSaveService, clockService, stopwatchService}));
 
         await resumed.when(event("restoreRequested", ONE_SUIT));
         expect(resumed.getValues("").positions()).toHaveLength(1);
@@ -380,6 +382,64 @@ describe("spider game", () => {
 
         await store.when(event("cardsDropped", {from: {column: 1, index: 0}, to: 0}));
 
-        expect(values().win()).toEqual({...ONE_SUIT, moveCount: 1, wonAt: clockService.now()});
+        expect(values().win()).toEqual({...ONE_SUIT, moveCount: 1, elapsedMs: 0, wonAt: clockService.now()});
+    });
+
+    describe("time", () => {
+        // the ace goes to an empty column, then wins on the sequence
+        const dealAlmostWon = async () => {
+            const completed = Array<Table["completed"][number]>(7).fill("S");
+            await deal([cards(...SEQUENCE_WITHOUT_ACE), cards("AS"), ...NO_OTHER_CARDS], {completed});
+        };
+
+        it("measures the time from the deal, saves it with the game, and stops it when the game is won", async () => {
+            await dealAlmostWon();
+            stopwatchService.play(30_000);
+            await store.when(event("cardsDropped", {from: {column: 1, index: 0}, to: 2}));
+            expect(spiderSaveService.load(ONE_SUIT)?.elapsedMs).toBe(30_000);
+
+            stopwatchService.play(12_000);
+            await store.when(event("cardsDropped", {from: {column: 2, index: 0}, to: 0}));
+
+            expect(values().win()?.elapsedMs).toBe(42_000);
+            expect(stopwatchService.isRunning()).toBe(false);
+        });
+
+        it("keeps the time played when the player leaves, and goes on from there when the game is resumed", async () => {
+            await dealAlmostWon();
+            await store.when(event("cardsDropped", {from: {column: 1, index: 0}, to: 2}));
+            stopwatchService.play(50_000);
+
+            await store.when(event("gameLeft"));
+            expect(stopwatchService.isRunning()).toBe(false);
+            expect(spiderSaveService.load(ONE_SUIT)?.elapsedMs).toBe(50_000);
+
+            await store.when(event("restoreRequested", ONE_SUIT));
+            expect(stopwatchService.start).toHaveBeenLastCalledWith(50_000);
+        });
+
+        it("keeps the time when the application goes to the background", async () => {
+            await dealAlmostWon();
+            await store.when(event("cardsDropped", {from: {column: 1, index: 0}, to: 2}));
+            stopwatchService.play(8_000);
+
+            await store.when(event("gameHidden"));
+
+            expect(spiderSaveService.load(ONE_SUIT)?.elapsedMs).toBe(8_000);
+        });
+
+        it("does not time a game started before the time was measured", async () => {
+            await dealAlmostWon();
+            await store.when(event("cardsDropped", {from: {column: 1, index: 0}, to: 2}));
+            const saved = spiderSaveService.load(ONE_SUIT);
+            if (saved === null) throw new Error("not saved");
+            spiderSaveService.save(ONE_SUIT, {...saved, elapsedMs: null});
+
+            await store.when(event("restoreRequested", ONE_SUIT));
+            stopwatchService.play(5_000);
+            await store.when(event("cardsDropped", {from: {column: 2, index: 0}, to: 0}));
+
+            expect(values().win()?.elapsedMs).toBeNull();
+        });
     });
 });

@@ -4,8 +4,8 @@ import {decodeRecords, encodeRecords, LocalStorageSpiderRecordsAdapter} from "./
 import type {SpiderWin} from "../model/spider-records.model.ts";
 
 const wins: SpiderWin[] = [
-    {cardCount: 104, suitCount: 1, moveCount: 142, wonAt: 1_764_000_000_000},
-    {cardCount: 26, suitCount: 2, moveCount: 58, wonAt: 1_764_100_000_000},
+    {cardCount: 104, suitCount: 1, moveCount: 142, elapsedMs: 545_000, wonAt: 1_764_000_000_000},
+    {cardCount: 26, suitCount: 2, moveCount: 58, elapsedMs: null, wonAt: 1_764_100_000_000},
 ];
 
 describe("spider records storage", () => {
@@ -52,8 +52,14 @@ describe("spider records storage", () => {
     it("leaves out what cannot be read, and ignores records of a newer version", () => {
         expect(decodeRecords("not json")).toEqual([]);
         expect(decodeRecords(JSON.stringify({format: 99, wins}))).toEqual([]);
-        expect(decodeRecords(JSON.stringify({format: 1, wins: [wins[0], {moveCount: "12"}]}))).toEqual([wins[0]]);
+        expect(decodeRecords(JSON.stringify({format: 2, wins: [wins[0], {moveCount: "12"}]}))).toEqual([wins[0]]);
         expect(decodeRecords(encodeRecords(wins))).toEqual(wins);
+    });
+
+    it("reads the wins kept before the time was measured, their time unknown", () => {
+        const {cardCount, suitCount, moveCount, wonAt} = wins[0];
+        expect(decodeRecords(JSON.stringify({format: 1, wins: [{cardCount, suitCount, moveCount, wonAt}]})))
+            .toEqual([{...wins[0], elapsedMs: null}]);
     });
 
     it("does not fail without storage", () => {

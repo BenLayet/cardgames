@@ -2,7 +2,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from "vitest";
 import {initTestStore, type TestStore} from "@softer-components/test-utilities";
 
 import {appDef, type AppContract} from "./app.component.ts";
-import {fakeAudioService, fakeBattleSaveService, fakeSettingsService, fakeSpiderSaveService, fakeSpiderRecordsService, fakeClockService} from "../../test/fakes.ts";
+import {fakeAudioService, fakeBattleSaveService, fakeSettingsService, fakeSpiderSaveService, fakeSpiderRecordsService, fakeClockService, fakeStopwatchService} from "../../test/fakes.ts";
 import {TimeoutSchedulerAdapter} from "../../adapters/scheduler.adapter.ts";
 
 const setupPath: [string, string][] = [["battle", "0"], ["setup", "0"]];
@@ -18,6 +18,7 @@ beforeEach(() => {
         spiderSaveService: fakeSpiderSaveService(),
         spiderRecordsService: fakeSpiderRecordsService(),
         clockService: fakeClockService(),
+        stopwatchService: fakeStopwatchService(),
         battleSaveService: fakeBattleSaveService(),
     }));
 });

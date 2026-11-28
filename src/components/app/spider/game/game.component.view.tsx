@@ -94,6 +94,14 @@ export const View = ({path = "", onBack, barActions, victory}: {
     useEffect(() => {
         if (isVictoryShown) onVictoryShown();
     }, [isVictoryShown]);
+    // the game is kept with its time when the application goes to the background, it may never come back
+    const onHidden = useEffectEvent(() => {
+        if (document.hidden) d.gameHidden();
+    });
+    useEffect(() => {
+        document.addEventListener("visibilitychange", onHidden);
+        return () => document.removeEventListener("visibilitychange", onHidden);
+    }, []);
 
     // the keyboard plays like a tap: Enter or Space on a card or an empty column, Escape puts the raised cards down
     const onPress = (action: () => void) => (event: KeyboardEvent) => {
