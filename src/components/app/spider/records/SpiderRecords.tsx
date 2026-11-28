@@ -4,7 +4,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faTrashCan, faTrophy} from "@fortawesome/free-solid-svg-icons";
 
 import {Modal} from "../../../modal/Modal.tsx";
-import {formatDuration, type RecordMeasure, type SpiderWin, topWins} from "../../../../model/spider-records.model.ts";
+import {formatDuration, type RecordMeasure, type RecordPeriod, RECORD_PERIODS, type SpiderWin, topWins} from "../../../../model/spider-records.model.ts";
 import {CARD_COUNT_OPTIONS, SUIT_COUNT_OPTIONS, suitCountOptionsFor, type SpiderVariant} from "../../../../model/spider.model.ts";
 
 // a short date, with the year only when it is not this one
@@ -26,12 +26,15 @@ const RecordsWindow = ({wins, variant, latest, onClear, onClose}: {
     // it opens on the kind of the game in progress, or the one chosen on the menu
     const [shown, setShown] = useState(variant);
     const [measure, setMeasure] = useState<RecordMeasure>("moves");
+    const [period, setPeriod] = useState<RecordPeriod>("all");
+    // the periods end when the window opens
+    const [now] = useState(Date.now);
     const [isClearAsked, setClearAsked] = useState(false);
     const chooseCardCount = (cardCount: number) => {
         const suitCounts = suitCountOptionsFor(cardCount);
         setShown({cardCount, suitCount: suitCounts.includes(shown.suitCount) ? shown.suitCount : suitCounts[0]});
     };
-    const top = topWins(wins, shown, measure);
+    const top = topWins(wins, shown, {measure, period, now});
     const moves = (win: SpiderWin) => t("moves", {count: win.moveCount});
     const time = (win: SpiderWin) => win.elapsedMs === null ? "" : formatDuration(win.elapsedMs);
     const isLatest = (win: SpiderWin) => latest !== null && latest.wonAt === win.wonAt;
@@ -52,6 +55,12 @@ const RecordsWindow = ({wins, variant, latest, onClear, onClose}: {
                     {t("suitCountOption", {count: suitCount})}
                 </button>)}
             </div>
+            <div className="choice-group" role="group" aria-label={t("records.period")}>
+                {RECORD_PERIODS.map(choice => <button key={choice} className="btn btn-choice" aria-pressed={period === choice}
+                                                      onClick={() => setPeriod(choice)}>
+                    {t(`records.periods.${choice}`)}
+                </button>)}
+            </div>
             <div className="choice-group" role="group" aria-label={t("records.measure")}>
                 <button className="btn btn-choice" aria-pressed={measure === "moves"} onClick={() => setMeasure("moves")}>
                     {t("records.byMoves")}
@@ -62,7 +71,7 @@ const RecordsWindow = ({wins, variant, latest, onClear, onClose}: {
             </div>
         </div>
         {top.length === 0
-            ? <p className="records-empty">{t("records.none")}</p>
+            ? <p className="records-empty">{t(period === "all" ? "records.none" : "records.nonePeriod")}</p>
             : <ol className="records-list">
                 {top.map((win, index) => <li key={win.wonAt} className={isLatest(win) ? "records-latest" : undefined}>
                     <span className="records-rank">{index + 1}</span>

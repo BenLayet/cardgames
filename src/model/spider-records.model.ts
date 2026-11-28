@@ -15,6 +15,16 @@ export type SpiderWin = {
 export type RecordMeasure = "moves" | "time";
 export const RECORD_MEASURES: readonly RecordMeasure[] = ["moves", "time"];
 
+// the time the games are ranked over: always, the last 30 days, the last 7 days
+export type RecordPeriod = "all" | "month" | "week";
+// from the most to the least important: a place among the best games of all time is worth more than any of the month
+export const RECORD_PERIODS: readonly RecordPeriod[] = ["all", "month", "week"];
+const DAY_MS = 24 * 60 * 60 * 1000;
+const PERIOD_DAYS: Record<Exclude<RecordPeriod, "all">, number> = {month: 30, week: 7};
+
+// what the games are ranked by, over which time, counted back from now
+export type Ranking = { measure?: RecordMeasure, period?: RecordPeriod, now?: number };
+
 // how many of the best games of each kind are shown
 export const TOP_SIZE = 10;
 
@@ -29,20 +39,35 @@ const BY: Record<RecordMeasure, (a: SpiderWin, b: SpiderWin) => number> = {
 // a game without a known time is ranked by its moves only
 const isRanked = (measure: RecordMeasure) => (win: SpiderWin) => measure === "moves" || win.elapsedMs !== null;
 
+const isInPeriod = (period: RecordPeriod, now: number) => (win: SpiderWin) =>
+    period === "all" || win.wonAt > now - PERIOD_DAYS[period] * DAY_MS;
+
 // the best games of a kind, the best first
-export const topWins = (wins: readonly SpiderWin[], variant: SpiderVariant, measure: RecordMeasure = "moves"): SpiderWin[] =>
-    wins.filter(isOfVariant(variant)).filter(isRanked(measure)).sort(BY[measure]).slice(0, TOP_SIZE);
+export const topWins = (wins: readonly SpiderWin[], variant: SpiderVariant,
+                        {measure = "moves", period = "all", now = 0}: Ranking = {}): SpiderWin[] =>
+    wins.filter(isOfVariant(variant)).filter(isRanked(measure)).filter(isInPeriod(period, now)).sort(BY[measure]).slice(0, TOP_SIZE);
 
 // the place of a win among the best games of its kind, from 1, or null when it is not one of them
-export const rankOf = (wins: readonly SpiderWin[], win: SpiderWin, measure: RecordMeasure = "moves"): number | null => {
-    const index = topWins(wins, win, measure).findIndex(top => sameWin(top, win));
+export const rankOf = (wins: readonly SpiderWin[], win: SpiderWin, ranking: Ranking = {}): number | null => {
+    const index = topWins(wins, win, ranking).findIndex(top => sameWin(top, win));
     return index < 0 ? null : index + 1;
 };
 
-// a new win is kept only while it is among the best games of its kind, by moves or by time
+// the place of a win just won among the best games of its kind, over the most important period where it has one
+export const bestRankOf = (wins: readonly SpiderWin[], win: SpiderWin, measure: RecordMeasure): { rank: number, period: RecordPeriod } | null => {
+    for (const period of RECORD_PERIODS) {
+        const rank = rankOf(wins, win, {measure, period, now: win.wonAt});
+        if (rank !== null) return {rank, period};
+    }
+    return null;
+};
+
+// a new win is kept while it can still be among the best games of its kind, by moves or by time:
+// over all time, or over the month for a recent one
 export const withWin = (wins: readonly SpiderWin[], win: SpiderWin): SpiderWin[] => {
     const all = [...wins, win];
-    return all.filter(kept => RECORD_MEASURES.some(measure => rankOf(all, kept, measure) !== null));
+    const isRecent = isInPeriod("month", win.wonAt);
+    return all.filter(kept => isRecent(kept) || RECORD_MEASURES.some(measure => rankOf(all, kept, {measure}) !== null));
 };
 
 // a time as minutes and seconds, with hours when there are some: 9:05, 1:02:40
