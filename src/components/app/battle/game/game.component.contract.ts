@@ -34,6 +34,8 @@ export const allEvents = [
     "roundCompleted",
     "gameWon",
     "gameTied",
+    // the game is kept, to be resumed: after the first round played, and between the rounds and steps since
+    "gameSaved",
 ] as const;
 export type Events = EventsContract<
     typeof allEvents, {

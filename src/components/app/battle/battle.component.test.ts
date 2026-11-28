@@ -117,6 +117,14 @@ describe("battle", () => {
         expect(next.getValues("/game").canPlay()).toEqual([true, true]);
     });
 
+    it("does not offer to resume a game left before any card was played", async () => {
+        await store.when({name: "startGameRequested", statePath: setupPath});
+        await vi.runAllTimersAsync();
+        await store.when({name: "goHomeRequested", statePath: []});
+
+        expect(store.getValues("").canResume()).toBe(false);
+    });
+
     it("keeps one game for each kind of game: a game with other players does not replace it", async () => {
         const battleSaveService = fakeBattleSaveService();
         const battle = initTestStore(battleDef({audioService, settingsService, schedulerService: new TimeoutSchedulerAdapter(), battleSaveService}));
@@ -130,10 +138,15 @@ describe("battle", () => {
         const soloGame = battle.getValues("/game").cardsWithLocation();
         await battle.when({name: "goHomeRequested", statePath: []});
 
-        // with two humans, there is no game to resume; a new one is started and left
+        // with two humans, there is no game to resume; a new one is started and left after one round
         await battle.when({name: "setPlayersRequested", payload: 2, statePath: setupPath});
         expect(battle.getValues("").canResume()).toBe(false);
         await battle.when({name: "startGameRequested", statePath: setupPath});
+        await vi.runAllTimersAsync();
+        await battle.when({name: "playerClicked", payload: 0, statePath: gamePath});
+        await battle.when({name: "playerClicked", payload: 1, statePath: gamePath});
+        await vi.runAllTimersAsync();
+        await battle.when({name: "playerClicked", payload: 0, statePath: gamePath});
         await vi.runAllTimersAsync();
         await battle.when({name: "goHomeRequested", statePath: []});
         expect(battle.getValues("").canResume()).toBe(true);
